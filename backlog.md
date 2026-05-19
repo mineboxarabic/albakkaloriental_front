@@ -29,14 +29,17 @@ Regle centrale : ce projet ne lance jamais `prisma migrate`. Les migrations appa
 - [x] Ajouter les composants shadcn/ui : `button`, `input`, `select`, `card`, `badge`, `separator`.
 - [x] Aligner le projet sur Next.js 15.
 - [x] Mettre a jour le README avec le CDC AlimExpress / JardinVert.
-- [ ] Initialiser Prisma avec `npx prisma init`.
-- [ ] Copier `DATABASE_URL` depuis `AlimExpressApp/.env` vers `.env`.
-- [ ] Creer `.env.example` avec `DATABASE_URL` et `JWT_SECRET`.
-- [ ] Remplacer `prisma/schema.prisma` par le schema subset catalogue.
-- [ ] Verifier que les enums et modeles correspondent exactement a `AlimExpressApp`.
-- [ ] Executer `npx prisma generate`.
-- [ ] Creer `lib/prisma.ts` avec le singleton Prisma.
+- [x] Initialiser Prisma avec `npx prisma init`.
+- [x] Copier `DATABASE_URL` depuis `AlimExpressApp/.env` vers `.env`. _(Source : `AlimExpressApp/docker-compose.yml` -> `postgres:password@localhost:5433/stock_manager`.)_
+- [x] Creer `.env.example` avec `DATABASE_URL` et `JWT_SECRET`.
+- [x] Remplacer `prisma/schema.prisma` par le schema subset catalogue.
+- [x] Verifier que les enums et modeles correspondent exactement a `AlimExpressApp`. _(Ajoute `BaseUnit`, `PackagingType`, et `Product.packaging` requis par la DB admin.)_
+- [x] Executer `npx prisma generate`.
+- [x] Creer `lib/prisma.ts` avec le singleton Prisma.
 - [ ] Commit attendu : `feat: bootstrap AlimExpressCatalog with shared DB Prisma config`.
+
+> Note Prisma 7 : `url` n'est plus autorise dans `schema.prisma`. La connexion est definie dans `prisma.config.ts` (`datasource.url = process.env.DATABASE_URL`, charge via `dotenv/config`).
+> DB partagee verifiee : container Docker `stock_manager_db` (port 5433) accessible, 15 produits presents.
 
 ### Schema Prisma attendu
 
