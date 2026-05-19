@@ -1,0 +1,274 @@
+# AlimExpressCatalog Backlog
+
+Backlog de developpement pour le portail catalogue AlimExpress / JardinVert.
+
+Objectif produit : construire une application Next.js autonome qui sert a la fois le catalogue public B2C et le portail professionnel B2B, en utilisant la meme base PostgreSQL que `AlimExpressApp`.
+
+Regle centrale : ce projet ne lance jamais `prisma migrate`. Les migrations appartiennent exclusivement a `AlimExpressApp`. Ici, seul `prisma generate` est autorise.
+
+## Statut Global
+
+| Phase | Statut | Objectif |
+| --- | --- | --- |
+| Phase 1 | En cours | Setup projet, dependances, Prisma shared DB |
+| Phase 2 | A faire | Fondations session, panier, data layer catalogue |
+| Phase 3 | A faire | Parcours retail B2C |
+| Phase 4 | A faire | Portail wholesale B2B |
+| Phase 5 | A faire | Tests E2E Playwright |
+| Phase 6 | A faire | Smoke tests et validation finale |
+
+## Phase 1 - Project Setup
+
+### Task 1 - Bootstrap du projet
+
+- [x] Creer l'application Next.js `AlimExpressCatalog`.
+- [x] Installer TypeScript, Tailwind, App Router, alias `@/*`.
+- [x] Installer `prisma`, `@prisma/client`, `jose`, `bcryptjs`, `date-fns`, `zod`.
+- [x] Installer `@types/bcryptjs`.
+- [x] Initialiser shadcn/ui.
+- [x] Ajouter les composants shadcn/ui : `button`, `input`, `select`, `card`, `badge`, `separator`.
+- [x] Aligner le projet sur Next.js 15.
+- [x] Mettre a jour le README avec le CDC AlimExpress / JardinVert.
+- [ ] Initialiser Prisma avec `npx prisma init`.
+- [ ] Copier `DATABASE_URL` depuis `AlimExpressApp/.env` vers `.env`.
+- [ ] Creer `.env.example` avec `DATABASE_URL` et `JWT_SECRET`.
+- [ ] Remplacer `prisma/schema.prisma` par le schema subset catalogue.
+- [ ] Verifier que les enums et modeles correspondent exactement a `AlimExpressApp`.
+- [ ] Executer `npx prisma generate`.
+- [ ] Creer `lib/prisma.ts` avec le singleton Prisma.
+- [ ] Commit attendu : `feat: bootstrap AlimExpressCatalog with shared DB Prisma config`.
+
+### Schema Prisma attendu
+
+Modeles requis dans le subset catalogue :
+
+- `Product`
+- `RetailCustomer`
+- `RetailOrder`
+- `RetailOrderItem`
+- `DeliverySchedule`
+- `Customer`
+- `User`
+- `Order`
+- `OrderItem`
+
+Enums requis :
+
+- `ProductVisibility`
+- `PricingLevel`
+- `RetailOrderStatus`
+- `OrderStatus`
+- `PaymentStatus`
+- `SaleUnit`
+- `Role`
+
+## Phase 2 - Shared Foundations
+
+### Task 2 - Session helper et Cart Context
+
+- [ ] Creer `lib/session.ts`.
+- [ ] Implementer les types `RetailSession`, `ProSession`, `CatalogSession`.
+- [ ] Implementer `signSession`.
+- [ ] Implementer `getSession`.
+- [ ] Implementer `setSessionCookie`.
+- [ ] Implementer `clearSessionCookie`.
+- [ ] Installer Vitest et dependances de test React si necessaire.
+- [ ] Creer `__tests__/session.test.ts`.
+- [ ] Executer `npx vitest run __tests__/session.test.ts`.
+- [ ] Creer `components/cart-context.tsx`.
+- [ ] Implementer `CartProvider` avec `storageKey`.
+- [ ] Implementer `addItem`, `updateQty`, `removeItem`, `clearCart`, `total`.
+- [ ] Creer `__tests__/cart-context.test.tsx`.
+- [ ] Executer `npx vitest run __tests__/cart-context.test.tsx`.
+- [ ] Commit attendu : `feat: add session helper and cart context with unit tests`.
+
+### Regles panier
+
+- Panier retail : `localStorage` key `retail_cart`.
+- Panier pro : `localStorage` key `pro_cart`.
+- Les paniers doivent rester strictement separes.
+
+### Task 3 - Catalog data layer et home page
+
+- [ ] Creer `lib/catalog.ts`.
+- [ ] Implementer `getTierPrice`.
+- [ ] Implementer `getProducts`.
+- [ ] Implementer `getProduct`.
+- [ ] Implementer `getCategories`.
+- [ ] Implementer `getUpcomingDeliveries`.
+- [ ] Creer `__tests__/catalog.test.ts`.
+- [ ] Executer `npx vitest run __tests__/catalog.test.ts`.
+- [ ] Verifier `app/layout.tsx`.
+- [ ] Construire `app/page.tsx`.
+- [ ] Afficher les produits mis en avant.
+- [ ] Afficher les prochaines tournees de livraison.
+- [ ] Ajouter CTA vers `/products`.
+- [ ] Ajouter CTA vers `/pro/login`.
+- [ ] Commit attendu : `feat: add catalog data layer, home page, and getTierPrice unit tests`.
+
+## Phase 3 - Retail Flow B2C
+
+### Task 4 - Retail products et cart
+
+- [ ] Creer `app/(retail)/layout.tsx`.
+- [ ] Wrapper le layout retail avec `CartProvider storageKey="retail_cart"`.
+- [ ] Creer navigation retail : accueil, catalogue, panier, compte.
+- [ ] Creer `app/(retail)/products/page.tsx`.
+- [ ] Afficher le catalogue retail avec prix standards.
+- [ ] Ajouter filtre categories.
+- [ ] Creer `app/(retail)/products/[id]/page.tsx`.
+- [ ] Masquer les produits `WHOLESALE` purs sur le retail.
+- [ ] Creer `app/(retail)/products/[id]/add-to-cart-button.tsx`.
+- [ ] Creer `app/(retail)/cart/page.tsx`.
+- [ ] Ajouter controles quantite plus / moins.
+- [ ] Ajouter suppression article.
+- [ ] Afficher total panier.
+- [ ] Ajouter boutons continuer achat et checkout.
+- [ ] Commit attendu : `feat: add retail product listing, detail, and cart pages`.
+
+### Task 5 - Retail auth, checkout et suivi commande
+
+- [ ] Creer `actions/retail-auth.ts`.
+- [ ] Implementer inscription retail avec telephone + mot de passe.
+- [ ] Hash password avec `bcryptjs`.
+- [ ] Creer session JWT cookie apres inscription.
+- [ ] Implementer login retail.
+- [ ] Implementer logout retail.
+- [ ] Creer `actions/retail-order.ts`.
+- [ ] Implementer creation `RetailOrder`.
+- [ ] Generer `orderNumber` format `RET-00001`.
+- [ ] Creer les `RetailOrderItem`.
+- [ ] Creer `app/(retail)/register/page.tsx`.
+- [ ] Creer `app/(retail)/login/page.tsx`.
+- [ ] Creer `app/(retail)/checkout/page.tsx`.
+- [ ] Checkout client lit le panier `retail_cart`.
+- [ ] Checkout redirige vers `/orders/[id]`.
+- [ ] Creer `app/(retail)/orders/[id]/page.tsx`.
+- [ ] Afficher statut en francais : En attente, Confirmee, En preparation, Livree, Annulee.
+- [ ] Ajouter message : `Nous vous contacterons pour confirmer votre commande.`
+- [ ] Commit attendu : `feat: add retail auth, checkout, and order confirmation`.
+
+## Phase 4 - Wholesale Portal B2B
+
+### Task 6 - Middleware pro et auth
+
+- [ ] Creer `middleware.ts`.
+- [ ] Proteger toutes les routes `/pro/*`.
+- [ ] Laisser `/pro/login` public.
+- [ ] Rediriger les non-authentifies vers `/pro/login`.
+- [ ] Verifier que la session est de type `pro`.
+- [ ] Creer `actions/pro-auth.ts`.
+- [ ] Login pro via compte `User` role `B2B_CLIENT`.
+- [ ] Refuser les comptes inactifs.
+- [ ] Refuser les utilisateurs sans `customer`.
+- [ ] Creer session pro avec `userId`, `customerId`, `pricingLevel`, `companyName`.
+- [ ] Creer `app/(pro)/layout.tsx`.
+- [ ] Wrapper le layout pro avec `CartProvider storageKey="pro_cart"`.
+- [ ] Afficher navigation pro : produits, commandes, factures, logout.
+- [ ] Creer `app/(pro)/pro/login/page.tsx`.
+- [ ] Commit attendu : `feat: add pro portal middleware, login, and layout`.
+
+### Task 7 - Pro catalog, cart et proforma
+
+- [ ] Creer `app/(pro)/pro/products/page.tsx`.
+- [ ] Afficher catalogue wholesale.
+- [ ] Calculer les prix avec `getTierPrice`.
+- [ ] Afficher le niveau tarifaire C/D/E/F.
+- [ ] Creer `app/(pro)/pro/products/[id]/page.tsx`.
+- [ ] Creer `app/(pro)/pro/products/[id]/add-to-pro-cart-button.tsx`.
+- [ ] Ajouter au panier avec le prix de niveau deja calcule.
+- [ ] Creer `app/(pro)/pro/cart/page.tsx`.
+- [ ] Ajouter bouton `Generer un devis`.
+- [ ] Creer `actions/pro-order.ts`.
+- [ ] Implementer `createProforma`.
+- [ ] Generer `orderNumber` format `PRO-00001`.
+- [ ] Creer `Order` avec `status: PENDING`.
+- [ ] Regle : `PENDING` = devis / proforma.
+- [ ] Implementer `confirmProforma`.
+- [ ] Regle : `CONFIRMED` = commande ferme.
+- [ ] Creer `app/(pro)/pro/proforma/[id]/page.tsx`.
+- [ ] Afficher recapitulatif devis avec lignes, quantites, prix unitaires, total.
+- [ ] Ajouter bouton `Valider la commande`.
+- [ ] Ajouter lien `Modifier` vers `/pro/cart`.
+- [ ] Commit attendu : `feat: add pro catalog with tier prices, cart, and proforma flow`.
+
+### Task 8 - Pro orders et invoices
+
+- [ ] Creer `app/(pro)/pro/orders/page.tsx`.
+- [ ] Afficher historique des commandes du `customerId` connecte.
+- [ ] Afficher numero, date, total, badge statut.
+- [ ] Labels statuts : `PENDING` = Devis, `CONFIRMED` = Commande confirmee, `DELIVERED` = Livree.
+- [ ] Creer `app/(pro)/pro/invoices/page.tsx`.
+- [ ] Ajouter placeholder : `Vos factures seront disponibles ici apres livraison.`
+- [ ] Ajouter TODO pour brancher le modele `Invoice` quand l'admin genere les factures.
+- [ ] Commit attendu : `feat: add pro order history and invoices placeholder`.
+
+## Phase 5 - E2E Tests
+
+### Task 9 - Playwright setup et retail E2E
+
+- [ ] Installer `@playwright/test`.
+- [ ] Installer Chromium avec `npx playwright install chromium`.
+- [ ] Creer `playwright.config.ts`.
+- [ ] Configurer `baseURL: http://localhost:3000`.
+- [ ] Configurer `webServer` avec `npm run dev`.
+- [ ] Creer `e2e/retail.spec.ts`.
+- [ ] Tester home page avec les deux CTA.
+- [ ] Tester chargement `/products`.
+- [ ] Tester detail produit avec bouton ajouter au panier.
+- [ ] Tester panier vide initial.
+- [ ] Tester acces page register.
+- [ ] Tester validation mot de passe court.
+- [ ] Tester inscription valide et redirection `/`.
+- [ ] Executer `npx playwright test e2e/retail.spec.ts --reporter=list`.
+- [ ] Commit attendu : `test: add Playwright E2E for retail catalog and registration`.
+
+### Task 10 - Pro portal E2E
+
+- [ ] Creer `e2e/pro.spec.ts`.
+- [ ] Tester acces `/pro/login`.
+- [ ] Tester redirection `/pro/products` vers `/pro/login` sans session.
+- [ ] Tester redirection `/pro/cart` vers `/pro/login` sans session.
+- [ ] Tester mauvais identifiants et affichage erreur.
+- [ ] Executer `npx playwright test e2e/pro.spec.ts --reporter=list`.
+- [ ] Commit attendu : `test: add Playwright E2E for pro portal auth and middleware`.
+
+## Phase 6 - Final Wiring et Smoke Tests
+
+### Task 11 - Checklist finale
+
+- [ ] Executer `npx vitest run`.
+- [ ] Executer `npx playwright test --reporter=list`.
+- [ ] Verifier `/` : home, dates de livraison, produits mis en avant, CTA.
+- [ ] Verifier `/products` : grille produit, detail, ajout panier.
+- [ ] Verifier `/cart` : article visible, plus / moins, suppression.
+- [ ] Verifier `/register` : inscription retail et redirection.
+- [ ] Verifier `/checkout` : creation commande retail.
+- [ ] Verifier `/orders/[id]` : confirmation et items corrects.
+- [ ] Verifier `/pro/products` non authentifie : redirection `/pro/login`.
+- [ ] Verifier `/pro/login` avec un compte `B2B_CLIENT` valide.
+- [ ] Verifier prix pro selon niveau C/D/E/F.
+- [ ] Verifier panier pro.
+- [ ] Verifier generation devis `/pro/proforma/[id]`.
+- [ ] Verifier validation devis vers commande confirmee.
+- [ ] Verifier `/pro/orders`.
+- [ ] Verifier `/pro/invoices` placeholder.
+- [ ] Commit final attendu : `feat: complete AlimExpressCatalog retail + wholesale portal`.
+
+## Definition of Done
+
+Une tache est terminee quand :
+
+- le code est implemente selon le CDC ;
+- les regles Prisma sont respectees ;
+- les routes concernees fonctionnent ;
+- les erreurs utilisateur sont affichees clairement ;
+- les tests unitaires ou E2E pertinents passent ;
+- `npm run lint` passe ;
+- le commit correspondant est cree.
+
+## Notes de dependance
+
+- `AlimExpressApp` doit avoir les migrations et modeles DB necessaires.
+- `AlimExpressCatalog` partage la base de donnees mais ne possede pas les migrations.
+- Si un champ Prisma ne correspond pas au schema reel, corriger le subset local pour matcher `AlimExpressApp` avant `prisma generate`.
