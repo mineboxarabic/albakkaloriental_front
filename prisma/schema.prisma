@@ -150,9 +150,12 @@ model Customer {
   id            String        @id @default(cuid())
   companyName   String
   contactName   String
+  email         String?
   phone         String
   city          String
   address       String
+  postalCode    String
+  country       String
   pricingLevel  PricingLevel?
   isActive      Boolean       @default(true)
   portalAccount User?         @relation("CustomerPortalAccount")

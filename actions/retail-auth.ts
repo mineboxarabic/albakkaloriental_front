@@ -107,6 +107,12 @@ export type LoginState =
   | { ok: false; error: string; values?: { email?: string } }
   | null;
 
+function sanitizeRedirect(raw: string | null): string {
+  if (!raw) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  return raw;
+}
+
 export async function loginRetail(
   _prev: LoginState,
   formData: FormData,
@@ -115,6 +121,7 @@ export async function loginRetail(
     email: String(formData.get("email") ?? "").toLowerCase().trim(),
     password: String(formData.get("password") ?? ""),
   };
+  const redirectTo = sanitizeRedirect(formData.get("redirectTo") as string | null);
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
@@ -152,7 +159,7 @@ export async function loginRetail(
     name: customer.name,
     phone: customer.phone,
   });
-  redirect("/");
+  redirect(redirectTo);
 }
 
 export async function logoutRetail() {

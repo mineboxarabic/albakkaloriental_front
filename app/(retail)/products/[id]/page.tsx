@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct, getProducts } from "@/lib/catalog";
-import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, buildWeightLabel, productImage } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
+import { PriceTag } from "@/components/retail/price-tag";
 import { AddToCartButton } from "./add-to-cart-button";
 
 export const revalidate = 60;
@@ -69,11 +69,8 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
             Réf : {product.sku} · {buildWeightLabel(product)}
           </div>
 
-          <div
-            className="mt-6 flex items-baseline gap-2 text-[30px] font-extrabold"
-            style={{ color: COLORS.primary }}
-          >
-            {formatPriceEUR(product.sellingPrice)}
+          <div className="mt-6 flex items-baseline gap-2">
+            <PriceTag value={product.sellingPrice} size="hero" />
           </div>
           <p className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
             Prix TTC, livraison non incluse.

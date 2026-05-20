@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus, ShoppingCart, Check } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Check, Lock } from "lucide-react";
 import { useCart, type CartItem } from "@/components/cart-context";
+import { useSession } from "@/components/session-provider";
+import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
 
 export function AddToCartButton({
@@ -11,6 +13,8 @@ export function AddToCartButton({
   item: Omit<CartItem, "quantity">;
 }) {
   const { addItem } = useCart();
+  const { isConnected } = useSession();
+  const { open } = useAuthModal();
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
 
@@ -51,6 +55,10 @@ export function AddToCartButton({
         <button
           type="button"
           onClick={() => {
+            if (!isConnected) {
+              open();
+              return;
+            }
             addItem(item, qty);
             setConfirmed(true);
             window.setTimeout(() => setConfirmed(false), 1400);
@@ -58,7 +66,12 @@ export function AddToCartButton({
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md text-[14px] font-semibold text-white shadow-sm transition-transform active:scale-[0.98]"
           style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
         >
-          {confirmed ? (
+          {!isConnected ? (
+            <>
+              <Lock className="h-4 w-4" strokeWidth={2} />
+              Se connecter pour ajouter
+            </>
+          ) : confirmed ? (
             <>
               <Check className="h-4 w-4" strokeWidth={2.4} />
               Ajouté au panier

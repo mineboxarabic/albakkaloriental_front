@@ -19,6 +19,12 @@ export type ProLoginState =
   | { ok: false; error: string; values?: { email?: string } }
   | null;
 
+function sanitizeRedirect(raw: string | null, fallback: string): string {
+  if (!raw) return fallback;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return fallback;
+  return raw;
+}
+
 export async function loginPro(
   _prev: ProLoginState,
   formData: FormData,
@@ -27,6 +33,10 @@ export async function loginPro(
     email: String(formData.get("email") ?? "").toLowerCase().trim(),
     password: String(formData.get("password") ?? ""),
   };
+  const redirectTo = sanitizeRedirect(
+    formData.get("redirectTo") as string | null,
+    "/pro/account",
+  );
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
@@ -77,7 +87,7 @@ export async function loginPro(
     pricingLevel: user.customer.pricingLevel,
   };
   await setSessionCookie(session);
-  redirect("/pro/products");
+  redirect(redirectTo);
 }
 
 export async function logoutPro() {

@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
-import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, buildWeightLabel, productImage } from "@/lib/ui";
 import { QuickAddButton } from "@/components/retail/quick-add-button";
+import { PriceTag } from "@/components/retail/price-tag";
 
 export function ProductCard({ product }: { product: ProductCardData }) {
   return (
@@ -36,12 +36,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           {buildWeightLabel(product)}
         </div>
         <div className="mt-1 flex items-center justify-between">
-          <span
-            className="text-[14px] font-extrabold"
-            style={{ color: COLORS.text }}
-          >
-            {formatPriceEUR(product.sellingPrice)}
-          </span>
+          <PriceTag value={product.sellingPrice} />
           <QuickAddButton
             item={{
               productId: product.id,

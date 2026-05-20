@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Heart, ShoppingCart, Menu, Truck } from "lucide-react";
+import { Search, Heart, ShoppingCart, Menu, Truck, User } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { useCart } from "@/components/cart-context";
+import { useSession } from "@/components/session-provider";
 
 const NAV_ITEMS = ["ÉPICERIE", "BOISSONS", "PRODUITS FRAIS", "SURGELÉS", "HYGIÈNE & MAISON"];
 
@@ -11,8 +12,16 @@ function formatEUR(n: number) {
   return `${n.toFixed(2).replace(".", ",")} €`;
 }
 
+function firstName(full: string | null) {
+  if (!full) return null;
+  const p = full.trim().split(/\s+/)[0];
+  return p || null;
+}
+
 export function SiteHeader() {
   const { itemCount, total } = useCart();
+  const { isConnected, name } = useSession();
+  const fn = firstName(name);
 
   return (
     <>
@@ -31,10 +40,17 @@ export function SiteHeader() {
             <Link className="hover:underline" href="/pro/login">
               Espace pro
             </Link>
-            <Link className="flex items-center gap-1.5 hover:underline" href="/login">
-              <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
-              Mon compte
-            </Link>
+            {isConnected ? (
+              <Link className="flex items-center gap-1.5 hover:underline" href="/account">
+                <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
+                {fn ? `Bonjour, ${fn}` : "Mon compte"}
+              </Link>
+            ) : (
+              <Link className="flex items-center gap-1.5 hover:underline" href="/login">
+                <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
+                Se connecter
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -91,14 +107,18 @@ export function SiteHeader() {
             </div>
           </form>
 
-          <button
-            type="button"
+          <Link
+            href={isConnected ? "/account" : "/login"}
             className="grid h-11 w-11 shrink-0 place-items-center"
             style={{ color: COLORS.text }}
-            aria-label="Favoris"
+            aria-label={isConnected ? "Mon compte" : "Se connecter"}
           >
-            <Heart className="h-[22px] w-[22px]" strokeWidth={1.8} />
-          </button>
+            {isConnected ? (
+              <User className="h-[22px] w-[22px]" strokeWidth={1.8} />
+            ) : (
+              <Heart className="h-[22px] w-[22px]" strokeWidth={1.8} />
+            )}
+          </Link>
 
           <Link
             href="/cart"

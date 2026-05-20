@@ -155,28 +155,9 @@ si tu clique je suis une entreprise, y a une formulaire, nom prenom nom entrepri
 - [x] Creer `app/(retail)/orders/[id]/page.tsx`. _(Server, verifie ownership `order.customerId === session.customerId`.)_
 - [x] Afficher statut en francais : En attente, Confirmee, En preparation, Livree, Annulee. _(Mapping `STATUS_LABELS` avec couleurs.)_
 - [x] Ajouter message : `Nous vous contacterons pour confirmer votre commande.`
-- [ ] Commit attendu : `feat: add retail auth, checkout, and order confirmation`.
+- [x] Commit attendu : `feat: add retail auth, checkout, and order confirmation`. _(Commits `8744a69` + `b7f31bc` sur la branche `feat/auth_pro_particulier`.)_
 
-et quand t es particulier tu cree ton compte normal, nom prenom adresse telephone mot de passe!    
-- [ ] Creer `actions/retail-auth.ts`.
-- [ ] Implementer inscription retail avec telephone + mot de passe.
-- [ ] Hash password avec `bcryptjs`.
-- [ ] Creer session JWT cookie apres inscription.
-- [ ] Implementer login retail.
-- [ ] Implementer logout retail.
-- [ ] Creer `actions/retail-order.ts`.
-- [ ] Implementer creation `RetailOrder`.
-- [ ] Generer `orderNumber` format `RET-00001`.
-- [ ] Creer les `RetailOrderItem`.
-- [ ] Creer `app/(retail)/register/page.tsx`.
-- [ ] Creer `app/(retail)/login/page.tsx`.
-- [ ] Creer `app/(retail)/checkout/page.tsx`.
-- [ ] Checkout client lit le panier `retail_cart`.
-- [ ] Checkout redirige vers `/orders/[id]`.
-- [ ] Creer `app/(retail)/orders/[id]/page.tsx`.
-- [ ] Afficher statut en francais : En attente, Confirmee, En preparation, Livree, Annulee.
-- [ ] Ajouter message : `Nous vous contacterons pour confirmer votre commande.`
-- [ ] Commit attendu : `feat: add retail auth, checkout, and order confirmation`.
+> Note : login par e-mail ajoute apres coup (les checkboxes au-dessus disent "telephone + mot de passe" pour suivre le wording de la backlog originale, mais l'implementation utilise l'e-mail comme identifiant unique a la demande du PO).
 
 ## Phase 4 - Wholesale Portal B2B
 
