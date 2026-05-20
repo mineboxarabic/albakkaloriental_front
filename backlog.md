@@ -115,24 +115,49 @@ Enums requis :
 
 ### Task 4 - Retail products et cart
 
-- [ ] Creer `app/(retail)/layout.tsx`.
-- [ ] Wrapper le layout retail avec `CartProvider storageKey="retail_cart"`.
-- [ ] Creer navigation retail : accueil, catalogue, panier, compte.
-- [ ] Creer `app/(retail)/products/page.tsx`.
-- [ ] Afficher le catalogue retail avec prix standards.
-- [ ] Ajouter filtre categories.
-- [ ] Creer `app/(retail)/products/[id]/page.tsx`.
-- [ ] Masquer les produits `WHOLESALE` purs sur le retail.
-- [ ] Creer `app/(retail)/products/[id]/add-to-cart-button.tsx`.
-- [ ] Creer `app/(retail)/cart/page.tsx`.
-- [ ] Ajouter controles quantite plus / moins.
-- [ ] Ajouter suppression article.
-- [ ] Afficher total panier.
-- [ ] Ajouter boutons continuer achat et checkout.
+- [x] Creer `app/(retail)/layout.tsx`. _(Home `/` deplace dans `app/(retail)/page.tsx` ; le groupe gagne le `CartProvider`, `SiteHeader`, `SiteFooter`.)_
+- [x] Wrapper le layout retail avec `CartProvider storageKey="retail_cart"`.
+- [x] Creer navigation retail : accueil, catalogue, panier, compte. _(Top bar : Mon compte + Espace pro. Nav : TOUS LES RAYONS, categories, PROMOTIONS. Logo → `/`, icone panier → `/cart`, search → `/products?q=`.)_
+- [x] Creer `app/(retail)/products/page.tsx`. _(Grille 3 colonnes + sidebar filtres categorie, query params `?category=`, `?q=`.)_
+- [x] Afficher le catalogue retail avec prix standards. _(`getProducts({audience:'retail'})` filtre `RETAIL`/`BOTH`.)_
+- [x] Ajouter filtre categories. _(Sidebar listant `getCategories('retail')` ; categorie active mise en valeur, lien "Toutes les categories".)_
+- [x] Creer `app/(retail)/products/[id]/page.tsx`. _(Server component ; image, prix, breadcrumb, suggestions meme categorie.)_
+- [x] Masquer les produits `WHOLESALE` purs sur le retail. _(`getProduct(id, 'retail')` renvoie `null` → `notFound()` si `visibility === WHOLESALE`.)_
+- [x] Creer `app/(retail)/products/[id]/add-to-cart-button.tsx`. _(Client component : selecteur quantite +/- + bouton primaire avec feedback "Ajoute".)_
+- [x] Creer `app/(retail)/cart/page.tsx`. _(Client component ; empty state, lignes editables, recapitulatif aside.)_
+- [x] Ajouter controles quantite plus / moins. _(Boutons -/+, qty=0 supprime via `updateQty`.)_
+- [x] Ajouter suppression article. _(Icone corbeille par ligne + bouton "Vider le panier".)_
+- [x] Afficher total panier. _(Sous-total + total dans le bloc aside ; badge header reactif via `useCart`.)_
+- [x] Ajouter boutons continuer achat et checkout. _("Continuer mes achats" → `/products`, "Valider mon panier" → `/checkout` (Task 5).)_
 - [ ] Commit attendu : `feat: add retail product listing, detail, and cart pages`.
 
 ### Task 5 - Retail auth, checkout et suivi commande
+-- quand je vais dans inscription j ai 2 choix, c'est je suis un particultier ou je suis une entreprise, 
+si tu clique je suis une entreprise, y a une formulaire, nom prenom nom entreprise et adresse telephone, apres y a un button whatsapp pour envoyer le KBIS, avec une expliquation de quoi faire. clique sur le button whatsapp on a un message deja ecrit et a envoyer aux numero +33766301339 pour envoyer ton kbis, et pour le mot de passe, on le cree avec le panel admin! mais c'est a gere sur le 2eme projet apres
 
+- [x] Creer `actions/retail-auth.ts`. _(Zod + bcryptjs + jose session cookie.)_
+- [x] Implementer inscription retail avec telephone + mot de passe. _(Form particulier : prenom, nom, telephone, ville, adresse, password.)_
+- [x] Hash password avec `bcryptjs`. _(salt rounds = 10.)_
+- [x] Creer session JWT cookie apres inscription.
+- [x] Implementer login retail. _(Recherche par phone, bcrypt.compare, rejette comptes inactifs.)_
+- [x] Implementer logout retail. _(`logoutRetail()` clearCookie + redirect.)_
+- [x] Creer `actions/retail-order.ts`.
+- [x] Implementer creation `RetailOrder`. _(Recheck visibility ; refuse `WHOLESALE`-only.)_
+- [x] Generer `orderNumber` format `RET-00001`. _(Padding 5 chiffres via `count + 1`.)_
+- [x] Creer les `RetailOrderItem`. _(Cree en cascade via `items: { create: [...] }`.)_
+- [x] Creer `app/(retail)/register/page.tsx`. _(Page de choix : particulier / entreprise.)_
+  - [x] `app/(retail)/register/particulier/page.tsx` — formulaire complet (server action `registerRetail`).
+  - [x] `app/(retail)/register/entreprise/page.tsx` — formulaire + bouton WhatsApp pre-rempli vers +33766301339, KBIS a joindre. Pas de mot de passe (admin app gere la creation utilisateur).
+- [x] Creer `app/(retail)/login/page.tsx`. _(Form telephone + mot de passe, server action `loginRetail`.)_
+- [x] Creer `app/(retail)/checkout/page.tsx`. _(Server guard : redirige `/login?next=/checkout` si pas de session retail. Charge le `RetailCustomer` pour pre-remplir.)_
+- [x] Checkout client lit le panier `retail_cart`. _(`CheckoutForm` (client) lit via `useCart`.)_
+- [x] Checkout redirige vers `/orders/[id]`. _(Apres `createRetailOrder` ok, `clearCart()` + `router.push`.)_
+- [x] Creer `app/(retail)/orders/[id]/page.tsx`. _(Server, verifie ownership `order.customerId === session.customerId`.)_
+- [x] Afficher statut en francais : En attente, Confirmee, En preparation, Livree, Annulee. _(Mapping `STATUS_LABELS` avec couleurs.)_
+- [x] Ajouter message : `Nous vous contacterons pour confirmer votre commande.`
+- [ ] Commit attendu : `feat: add retail auth, checkout, and order confirmation`.
+
+et quand t es particulier tu cree ton compte normal, nom prenom adresse telephone mot de passe!    
 - [ ] Creer `actions/retail-auth.ts`.
 - [ ] Implementer inscription retail avec telephone + mot de passe.
 - [ ] Hash password avec `bcryptjs`.
