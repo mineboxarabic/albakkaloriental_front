@@ -20,6 +20,7 @@ const phoneSchema = z
 const registerSchema = z.object({
   firstName: z.string().trim().min(1, "Prénom requis."),
   lastName: z.string().trim().min(1, "Nom requis."),
+  email: z.string().trim().email("Adresse e-mail invalide."),
   phone: phoneSchema,
   city: z.string().trim().min(1, "Ville requise."),
   address: z.string().trim().min(5, "Adresse requise (5 caractères min)."),
@@ -40,6 +41,7 @@ export async function registerRetail(
   const raw = {
     firstName: String(formData.get("firstName") ?? ""),
     lastName: String(formData.get("lastName") ?? ""),
+    email: String(formData.get("email") ?? "").toLowerCase().trim(),
     phone: String(formData.get("phone") ?? ""),
     city: String(formData.get("city") ?? ""),
     address: String(formData.get("address") ?? ""),
@@ -57,22 +59,27 @@ export async function registerRetail(
   }
 
   const data = parsed.data;
-  const existing = await prisma.retailCustomer.findUnique({
-    where: { phone: data.phone },
-    select: { id: true },
+
+  const conflict = await prisma.retailCustomer.findFirst({
+    where: { OR: [{ phone: data.phone }, { email: data.email }] },
+    select: { phone: true, email: true },
   });
-  if (existing) {
-    return {
-      ok: false,
-      errors: { phone: "Un compte existe déjà avec ce numéro." },
-      values: raw,
-    };
+  if (conflict) {
+    const errors: Record<string, string> = {};
+    if (conflict.phone === data.phone) {
+      errors.phone = "Un compte existe déjà avec ce numéro.";
+    }
+    if (conflict.email === data.email) {
+      errors.email = "Un compte existe déjà avec cette adresse e-mail.";
+    }
+    return { ok: false, errors, values: raw };
   }
 
   const hash = await bcrypt.hash(data.password, 10);
   const customer = await prisma.retailCustomer.create({
     data: {
       name: `${data.firstName} ${data.lastName}`.trim(),
+      email: data.email,
       phone: data.phone,
       password: hash,
       city: data.city,
@@ -92,12 +99,12 @@ export async function registerRetail(
 }
 
 const loginSchema = z.object({
-  phone: phoneSchema,
+  email: z.string().trim().email("Adresse e-mail invalide."),
   password: z.string().min(1, "Mot de passe requis."),
 });
 
 export type LoginState =
-  | { ok: false; error: string; values?: { phone?: string } }
+  | { ok: false; error: string; values?: { email?: string } }
   | null;
 
 export async function loginRetail(
@@ -105,7 +112,7 @@ export async function loginRetail(
   formData: FormData,
 ): Promise<LoginState> {
   const raw = {
-    phone: String(formData.get("phone") ?? ""),
+    email: String(formData.get("email") ?? "").toLowerCase().trim(),
     password: String(formData.get("password") ?? ""),
   };
   const parsed = loginSchema.safeParse(raw);
@@ -113,12 +120,12 @@ export async function loginRetail(
     return {
       ok: false,
       error: parsed.error.issues[0]?.message ?? "Identifiants invalides.",
-      values: { phone: raw.phone },
+      values: { email: raw.email },
     };
   }
 
   const customer = await prisma.retailCustomer.findUnique({
-    where: { phone: parsed.data.phone },
+    where: { email: parsed.data.email },
     select: { id: true, name: true, phone: true, password: true, isActive: true },
   });
 
@@ -126,7 +133,7 @@ export async function loginRetail(
     return {
       ok: false,
       error: "Identifiants invalides.",
-      values: { phone: raw.phone },
+      values: { email: raw.email },
     };
   }
 
@@ -135,7 +142,7 @@ export async function loginRetail(
     return {
       ok: false,
       error: "Identifiants invalides.",
-      values: { phone: raw.phone },
+      values: { email: raw.email },
     };
   }
 

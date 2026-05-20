@@ -10,6 +10,7 @@ type Fields = {
   firstName: string;
   lastName: string;
   companyName: string;
+  email: string;
   phone: string;
   address: string;
 };
@@ -18,15 +19,19 @@ const initial: Fields = {
   firstName: "",
   lastName: "",
   companyName: "",
+  email: "",
   phone: "",
   address: "",
 };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isComplete(f: Fields) {
   return (
     f.firstName.trim().length > 0 &&
     f.lastName.trim().length > 0 &&
     f.companyName.trim().length > 0 &&
+    EMAIL_RE.test(f.email.trim()) &&
     f.phone.trim().length >= 8 &&
     f.address.trim().length >= 5
   );
@@ -39,6 +44,7 @@ function buildMessage(f: Fields) {
     `Nom : ${f.lastName}`,
     `Prénom : ${f.firstName}`,
     `Entreprise : ${f.companyName}`,
+    `E-mail : ${f.email}`,
     `Téléphone : ${f.phone}`,
     `Adresse : ${f.address}`,
     "",
@@ -62,6 +68,7 @@ export function RegisterEntrepriseForm() {
         <Field label="Nom" name="lastName" value={f.lastName} onChange={update("lastName")} />
       </div>
       <Field label="Nom de l'entreprise" name="companyName" value={f.companyName} onChange={update("companyName")} />
+      <Field label="Adresse e-mail" name="email" value={f.email} onChange={update("email")} type="email" placeholder="contact@entreprise.com" />
       <Field label="Téléphone" name="phone" value={f.phone} onChange={update("phone")} type="tel" placeholder="06 12 34 56 78" />
       <Field label="Adresse de l'entreprise" name="address" value={f.address} onChange={update("address")} />
 

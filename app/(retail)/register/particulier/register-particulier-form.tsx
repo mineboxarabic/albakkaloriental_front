@@ -24,6 +24,15 @@ export function RegisterParticulierForm() {
         <Field name="lastName" label="Nom" defaultValue={val("lastName")} error={err("lastName")} autoComplete="family-name" />
       </div>
       <Field
+        name="email"
+        label="Adresse e-mail"
+        defaultValue={val("email")}
+        error={err("email")}
+        autoComplete="email"
+        placeholder="vous@exemple.com"
+        type="email"
+      />
+      <Field
         name="phone"
         label="Téléphone"
         defaultValue={val("phone")}
