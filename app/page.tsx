@@ -14,7 +14,13 @@ import {
   Phone,
   Mail,
   MapPin,
+  CalendarDays,
 } from "lucide-react";
+import { getProducts, getUpcomingDeliveries } from "@/lib/catalog";
+import { formatPriceEUR } from "@/lib/catalog-pricing";
+import type { ProductCard } from "@/lib/catalog";
+
+export const revalidate = 60;
 
 const DISPLAY_FONT = "'Satoshi', var(--font-poppins), sans-serif";
 
@@ -29,34 +35,46 @@ const COLORS = {
   yellow: "#F2C400",
 };
 
-const categories = [
-  { label: "ÉPICERIE SALÉE" },
-  { label: "BOISSONS" },
-  { label: "ÉPICERIE SUCRÉE" },
-  { label: "PRODUITS FRAIS" },
-  { label: "SURGELÉS" },
-  { label: "HYGIÈNE & MAISON" },
+const FALLBACK_CATEGORIES = [
+  "ÉPICERIE SALÉE",
+  "BOISSONS",
+  "ÉPICERIE SUCRÉE",
+  "PRODUITS FRAIS",
+  "SURGELÉS",
+  "HYGIÈNE & MAISON",
 ];
 
-const bestSellers = [
-  { name: "Couscous SALÉ", weight: "1kg", price: "2,35 €" },
-  { name: "Huile d'olive Al Arz", weight: "1L", price: "8,95 €" },
-  { name: "Concombre Suntat", weight: "680g", price: "2,10 €" },
-  { name: "Riz Basmati Punjabi", weight: "5kg", price: "11,90 €" },
-  { name: "Pois chiches Chtoura", weight: "400g", price: "1,05 €" },
-  { name: "Dattes Deglet Nour", weight: "1kg", price: "4,95 €" },
-];
+const DELIVERY_DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
 
-const newArrivals = [
-  { name: "Harissa du Cap Bon", weight: "200g", price: "1,75 €" },
-  { name: "Thé vert à la menthe", weight: "500g", price: "6,40 €" },
-  { name: "Olives vertes Picholine", weight: "300g", price: "3,20 €" },
-  { name: "Semoule fine extra", weight: "1kg", price: "1,90 €" },
-  { name: "Confiture de figues", weight: "370g", price: "4,50 €" },
-  { name: "Eau de fleur d'oranger", weight: "250ml", price: "3,80 €" },
-];
+function buildWeightLabel(p: ProductCard): string {
+  const unitMap: Record<string, string> = {
+    KILOGRAM: "kg",
+    LITER: "L",
+    PIECE: "u.",
+  };
+  const u = unitMap[p.baseUnit] ?? p.baseUnit.toLowerCase();
+  return p.unitsPerPack > 1 ? `${p.unitsPerPack} × ${u}` : u;
+}
 
-export default function Home() {
+export default async function Home() {
+  const [retailProducts, deliveries] = await Promise.all([
+    getProducts({ audience: "retail", take: 12 }),
+    getUpcomingDeliveries(4),
+  ]);
+
+  const bestSellers = retailProducts.slice(0, 6);
+  const newArrivals = retailProducts.slice(6, 12);
+
+  const dbCategories = Array.from(
+    new Set(retailProducts.map((p) => p.category.toUpperCase())),
+  );
+  const categoryLabels =
+    dbCategories.length >= 6 ? dbCategories.slice(0, 6) : FALLBACK_CATEGORIES;
+
   return (
     <main className="min-h-screen w-full" style={{ background: COLORS.bg }}>
       {/* Top utility bar */}
@@ -71,10 +89,13 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6">
             <span>Besoin d&apos;aide ? 09 70 70 70 70</span>
-            <a className="flex items-center gap-1.5 hover:underline" href="#">
+            <Link className="hover:underline" href="/pro/login">
+              Espace pro
+            </Link>
+            <Link className="flex items-center gap-1.5 hover:underline" href="/login">
               <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
               Mon compte
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -276,10 +297,10 @@ export default function Home() {
             </a>
           </div>
           <div className="mt-4 grid grid-cols-6 gap-3">
-            {categories.map((c) => (
-              <a
-                key={c.label}
-                href="#"
+            {categoryLabels.map((label) => (
+              <Link
+                key={label}
+                href={`/products?category=${encodeURIComponent(label)}`}
                 className="group flex flex-col items-center overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
                 style={{ borderColor: COLORS.border }}
               >
@@ -289,10 +310,10 @@ export default function Home() {
                     className="text-[10px] font-bold tracking-wide"
                     style={{ color: COLORS.text }}
                   >
-                    {c.label}
+                    {label}
                   </div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </section>
@@ -346,8 +367,63 @@ export default function Home() {
           </div>
         </section>
 
-        <ProductSection title="Les meilleures ventes" linkLabel="Voir tous les produits" items={bestSellers} />
-        <ProductSection title="Nouveautés" linkLabel="Voir toutes les nouveautés" items={newArrivals} />
+        <ProductSection
+          title="Les meilleures ventes"
+          linkLabel="Voir tous les produits"
+          items={bestSellers}
+          emptyLabel="Aucun produit disponible pour le moment."
+        />
+        <ProductSection
+          title="Nouveautés"
+          linkLabel="Voir toutes les nouveautés"
+          items={newArrivals}
+          emptyLabel="Les nouveautés arriveront bientôt."
+        />
+
+        {deliveries.length > 0 && (
+          <section className="mt-9">
+            <div className="flex items-end justify-between">
+              <h2
+                className="text-[22px] font-extrabold tracking-tight"
+                style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+              >
+                Prochaines tournées de livraison
+              </h2>
+            </div>
+            <div className="mt-4 grid grid-cols-4 gap-3">
+              {deliveries.map((d) => (
+                <div
+                  key={d.id}
+                  className="flex items-start gap-3 rounded-lg border bg-white px-4 py-4"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <div
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-md"
+                    style={{ background: COLORS.beige, color: COLORS.primary }}
+                  >
+                    <CalendarDays className="h-5 w-5" strokeWidth={1.8} />
+                  </div>
+                  <div className="leading-tight">
+                    <div
+                      className="text-[13px] font-bold"
+                      style={{ color: COLORS.text }}
+                    >
+                      {d.city}
+                    </div>
+                    <div className="text-[12px] capitalize" style={{ color: COLORS.muted }}>
+                      {DELIVERY_DATE_FMT.format(new Date(d.scheduledDate))}
+                    </div>
+                    {d.note && (
+                      <div className="mt-1 text-[11px]" style={{ color: COLORS.muted }}>
+                        {d.note}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       <Footer />
@@ -391,62 +467,91 @@ function ProductSection({
   title,
   linkLabel,
   items,
+  emptyLabel,
 }: {
   title: string;
   linkLabel: string;
-  items: { name: string; weight: string; price: string }[];
+  items: ProductCard[];
+  emptyLabel: string;
 }) {
   return (
     <section className="mt-9">
       <div className="flex items-end justify-between">
-        <h2 className="text-[22px] font-extrabold tracking-tight" style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}>
+        <h2
+          className="text-[22px] font-extrabold tracking-tight"
+          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+        >
           {title}
         </h2>
-        <a
-          href="#"
+        <Link
+          href="/products"
           className="flex items-center gap-1 text-[12px] font-semibold"
           style={{ color: COLORS.primary }}
         >
           {linkLabel} <ChevronRight className="h-3.5 w-3.5" />
-        </a>
+        </Link>
       </div>
-      <div className="mt-4 grid grid-cols-6 gap-3">
-        {items.map((p) => (
-          <article
-            key={p.name}
-            className="flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
-            style={{ borderColor: COLORS.border }}
-          >
-            <div className="h-[140px] w-full" style={{ background: COLORS.beige }} />
-            <div className="flex flex-1 flex-col gap-1 px-3 pb-3 pt-3">
-              <div
-                className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-tight"
-                style={{ color: COLORS.text }}
+      {items.length === 0 ? (
+        <div
+          className="mt-4 rounded-lg border bg-white px-4 py-6 text-center text-[13px]"
+          style={{ borderColor: COLORS.border, color: COLORS.muted }}
+        >
+          {emptyLabel}
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-6 gap-3">
+          {items.map((p) => (
+            <article
+              key={p.id}
+              className="flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
+              style={{ borderColor: COLORS.border }}
+            >
+              <Link
+                href={`/products/${p.id}`}
+                className="block h-[140px] w-full"
+                style={{ background: COLORS.beige }}
               >
-                {p.name}
-              </div>
-              <div className="text-[11px]" style={{ color: COLORS.muted }}>
-                {p.weight}
-              </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span
-                  className="text-[14px] font-extrabold"
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    width={240}
+                    height={240}
+                    className="h-full w-full object-contain"
+                  />
+                ) : null}
+              </Link>
+              <div className="flex flex-1 flex-col gap-1 px-3 pb-3 pt-3">
+                <Link
+                  href={`/products/${p.id}`}
+                  className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-tight"
                   style={{ color: COLORS.text }}
                 >
-                  {p.price}
-                </span>
-                <button
-                  aria-label="Ajouter au panier"
-                  className="grid h-7 w-7 place-items-center rounded-full text-white shadow-sm"
-                  style={{ background: COLORS.primary }}
-                >
-                  <Plus className="h-4 w-4" strokeWidth={2.6} />
-                </button>
+                  {p.name}
+                </Link>
+                <div className="text-[11px]" style={{ color: COLORS.muted }}>
+                  {buildWeightLabel(p)}
+                </div>
+                <div className="mt-1 flex items-center justify-between">
+                  <span
+                    className="text-[14px] font-extrabold"
+                    style={{ color: COLORS.text }}
+                  >
+                    {formatPriceEUR(p.sellingPrice)}
+                  </span>
+                  <button
+                    aria-label={`Ajouter ${p.name} au panier`}
+                    className="grid h-7 w-7 place-items-center rounded-full text-white shadow-sm"
+                    style={{ background: COLORS.primary }}
+                  >
+                    <Plus className="h-4 w-4" strokeWidth={2.6} />
+                  </button>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

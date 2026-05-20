@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npx vitest *)",
+      "Bash(node -e \"require\\('dotenv/config'\\); const {PrismaClient}=require\\('@prisma/client'\\); const p=new PrismaClient\\(\\); p.product.count\\(\\).then\\(c=>{console.log\\('products:',c\\); process.exit\\(0\\)}\\).catch\\(e=>{console.error\\('ERR:',e.message\\); process.exit\\(1\\)}\\)\")",
+      "Bash(node --experimental-strip-types -e ' *)",
+      "Bash(docker exec stock_manager_db *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/_next/static/css/app/layout.css)",
+      "Bash(netstat -ano)",
+      "Bash(wmic process *)",
+      "Bash(curl *)"
+    ]
+  }
+}

@@ -69,20 +69,20 @@ Enums requis :
 
 ### Task 2 - Session helper et Cart Context
 
-- [ ] Creer `lib/session.ts`.
-- [ ] Implementer les types `RetailSession`, `ProSession`, `CatalogSession`.
-- [ ] Implementer `signSession`.
-- [ ] Implementer `getSession`.
-- [ ] Implementer `setSessionCookie`.
-- [ ] Implementer `clearSessionCookie`.
-- [ ] Installer Vitest et dependances de test React si necessaire.
-- [ ] Creer `__tests__/session.test.ts`.
-- [ ] Executer `npx vitest run __tests__/session.test.ts`.
-- [ ] Creer `components/cart-context.tsx`.
-- [ ] Implementer `CartProvider` avec `storageKey`.
-- [ ] Implementer `addItem`, `updateQty`, `removeItem`, `clearCart`, `total`.
-- [ ] Creer `__tests__/cart-context.test.tsx`.
-- [ ] Executer `npx vitest run __tests__/cart-context.test.tsx`.
+- [x] Creer `lib/session.ts`.
+- [x] Implementer les types `RetailSession`, `ProSession`, `CatalogSession`.
+- [x] Implementer `signSession`.
+- [x] Implementer `getSession`.
+- [x] Implementer `setSessionCookie`.
+- [x] Implementer `clearSessionCookie`.
+- [x] Installer Vitest et dependances de test React si necessaire.
+- [x] Creer `__tests__/session.test.ts`.
+- [x] Executer `npx vitest run __tests__/session.test.ts`. _(4 tests passed)_
+- [x] Creer `components/cart-context.tsx`.
+- [x] Implementer `CartProvider` avec `storageKey`.
+- [x] Implementer `addItem`, `updateQty`, `removeItem`, `clearCart`, `total`.
+- [x] Creer `__tests__/cart-context.test.tsx`.
+- [x] Executer `npx vitest run __tests__/cart-context.test.tsx`. _(6 tests passed)_
 - [ ] Commit attendu : `feat: add session helper and cart context with unit tests`.
 
 ### Regles panier
@@ -93,21 +93,23 @@ Enums requis :
 
 ### Task 3 - Catalog data layer et home page
 
-- [ ] Creer `lib/catalog.ts`.
-- [ ] Implementer `getTierPrice`.
-- [ ] Implementer `getProducts`.
-- [ ] Implementer `getProduct`.
-- [ ] Implementer `getCategories`.
-- [ ] Implementer `getUpcomingDeliveries`.
-- [ ] Creer `__tests__/catalog.test.ts`.
-- [ ] Executer `npx vitest run __tests__/catalog.test.ts`.
-- [ ] Verifier `app/layout.tsx`.
-- [ ] Construire `app/page.tsx`.
-- [ ] Afficher les produits mis en avant.
-- [ ] Afficher les prochaines tournees de livraison.
-- [ ] Ajouter CTA vers `/products`.
-- [ ] Ajouter CTA vers `/pro/login`.
+- [x] Creer `lib/catalog.ts`. _(Pures fonctions extraites dans `lib/catalog-pricing.ts` pour pouvoir etre testees sans `server-only`/Prisma.)_
+- [x] Implementer `getTierPrice`.
+- [x] Implementer `getProducts`.
+- [x] Implementer `getProduct`.
+- [x] Implementer `getCategories`.
+- [x] Implementer `getUpcomingDeliveries`.
+- [x] Creer `__tests__/catalog.test.ts`.
+- [x] Executer `npx vitest run __tests__/catalog.test.ts`. _(5 tests passed)_
+- [x] Verifier `app/layout.tsx`.
+- [x] Construire `app/page.tsx`. _(Server component, donnees DB via Prisma adapter pg, `revalidate = 60`.)_
+- [x] Afficher les produits mis en avant. _(6 best-sellers + 6 nouveautes depuis la DB, fallback placeholder beige si pas d'imageUrl.)_
+- [x] Afficher les prochaines tournees de livraison. _(Section ne s'affiche que si `DeliverySchedule` contient des entrees a venir actives.)_
+- [x] Ajouter CTA vers `/products`. _(Bouton hero "Voir nos produits" + liens cartes produit.)_
+- [x] Ajouter CTA vers `/pro/login`. _(Lien "Espace pro" dans la barre utilitaire en haut.)_
 - [ ] Commit attendu : `feat: add catalog data layer, home page, and getTierPrice unit tests`.
+
+> Note Prisma 7 : ajout de `@prisma/adapter-pg` + `pg`. `lib/prisma.ts` instancie `PrismaClient({ adapter: new PrismaPg({ connectionString: DATABASE_URL }) })`.
 
 ## Phase 3 - Retail Flow B2C
 
