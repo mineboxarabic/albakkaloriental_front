@@ -7,7 +7,7 @@ import { COLORS } from "@/lib/ui";
 
 const initial: ProLoginState = null;
 
-export function ProLoginForm() {
+export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
   const [state, formAction] = useActionState<ProLoginState, FormData>(
     loginPro,
     initial,
@@ -16,6 +16,7 @@ export function ProLoginForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
       <ProField
         label="Adresse e-mail professionnelle"
         name="email"

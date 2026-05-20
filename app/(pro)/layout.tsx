@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-context";
+import { ProSiteHeader } from "@/components/pro/site-header";
 import { COLORS } from "@/lib/ui";
 
 export default function ProLayout({ children }: { children: ReactNode }) {
   return (
     <CartProvider storageKey="pro_cart">
       <div className="flex min-h-screen flex-col" style={{ background: COLORS.bg }}>
-        {children}
+        <ProSiteHeader />
+        <div className="flex-1">{children}</div>
       </div>
     </CartProvider>
   );

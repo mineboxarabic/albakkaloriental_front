@@ -5,7 +5,21 @@ import { ProLoginForm } from "./pro-login-form";
 
 export const dynamic = "force-dynamic";
 
-export default function ProLoginPage() {
+type SearchParams = Promise<{ next?: string }>;
+
+function safeNext(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return undefined;
+  return raw;
+}
+
+export default async function ProLoginPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { next } = await searchParams;
+  const redirectTo = safeNext(next);
   return (
     <main
       className="min-h-screen w-full"
@@ -129,7 +143,7 @@ export default function ProLoginPage() {
               />
 
               <div className="mt-6">
-                <ProLoginForm />
+                <ProLoginForm redirectTo={redirectTo} />
               </div>
 
               <div
