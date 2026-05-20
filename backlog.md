@@ -163,20 +163,20 @@ si tu clique je suis une entreprise, y a une formulaire, nom prenom nom entrepri
 
 ### Task 6 - Middleware pro et auth
 
-- [ ] Creer `middleware.ts`.
-- [ ] Proteger toutes les routes `/pro/*`.
-- [ ] Laisser `/pro/login` public.
-- [ ] Rediriger les non-authentifies vers `/pro/login`.
-- [ ] Verifier que la session est de type `pro`.
-- [ ] Creer `actions/pro-auth.ts`.
-- [ ] Login pro via compte `User` role `B2B_CLIENT`.
-- [ ] Refuser les comptes inactifs.
-- [ ] Refuser les utilisateurs sans `customer`.
-- [ ] Creer session pro avec `userId`, `customerId`, `pricingLevel`, `companyName`.
-- [ ] Creer `app/(pro)/layout.tsx`.
-- [ ] Wrapper le layout pro avec `CartProvider storageKey="pro_cart"`.
-- [ ] Afficher navigation pro : produits, commandes, factures, logout.
-- [ ] Creer `app/(pro)/pro/login/page.tsx`.
+- [x] Creer `middleware.ts`. _(Edge runtime, JWT verifie inline via `jose` — pas d'import `next/headers` pour rester compatible Edge.)_
+- [x] Proteger toutes les routes `/pro/*`. _(`matcher: ["/pro/:path*"]`.)_
+- [x] Laisser `/pro/login` public. _(Skip explicite si `pathname === "/pro/login"`.)_
+- [x] Rediriger les non-authentifies vers `/pro/login`. _(Avec `?next=` pour reprendre apres connexion.)_
+- [x] Verifier que la session est de type `pro`. _(`payload.type === "pro"`, sinon redirect.)_
+- [x] Creer `actions/pro-auth.ts`. _(Livre dans la branche auth precedente.)_
+- [x] Login pro via compte `User` role `B2B_CLIENT`.
+- [x] Refuser les comptes inactifs.
+- [x] Refuser les utilisateurs sans `customer`.
+- [x] Creer session pro avec `userId`, `customerId`, `pricingLevel`, `companyName`.
+- [x] Creer `app/(pro)/layout.tsx`. _(CartProvider `pro_cart` + ProSiteHeader.)_
+- [x] Wrapper le layout pro avec `CartProvider storageKey="pro_cart"`.
+- [x] Afficher navigation pro : produits, commandes, factures, logout. _(Nouveau `components/pro/site-header.tsx` — barre vert fonce, lien Catalogue/Commandes/Factures, bouton Panier avec badge, icone Mon compte, bouton Logout via `logoutPro`. Cache automatiquement sur `/pro/login`.)_
+- [x] Creer `app/(pro)/pro/login/page.tsx`.
 - [ ] Commit attendu : `feat: add pro portal middleware, login, and layout`.
 
 ### Task 7 - Pro catalog, cart et proforma
