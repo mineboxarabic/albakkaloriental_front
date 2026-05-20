@@ -15,6 +15,7 @@ export type ProductCard = {
   unitsPerPack: number;
   baseUnit: string;
   sellingPrice: number;
+  unitSellingPrice: number | null;
   priceLevelC: number | null;
   priceLevelD: number | null;
   priceLevelE: number | null;
@@ -30,6 +31,7 @@ const productCardSelect = {
   unitsPerPack: true,
   baseUnit: true,
   sellingPrice: true,
+  unitSellingPrice: true,
   priceLevelC: true,
   priceLevelD: true,
   priceLevelE: true,

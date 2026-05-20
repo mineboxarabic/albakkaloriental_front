@@ -181,27 +181,31 @@ si tu clique je suis une entreprise, y a une formulaire, nom prenom nom entrepri
 
 ### Task 7 - Pro catalog, cart et proforma
 
-- [ ] Creer `app/(pro)/pro/products/page.tsx`.
-- [ ] Afficher catalogue wholesale.
-- [ ] Calculer les prix avec `getTierPrice`.
-- [ ] Afficher le niveau tarifaire C/D/E/F.
-- [ ] Creer `app/(pro)/pro/products/[id]/page.tsx`.
-- [ ] Creer `app/(pro)/pro/products/[id]/add-to-pro-cart-button.tsx`.
-- [ ] Ajouter au panier avec le prix de niveau deja calcule.
-- [ ] Creer `app/(pro)/pro/cart/page.tsx`.
-- [ ] Ajouter bouton `Generer un devis`.
-- [ ] Creer `actions/pro-order.ts`.
-- [ ] Implementer `createProforma`.
-- [ ] Generer `orderNumber` format `PRO-00001`.
-- [ ] Creer `Order` avec `status: PENDING`.
-- [ ] Regle : `PENDING` = devis / proforma.
-- [ ] Implementer `confirmProforma`.
-- [ ] Regle : `CONFIRMED` = commande ferme.
-- [ ] Creer `app/(pro)/pro/proforma/[id]/page.tsx`.
-- [ ] Afficher recapitulatif devis avec lignes, quantites, prix unitaires, total.
-- [ ] Ajouter bouton `Valider la commande`.
-- [ ] Ajouter lien `Modifier` vers `/pro/cart`.
+- [x] Creer `app/(pro)/pro/products/page.tsx`. _(Sidebar categories, badge Niveau X.)_
+- [x] Afficher catalogue wholesale. _(Filtre `WHOLESALE` + `BOTH` via `getProducts({audience:'pro'})`.)_
+- [x] Calculer les prix avec `getTierPrice`. _(Via nouveau helper `resolveProPrice` qui delegue a `getTierPrice` pour PACK.)_
+- [x] Afficher le niveau tarifaire C/D/E/F. _(Badge dans header de la page produits + sur la page detail.)_
+- [x] Creer `app/(pro)/pro/products/[id]/page.tsx`.
+- [x] Creer `app/(pro)/pro/products/[id]/add-to-pro-cart-button.tsx`. _(Toggle PACK/UNIT, selecteur quantite, sous-total live, feedback "Ajoute au panier".)_
+- [x] Ajouter au panier avec le prix de niveau deja calcule. _(`unitPrice` calcule cote client via `resolveProPrice` au moment de l'add ; recalcule cote serveur dans `createProforma` pour ne pas faire confiance au client.)_
+- [x] Creer `app/(pro)/pro/cart/page.tsx`. _(Lignes avec badge Carton/Unite, qty +/-, suppression, total HT + TVA 20% + TTC, champ notes.)_
+- [x] Ajouter bouton `Generer un devis`. _(Appelle `createProforma`, vide le panier, redirige `/pro/proforma/[id]`.)_
+- [x] Creer `actions/pro-order.ts`.
+- [x] Implementer `createProforma`. _(Verifie session pro, re-fetch produits, applique `resolveProPrice` cote serveur, bloque les produits `RETAIL`-only.)_
+- [x] Generer `orderNumber` format `PRO-00001`. _(Padding 5 chiffres via `count + 1`.)_
+- [x] Creer `Order` avec `status: PENDING`. _(items en cascade : saleUnit/quantity/unitPrice/totalPrice/taxRate.)_
+- [x] Regle : `PENDING` = devis / proforma.
+- [x] Implementer `confirmProforma`. _(Verifie ownership + statut PENDING, passe a CONFIRMED, revalidate paths.)_
+- [x] Regle : `CONFIRMED` = commande ferme.
+- [x] Creer `app/(pro)/pro/proforma/[id]/page.tsx`. _(Header avec icone, bloc Client, table lignes, recapitulatif aside.)_
+- [x] Afficher recapitulatif devis avec lignes, quantites, prix unitaires, total. _(HT, TVA 20%, TTC, niveau tarifaire.)_
+- [x] Ajouter bouton `Valider la commande`. _(Bouton client transitions vers `confirmProforma` ; badge "Commande confirmee" apres validation.)_
+- [x] Ajouter lien `Modifier` vers `/pro/cart`.
 - [ ] Commit attendu : `feat: add pro catalog with tier prices, cart, and proforma flow`.
+
+> Note CartContext : refacto pour supporter PACK/UNIT - ajout de `lineId` et `saleUnit?` sur `CartItem`. `lineId = productId` cote retail (pas de saleUnit), donc pas de regression.
+>
+> Bug admin a flagger : dans le formulaire d'ordre cote admin, `unitPrice` est pris directement de `sellingPrice` sans passer par `getTierPrice`. Ici on applique le tier correctement. A harmoniser plus tard cote `AlimExpressApp`.
 
 ### Task 8 - Pro orders et invoices
 

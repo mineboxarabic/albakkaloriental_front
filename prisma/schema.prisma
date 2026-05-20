@@ -198,4 +198,6 @@ model OrderItem {
   discount   Float    @default(0)
   taxRate    Float    @default(20)
   totalPrice Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
