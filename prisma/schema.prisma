@@ -94,6 +94,7 @@ model Product {
 model RetailCustomer {
   id        String        @id @default(cuid())
   name      String
+  email     String?       @unique
   phone     String        @unique
   password  String
   city      String
@@ -149,9 +150,12 @@ model Customer {
   id            String        @id @default(cuid())
   companyName   String
   contactName   String
+  email         String?
   phone         String
   city          String
   address       String
+  postalCode    String
+  country       String
   pricingLevel  PricingLevel?
   isActive      Boolean       @default(true)
   portalAccount User?         @relation("CustomerPortalAccount")
