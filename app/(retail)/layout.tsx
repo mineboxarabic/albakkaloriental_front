@@ -17,7 +17,7 @@ export default async function RetailLayout({ children }: { children: ReactNode }
   };
 
   return (
-    <CartProvider storageKey="retail_cart">
+    <CartProvider audience="retail">
       <SessionProvider value={sessionValue}>
         <AuthModalProvider>
           <div className="flex min-h-screen flex-col" style={{ background: COLORS.bg }}>

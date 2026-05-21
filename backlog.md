@@ -337,9 +337,12 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] Pages existantes (retail home/products + pro products) continuent de fonctionner sans modif grâce à `ProductCard` rétro-compatible (`sellingPrice`, `priceLevelC/D/E/F` toujours exposés)
 
 ### Phase F.F — Cart
-- [ ] Retail cart pages → `GET/POST/PATCH/DELETE /api/v1/retail/cart{,/items,/items/[id]}`
-- [ ] Pro cart pages → `/api/v1/b2b/cart*`
-- [ ] Supprimer cart localStorage si présent
+- [x] **Back** `enrichCart` helper + GET `/api/v1/{retail|b2b}/cart` retournent désormais `{ id, items[{id, productId, quantity, saleUnit, product:{name, sku, category, imageUrl, unitsPerPack, baseUnit, sellingPrice, unitSellingPrice, effectivePrice}}], total }`
+- [x] **Front** `actions/retail-cart.ts` (getRetailCart, addRetailCartItem, updateRetailCartItem, removeRetailCartItem, clearRetailCart) — 6 tests
+- [x] **Front** `actions/pro-cart.ts` (idem pour B2B) — 5 tests
+- [x] **Front** `components/cart-context.tsx` refactor: prop `audience` ("retail"|"pro"), fetch initial via action, mutations async via actions, plus de localStorage. Loading/error states exposés.
+- [x] Layouts: `(retail)/layout.tsx` + `(pro)/layout.tsx` migrés de `storageKey` vers `audience`
+- [x] Test obsolète `cart-context.test.tsx` (localStorage) + `session.test.ts` (signSession legacy) supprimés
 
 ### Phase F.G — Checkout
 - [ ] `actions/retail-order.ts` → `POST /api/v1/retail/orders/checkout`

@@ -6,139 +6,206 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
+import {
+  addRetailCartItem,
+  clearRetailCart,
+  getRetailCart,
+  removeRetailCartItem,
+  updateRetailCartItem,
+} from "@/actions/retail-cart";
+import {
+  addProCartItem,
+  clearProCart,
+  getProCart,
+  removeProCartItem,
+  updateProCartItem,
+} from "@/actions/pro-cart";
 
 export type CartSaleUnit = "PACK" | "UNIT";
+export type CartAudience = "retail" | "pro";
 
+/**
+ * Cart item shape exposed to UI components.
+ * `lineId` is the back-end CartItem.id (server is source of truth now).
+ */
 export type CartItem = {
-  /** Unique line identifier; equals productId for retail, productId:saleUnit for pro. */
   lineId: string;
   productId: string;
   name: string;
   unitPrice: number;
   quantity: number;
   imageUrl?: string | null;
+  saleUnit: CartSaleUnit;
+  unitsPerPack?: number;
+};
+
+export type AddCartItem = {
+  productId: string;
+  name: string;
+  unitPrice: number;
+  imageUrl?: string | null;
   saleUnit?: CartSaleUnit;
   unitsPerPack?: number;
 };
 
-export type AddCartItem = Omit<CartItem, "quantity" | "lineId">;
-
 export type CartContextValue = {
   items: CartItem[];
-  addItem: (item: AddCartItem, quantity?: number) => void;
-  updateQty: (lineId: string, quantity: number) => void;
-  removeItem: (lineId: string) => void;
-  clearCart: () => void;
+  loading: boolean;
+  error: string | null;
+  addItem: (item: AddCartItem, quantity?: number) => Promise<void>;
+  updateQty: (lineId: string, quantity: number) => Promise<void>;
+  removeItem: (lineId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refresh: () => Promise<void>;
   total: number;
   itemCount: number;
 };
 
-function computeLineId(productId: string, saleUnit?: CartSaleUnit): string {
-  return saleUnit ? `${productId}:${saleUnit}` : productId;
-}
-
 const CartContext = createContext<CartContextValue | null>(null);
 
-function readStorage(key: string): CartItem[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter(
-        (it) =>
-          it &&
-          typeof it.productId === "string" &&
-          typeof it.name === "string" &&
-          typeof it.unitPrice === "number" &&
-          typeof it.quantity === "number" &&
-          it.quantity > 0,
-      )
-      .map((it): CartItem => {
-        const saleUnit: CartSaleUnit | undefined =
-          it.saleUnit === "PACK" || it.saleUnit === "UNIT" ? it.saleUnit : undefined;
-        return {
-          lineId: typeof it.lineId === "string" ? it.lineId : computeLineId(it.productId, saleUnit),
-          productId: it.productId,
-          name: it.name,
-          unitPrice: it.unitPrice,
-          quantity: it.quantity,
-          imageUrl: it.imageUrl ?? null,
-          saleUnit,
-          unitsPerPack: typeof it.unitsPerPack === "number" ? it.unitsPerPack : undefined,
-        };
-      });
-  } catch {
-    return [];
-  }
+type ServerItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  saleUnit: CartSaleUnit;
+  product?: {
+    name: string;
+    imageUrl: string | null;
+    unitsPerPack: number;
+    effectivePrice: number;
+  };
+};
+
+function mapItem(it: ServerItem): CartItem {
+  return {
+    lineId: it.id,
+    productId: it.productId,
+    quantity: it.quantity,
+    saleUnit: it.saleUnit,
+    name: it.product?.name ?? "",
+    unitPrice: it.product?.effectivePrice ?? 0,
+    imageUrl: it.product?.imageUrl ?? null,
+    unitsPerPack: it.product?.unitsPerPack,
+  };
+}
+
+function getActions(audience: CartAudience) {
+  return audience === "retail"
+    ? {
+        get: getRetailCart,
+        add: addRetailCartItem,
+        update: updateRetailCartItem,
+        remove: removeRetailCartItem,
+        clear: clearRetailCart,
+      }
+    : {
+        get: getProCart,
+        add: addProCartItem,
+        update: updateProCartItem,
+        remove: removeProCartItem,
+        clear: clearProCart,
+      };
 }
 
 export function CartProvider({
-  storageKey,
+  audience,
   children,
 }: {
-  storageKey: string;
+  audience: CartAudience;
   children: ReactNode;
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const hydrated = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const actions = useMemo(() => getActions(audience), [audience]);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const result = await actions.get();
+    if (result.ok) {
+      setItems(result.cart.items.map(mapItem));
+      setError(null);
+    } else {
+      setItems([]);
+      setError(result.error);
+    }
+    setLoading(false);
+  }, [actions]);
 
   useEffect(() => {
-    setItems(readStorage(storageKey));
-    hydrated.current = true;
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (!hydrated.current) return;
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
-  }, [items, storageKey]);
+    refresh();
+  }, [refresh]);
 
   const addItem = useCallback(
-    (item: AddCartItem, quantity = 1) => {
+    async (item: AddCartItem, quantity = 1) => {
       if (quantity <= 0) return;
-      const lineId = computeLineId(item.productId, item.saleUnit);
-      setItems((prev) => {
-        const idx = prev.findIndex((p) => p.lineId === lineId);
-        if (idx >= 0) {
-          const next = [...prev];
-          next[idx] = {
-            ...next[idx],
-            unitPrice: item.unitPrice,
-            quantity: next[idx].quantity + quantity,
-          };
-          return next;
-        }
-        return [...prev, { ...item, lineId, quantity }];
+      const result = await actions.add({
+        productId: item.productId,
+        quantity,
+        saleUnit: item.saleUnit ?? "UNIT",
       });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      await refresh();
     },
-    [],
+    [actions, refresh],
   );
 
-  const updateQty = useCallback((lineId: string, quantity: number) => {
-    setItems((prev) => {
-      if (quantity <= 0) return prev.filter((p) => p.lineId !== lineId);
-      return prev.map((p) => (p.lineId === lineId ? { ...p, quantity } : p));
-    });
-  }, []);
+  const updateQty = useCallback(
+    async (lineId: string, quantity: number) => {
+      const result = await actions.update(lineId, Math.max(0, quantity));
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      await refresh();
+    },
+    [actions, refresh],
+  );
 
-  const removeItem = useCallback((lineId: string) => {
-    setItems((prev) => prev.filter((p) => p.lineId !== lineId));
-  }, []);
+  const removeItem = useCallback(
+    async (lineId: string) => {
+      const result = await actions.remove(lineId);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      await refresh();
+    },
+    [actions, refresh],
+  );
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(async () => {
+    const result = await actions.clear();
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    await refresh();
+  }, [actions, refresh]);
 
   const value = useMemo<CartContextValue>(() => {
     const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
     const itemCount = items.reduce((s, it) => s + it.quantity, 0);
-    return { items, addItem, updateQty, removeItem, clearCart, total, itemCount };
-  }, [items, addItem, updateQty, removeItem, clearCart]);
+    return {
+      items,
+      loading,
+      error,
+      addItem,
+      updateQty,
+      removeItem,
+      clearCart,
+      refresh,
+      total,
+      itemCount,
+    };
+  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

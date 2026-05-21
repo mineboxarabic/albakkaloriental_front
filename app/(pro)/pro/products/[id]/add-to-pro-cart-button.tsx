@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Minus, Plus, ShoppingCart, Check, Package, Box } from "lucide-react";
-import type { PricingLevel } from "@prisma/client";
+type PricingLevel = "C" | "D" | "E" | "F";
 import { useCart, type CartSaleUnit } from "@/components/cart-context";
 import {
   formatPriceEUR,
