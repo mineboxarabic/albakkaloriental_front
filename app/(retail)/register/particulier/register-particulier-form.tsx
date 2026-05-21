@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerRetail, type RegisterState } from "@/actions/retail-auth";
+import { AddressAutocompleteFields } from "@/components/address-autocomplete-fields";
 import { COLORS } from "@/lib/ui";
 
 const initial: RegisterState = null;
@@ -41,8 +42,18 @@ export function RegisterParticulierForm() {
         placeholder="06 12 34 56 78"
         type="tel"
       />
-      <Field name="city" label="Ville" defaultValue={val("city")} error={err("city")} autoComplete="address-level2" />
-      <Field name="address" label="Adresse" defaultValue={val("address")} error={err("address")} autoComplete="street-address" />
+      <AddressAutocompleteFields
+        defaults={{
+          address: val("address"),
+          postalCode: val("postalCode"),
+          city: val("city"),
+        }}
+        errors={{
+          address: err("address"),
+          postalCode: err("postalCode"),
+          city: err("city"),
+        }}
+      />
       <Field
         name="password"
         label="Mot de passe"

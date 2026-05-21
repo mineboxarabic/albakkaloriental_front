@@ -18,6 +18,7 @@ const registerSchema = z.object({
   email: z.string().trim().email("Adresse e-mail invalide."),
   phone: phoneSchema,
   city: z.string().trim().min(1, "Ville requise."),
+  postalCode: z.string().trim().min(1, "Code postal requis."),
   address: z.string().trim().min(5, "Adresse requise (5 caractères min)."),
   password: z
     .string()
@@ -40,6 +41,7 @@ export async function registerRetail(
     email: String(formData.get("email") ?? "").toLowerCase().trim(),
     phone: String(formData.get("phone") ?? ""),
     city: String(formData.get("city") ?? ""),
+    postalCode: String(formData.get("postalCode") ?? ""),
     address: String(formData.get("address") ?? ""),
     password: String(formData.get("password") ?? ""),
   };
@@ -69,6 +71,7 @@ export async function registerRetail(
         email: data.email,
         phone: data.phone,
         city: data.city,
+        postalCode: data.postalCode,
         address: data.address,
         password: data.password,
       },

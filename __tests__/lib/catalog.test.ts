@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { backendFetchMock } = vi.hoisted(() => ({ backendFetchMock: vi.fn() }));
 
 vi.mock("server-only", () => ({}));
-vi.mock("@/lib/prisma", () => ({ default: {} }));
 
 vi.mock("@/lib/api-client", () => ({
   backendFetch: backendFetchMock,

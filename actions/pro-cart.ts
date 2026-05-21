@@ -68,19 +68,13 @@ export async function removeProCartItem(
   }
 }
 
-export async function clearProCart(): Promise<Ok<{ cleared: number }> | Err> {
+export async function clearProCart(): Promise<Ok<{ cleared: boolean }> | Err> {
   try {
-    const { cart } = await backendFetch<{ cart: CartDTO }>(
-      "/api/v1/b2b/cart",
-      { auth: "required" },
-    );
-    for (const item of cart.items) {
-      await backendFetch(`/api/v1/b2b/cart/items/${item.id}`, {
-        method: "DELETE",
-        auth: "required",
-      });
-    }
-    return { ok: true, cleared: cart.items.length };
+    await backendFetch("/api/v1/b2b/cart", {
+      method: "DELETE",
+      auth: "required",
+    });
+    return { ok: true, cleared: true };
   } catch (error) {
     return fail(error);
   }

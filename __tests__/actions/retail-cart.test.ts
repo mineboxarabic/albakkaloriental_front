@@ -94,16 +94,14 @@ describe("retail cart actions", () => {
     );
   });
 
-  it("clearRetailCart deletes every item one by one", async () => {
-    backendFetchMock
-      .mockResolvedValueOnce({
-        cart: { id: "c1", items: [{ id: "a" }, { id: "b" }] },
-      })
-      .mockResolvedValueOnce({ itemId: "a" })
-      .mockResolvedValueOnce({ itemId: "b" });
-
+  it("clearRetailCart issues a single DELETE /api/v1/retail/cart", async () => {
+    backendFetchMock.mockResolvedValueOnce({ cleared: true });
     const result = await clearRetailCart();
     expect(result.ok).toBe(true);
-    expect(backendFetchMock).toHaveBeenCalledTimes(3);
+    expect(backendFetchMock).toHaveBeenCalledTimes(1);
+    expect(backendFetchMock).toHaveBeenCalledWith(
+      "/api/v1/retail/cart",
+      expect.objectContaining({ method: "DELETE", auth: "required" }),
+    );
   });
 });

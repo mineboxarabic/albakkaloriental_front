@@ -30,14 +30,10 @@ export type ProSession = {
 export type CatalogSession = RetailSession | ProSession;
 
 function getSharedSecret(): Uint8Array {
-  const secret =
-    process.env.BACKEND_JWT_SECRET ??
-    process.env.RETAIL_JWT_SECRET ??
-    process.env.B2B_JWT_SECRET ??
-    process.env.AUTH_SECRET;
+  const secret = process.env.AUTH_SECRET;
   if (!secret) {
     throw new Error(
-      "BACKEND_JWT_SECRET / RETAIL_JWT_SECRET / B2B_JWT_SECRET / AUTH_SECRET must be set (same value as AlimExpressApp).",
+      "AUTH_SECRET must be set (same value as AlimExpressApp).",
     );
   }
   return new TextEncoder().encode(secret);

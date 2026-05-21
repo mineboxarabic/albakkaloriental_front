@@ -7,11 +7,23 @@ export type CartItemDTO = {
   productId: string;
   quantity: number;
   saleUnit: "UNIT" | "PACK";
+  product: {
+    name: string;
+    sku: string;
+    category: string;
+    imageUrl: string | null;
+    unitsPerPack: number;
+    baseUnit: string;
+    sellingPrice: number;
+    unitSellingPrice: number | null;
+    effectivePrice: number;
+  };
 };
 
 export type CartDTO = {
   id: string;
   items: CartItemDTO[];
+  total: number;
 };
 
 type Ok<T> = { ok: true } & T;
@@ -79,19 +91,13 @@ export async function removeRetailCartItem(
   }
 }
 
-export async function clearRetailCart(): Promise<Ok<{ cleared: number }> | Err> {
+export async function clearRetailCart(): Promise<Ok<{ cleared: boolean }> | Err> {
   try {
-    const { cart } = await backendFetch<{ cart: CartDTO }>(
-      "/api/v1/retail/cart",
-      { auth: "required" },
-    );
-    for (const item of cart.items) {
-      await backendFetch(`/api/v1/retail/cart/items/${item.id}`, {
-        method: "DELETE",
-        auth: "required",
-      });
-    }
-    return { ok: true, cleared: cart.items.length };
+    await backendFetch("/api/v1/retail/cart", {
+      method: "DELETE",
+      auth: "required",
+    });
+    return { ok: true, cleared: true };
   } catch (error) {
     return fail(error);
   }

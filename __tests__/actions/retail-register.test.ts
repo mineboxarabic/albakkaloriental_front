@@ -27,6 +27,7 @@ const validValues = {
   email: "jean@example.test",
   phone: "+33600000001",
   city: "Draguignan",
+  postalCode: "83300",
   address: "13 Rue Test",
   password: "Password!23",
 };
@@ -58,6 +59,7 @@ describe("registerRetail", () => {
           email: "jean@example.test",
           phone: "+33600000001",
           city: "Draguignan",
+          postalCode: "83300",
           address: "13 Rue Test",
           password: "Password!23",
         },

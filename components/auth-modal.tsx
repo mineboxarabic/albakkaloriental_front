@@ -142,13 +142,13 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <ModalField
         icon={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
-        label="Adresse e-mail"
-        name="email"
-        type="email"
+        label="Email ou téléphone"
+        name="identifier"
+        type="text"
         required
         defaultValue={emailVal}
         autoComplete="email"
-        placeholder="vous@exemple.com"
+        placeholder="vous@exemple.com ou +33 6 12 34 56 78"
       />
       <ModalField
         icon={<Lock className="h-3.5 w-3.5" strokeWidth={2} />}

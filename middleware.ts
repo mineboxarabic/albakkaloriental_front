@@ -4,11 +4,7 @@ import { jwtVerify } from "jose";
 const SESSION_COOKIE = "catalog_session";
 
 function secret(): Uint8Array | null {
-  const raw =
-    process.env.BACKEND_JWT_SECRET ??
-    process.env.RETAIL_JWT_SECRET ??
-    process.env.B2B_JWT_SECRET ??
-    process.env.AUTH_SECRET;
+  const raw = process.env.AUTH_SECRET;
   if (!raw || raw.length < 8) return null;
   return new TextEncoder().encode(raw);
 }
