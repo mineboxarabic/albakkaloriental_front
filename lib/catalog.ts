@@ -24,6 +24,7 @@ export type ProductCard = {
    * retail = sellingPrice, B2B = priceLevel{C|D|E|F} of the customer).
    */
   effectivePrice: number;
+  isOutOfStock: boolean;
 };
 
 type BackendCatalogProduct = {
@@ -42,6 +43,7 @@ type BackendCatalogProduct = {
   priceLevelE: number | null;
   priceLevelF: number | null;
   price: number;
+  isOutOfStock?: boolean;
 };
 
 function toProductCard(p: BackendCatalogProduct): ProductCard {
@@ -60,6 +62,7 @@ function toProductCard(p: BackendCatalogProduct): ProductCard {
     priceLevelE: p.priceLevelE,
     priceLevelF: p.priceLevelF,
     effectivePrice: p.price,
+    isOutOfStock: p.isOutOfStock ?? false,
   };
 }
 

@@ -19,6 +19,7 @@ type Props = {
   unitsPerPack: number;
   pricing: ProPriceInput;
   pricingLevel: PricingLevel | null;
+  isOutOfStock?: boolean;
 };
 
 export function AddToProCartButton({
@@ -28,6 +29,7 @@ export function AddToProCartButton({
   unitsPerPack,
   pricing,
   pricingLevel,
+  isOutOfStock = false,
 }: Props) {
   const allowsUnit = supportsUnitSale(pricing);
   const [saleUnit, setSaleUnit] = useState<CartSaleUnit>("PACK");
@@ -119,38 +121,47 @@ export function AddToProCartButton({
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          addItem(
-            {
-              productId,
-              name,
-              imageUrl,
-              unitPrice,
-              saleUnit,
-              unitsPerPack,
-            },
-            qty,
-          );
-          setConfirmed(true);
-          window.setTimeout(() => setConfirmed(false), 1400);
-        }}
-        className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
-        style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
-      >
-        {confirmed ? (
-          <span className="inline-flex items-center gap-2">
-            <Check className="h-4 w-4" strokeWidth={2.4} />
-            Ajouté au panier
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-2">
-            <ShoppingCart className="h-4 w-4" strokeWidth={2} />
-            Ajouter au devis
-          </span>
-        )}
-      </button>
+      {isOutOfStock ? (
+        <div
+          className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white"
+          style={{ background: "#999" }}
+        >
+          Produit en rupture
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            addItem(
+              {
+                productId,
+                name,
+                imageUrl,
+                unitPrice,
+                saleUnit,
+                unitsPerPack,
+              },
+              qty,
+            );
+            setConfirmed(true);
+            window.setTimeout(() => setConfirmed(false), 1400);
+          }}
+          className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
+          style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
+        >
+          {confirmed ? (
+            <span className="inline-flex items-center gap-2">
+              <Check className="h-4 w-4" strokeWidth={2.4} />
+              Ajouté au panier
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" strokeWidth={2} />
+              Ajouter au devis
+            </span>
+          )}
+        </button>
+      )}
     </div>
   );
 }

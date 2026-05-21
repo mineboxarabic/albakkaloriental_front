@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Package, Box } from "lucide-react";
+import { Package, Box, AlertCircle } from "lucide-react";
 type PricingLevel = "C" | "D" | "E" | "F";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import {
@@ -20,12 +20,22 @@ export function ProProductCard({
   const packPrice = resolveProPrice(product, "PACK", pricingLevel);
   const hasUnit = supportsUnitSale(product);
   const unitPrice = hasUnit ? resolveProPrice(product, "UNIT", pricingLevel) : null;
+  const isOutOfStock = product.isOutOfStock;
 
   return (
     <article
-      className="flex flex-col overflow-hidden rounded-sm border bg-white transition hover:shadow-md"
-      style={{ borderColor: COLORS.border }}
+      className="relative flex flex-col overflow-hidden rounded-sm border bg-white transition hover:shadow-md"
+      style={{ borderColor: COLORS.border, opacity: isOutOfStock ? 0.85 : 1 }}
     >
+      {isOutOfStock && (
+        <span
+          className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-bold tracking-[0.1em] text-white"
+          style={{ background: COLORS.red }}
+        >
+          <AlertCircle className="h-3 w-3" strokeWidth={2.4} />
+          RUPTURE
+        </span>
+      )}
       <Link
         href={`/pro/products/${product.id}`}
         className="block h-[140px] w-full"
@@ -85,13 +95,24 @@ export function ProProductCard({
           )}
         </div>
 
-        <Link
-          href={`/pro/products/${product.id}`}
-          className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
-          style={{ background: COLORS.primary }}
-        >
-          Ajouter au devis
-        </Link>
+        {isOutOfStock ? (
+          <button
+            type="button"
+            disabled
+            className="mt-1 grid h-9 cursor-not-allowed place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
+            style={{ background: "#999" }}
+          >
+            Indisponible
+          </button>
+        ) : (
+          <Link
+            href={`/pro/products/${product.id}`}
+            className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
+            style={{ background: COLORS.primary }}
+          >
+            Ajouter au devis
+          </Link>
+        )}
       </div>
     </article>
   );

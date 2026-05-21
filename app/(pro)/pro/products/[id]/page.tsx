@@ -96,6 +96,7 @@ export default async function ProProductDetailPage({
               imageUrl={product.imageUrl}
               unitsPerPack={product.unitsPerPack}
               pricingLevel={session.pricingLevel}
+              isOutOfStock={product.isOutOfStock}
               pricing={{
                 sellingPrice: product.sellingPrice,
                 unitSellingPrice: product.unitSellingPrice,
