@@ -209,13 +209,13 @@ si tu clique je suis une entreprise, y a une formulaire, nom prenom nom entrepri
 
 ### Task 8 - Pro orders et invoices
 
-- [ ] Creer `app/(pro)/pro/orders/page.tsx`.
-- [ ] Afficher historique des commandes du `customerId` connecte.
-- [ ] Afficher numero, date, total, badge statut.
-- [ ] Labels statuts : `PENDING` = Devis, `CONFIRMED` = Commande confirmee, `DELIVERED` = Livree.
-- [ ] Creer `app/(pro)/pro/invoices/page.tsx`.
-- [ ] Ajouter placeholder : `Vos factures seront disponibles ici apres livraison.`
-- [ ] Ajouter TODO pour brancher le modele `Invoice` quand l'admin genere les factures.
+- [x] Creer `app/(pro)/pro/orders/page.tsx`. _(Server, gardee par `getSession()` -> `/pro/login?next=/pro/orders`.)_
+- [x] Afficher historique des commandes du `customerId` connecte. _(`prisma.order.findMany({where:{customerId}})`, tri DESC sur `createdAt`.)_
+- [x] Afficher numero, date, total, badge statut. _(Table 12-cols : N°, date courte FR, nombre d'articles via `_count.items`, badge, total HT.)_
+- [x] Labels statuts : `PENDING` = Devis, `CONFIRMED` = Commande confirmee, `DELIVERED` = Livree. _(Mapping `STATUS_META` jaune/vert/vert-fonce/rouge + icone par statut.)_
+- [x] Creer `app/(pro)/pro/invoices/page.tsx`. _(Server, gardee comme `/pro/orders`.)_
+- [x] Ajouter placeholder : `Vos factures seront disponibles ici apres livraison.` _(Carte heroique avec icone Receipt, badge "BIENTOT DISPONIBLE", liste de features a venir, info contact e-mail.)_
+- [x] Ajouter TODO pour brancher le modele `Invoice` quand l'admin genere les factures. _(Commentaire TODO en tete de fichier listant les champs admin disponibles : `invoiceNumber`, `status`, `pdfPath`, etc.)_
 - [ ] Commit attendu : `feat: add pro order history and invoices placeholder`.
 
 ## Phase 5 - E2E Tests
