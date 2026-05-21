@@ -101,18 +101,44 @@ export async function getCategories(audience: CatalogAudience): Promise<string[]
   return Array.from(new Set(all.map((p) => p.category))).sort();
 }
 
-// Upcoming deliveries: temporarily returns an empty list until the back-end
-// exposes a public read endpoint over the new Delivery v2 model.
-// Tracked as F.K in backlog.md.
+// Upcoming deliveries: public read on Delivery v2 (multi-cities, ordered).
+// Silently degrades to [] if the back-end is unreachable so the home page
+// stays useful.
+export type UpcomingDeliveryCity = {
+  id: string;
+  name: string;
+  position: number;
+};
+
 export type UpcomingDelivery = {
   id: string;
-  city: string;
   scheduledDate: Date;
-  note: string | null;
+  comment: string | null;
+  cities: UpcomingDeliveryCity[];
+};
+
+type BackendUpcomingDelivery = {
+  id: string;
+  scheduledDate: string;
+  comment: string | null;
+  cities: UpcomingDeliveryCity[];
 };
 
 export async function getUpcomingDeliveries(
-  _limit = 6,
+  limit = 6,
 ): Promise<UpcomingDelivery[]> {
-  return [];
+  try {
+    const data = await backendFetch<{ deliveries: BackendUpcomingDelivery[] }>(
+      `/api/v1/public/deliveries/upcoming?limit=${limit}`,
+      { auth: "none" },
+    );
+    return data.deliveries.map((d) => ({
+      id: d.id,
+      scheduledDate: new Date(d.scheduledDate),
+      comment: d.comment,
+      cities: d.cities,
+    }));
+  } catch {
+    return [];
+  }
 }

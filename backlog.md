@@ -378,9 +378,10 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] `getUpcomingDeliveries` retourne `[]` temporairement (F.K si réintroduction)
 - ✅ 0 TS errors, 59 tests passants
 
-### Phase F.K (à venir, optionnel) — Public delivery schedule endpoint
-- [ ] Back: `GET /api/v1/public/deliveries/upcoming` (sans auth, futures Delivery v2)
-- [ ] Front: réintroduire `getUpcomingDeliveries` via API
+### Phase F.K ✅ — Public delivery schedule endpoint
+- [x] **Back** `GET /api/v1/public/deliveries/upcoming?limit=N` (sans auth, futures DRAFT/PLANNED, cities ordonnées par position) — 6 tests
+- [x] **Front** `getUpcomingDeliveries(limit)` réécrit pour backendFetch avec `auth:none`, mapping date-string → Date, degradation silencieuse en `[]` si back-end down — 4 tests
+- [x] **Home retail** UI revisée: card par tournée (date + commentaire + chips ville numérotées dans l'ordre de tournée) au lieu de l'ancien "1 row par couple ville/date"
 
 ## Critères d'acceptation Phase F (global)
 

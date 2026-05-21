@@ -218,32 +218,57 @@ export default async function Home() {
               Prochaines tournées de livraison
             </h2>
           </div>
-          <div className="mt-4 grid grid-cols-4 gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
             {deliveries.map((d) => (
               <div
                 key={d.id}
-                className="flex items-start gap-3 rounded-lg border bg-white px-4 py-4"
+                className="rounded-lg border bg-white px-5 py-4"
                 style={{ borderColor: COLORS.border }}
               >
-                <div
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-md"
-                  style={{ background: COLORS.beige, color: COLORS.primary }}
-                >
-                  <CalendarDays className="h-5 w-5" strokeWidth={1.8} />
-                </div>
-                <div className="leading-tight">
-                  <div className="text-[13px] font-bold" style={{ color: COLORS.text }}>
-                    {d.city}
+                <div className="flex items-start gap-3">
+                  <div
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-md"
+                    style={{ background: COLORS.beige, color: COLORS.primary }}
+                  >
+                    <CalendarDays className="h-5 w-5" strokeWidth={1.8} />
                   </div>
-                  <div className="text-[12px] capitalize" style={{ color: COLORS.muted }}>
-                    {DELIVERY_DATE_FMT.format(new Date(d.scheduledDate))}
-                  </div>
-                  {d.note && (
-                    <div className="mt-1 text-[11px]" style={{ color: COLORS.muted }}>
-                      {d.note}
+                  <div className="leading-tight">
+                    <div
+                      className="text-[13px] font-bold capitalize"
+                      style={{ color: COLORS.text }}
+                    >
+                      {DELIVERY_DATE_FMT.format(new Date(d.scheduledDate))}
                     </div>
-                  )}
+                    {d.comment && (
+                      <div className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
+                        {d.comment}
+                      </div>
+                    )}
+                  </div>
                 </div>
+                {d.cities.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {d.cities.map((c) => (
+                      <span
+                        key={c.id}
+                        className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
+                        style={{
+                          borderColor: COLORS.border,
+                          color: COLORS.text,
+                          background: "#FAF8F2",
+                        }}
+                      >
+                        <span
+                          className="grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold text-white"
+                          style={{ background: COLORS.primary }}
+                        >
+                          {c.position + 1}
+                        </span>
+                        {c.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
