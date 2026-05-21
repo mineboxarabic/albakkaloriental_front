@@ -332,8 +332,9 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] Note: fix bug bloc commentaire dans `lib/session.ts` (`/api/v1/*/auth/*` parsé comme fin de comment)
 
 ### Phase F.E — Catalog
-- [ ] `app/(retail)/page.tsx` + `products` → `GET /api/v1/retail/catalog`
-- [ ] `app/(pro)/pro/products/*` → `GET /api/v1/b2b/catalog`
+- [x] **Back**: enrichir `CatalogProductOutput` avec `category`, `imageUrl`, `unitsPerPack`, `baseUnit`, `unitSellingPrice` + garder `priceLevelC/D/E/F` exposés (back-compat front pro). Routes `/retail/catalog` + `/b2b/catalog` select étendus. 18 tests passent toujours
+- [x] **Front** `lib/catalog.ts`: refactor `getProducts`, `getProduct`, `getCategories` pour appeler `backendFetch` (`/api/v1/{retail|b2b}/catalog`). Filtrage `category` + pagination `take`/`skip` côté client. `getUpcomingDeliveries` reste direct Prisma (legacy `DeliverySchedule`, hors scope). Nouveau champ `ProductCard.effectivePrice` = prix résolu côté back — 7 tests
+- [x] Pages existantes (retail home/products + pro products) continuent de fonctionner sans modif grâce à `ProductCard` rétro-compatible (`sellingPrice`, `priceLevelC/D/E/F` toujours exposés)
 
 ### Phase F.F — Cart
 - [ ] Retail cart pages → `GET/POST/PATCH/DELETE /api/v1/retail/cart{,/items,/items/[id]}`

@@ -1,6 +1,6 @@
 import "server-only";
-import { ProductVisibility } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { backendFetch } from "@/lib/api-client";
 
 export { getTierPrice, formatPriceEUR, type TierPriceInput } from "@/lib/catalog-pricing";
 
@@ -20,30 +20,57 @@ export type ProductCard = {
   priceLevelD: number | null;
   priceLevelE: number | null;
   priceLevelF: number | null;
+  /**
+   * Effective price for the viewer (already resolved by the back-end:
+   * retail = sellingPrice, B2B = priceLevel{C|D|E|F} of the customer).
+   */
+  effectivePrice: number;
 };
 
-const productCardSelect = {
-  id: true,
-  name: true,
-  sku: true,
-  category: true,
-  imageUrl: true,
-  unitsPerPack: true,
-  baseUnit: true,
-  sellingPrice: true,
-  unitSellingPrice: true,
-  priceLevelC: true,
-  priceLevelD: true,
-  priceLevelE: true,
-  priceLevelF: true,
-} as const;
+type BackendCatalogProduct = {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  imageUrl: string | null;
+  unitsPerPack: number;
+  baseUnit: string;
+  visibility: "RETAIL" | "WHOLESALE" | "BOTH";
+  sellingPrice: number;
+  unitSellingPrice: number | null;
+  priceLevelC: number | null;
+  priceLevelD: number | null;
+  priceLevelE: number | null;
+  priceLevelF: number | null;
+  price: number;
+};
 
-function visibilityFilter(audience: CatalogAudience) {
-  const values: ProductVisibility[] =
-    audience === "retail"
-      ? [ProductVisibility.RETAIL, ProductVisibility.BOTH]
-      : [ProductVisibility.WHOLESALE, ProductVisibility.BOTH];
-  return { visibility: { in: values } };
+function toProductCard(p: BackendCatalogProduct): ProductCard {
+  return {
+    id: p.id,
+    name: p.name,
+    sku: p.sku,
+    category: p.category,
+    imageUrl: p.imageUrl,
+    unitsPerPack: p.unitsPerPack,
+    baseUnit: p.baseUnit,
+    sellingPrice: p.sellingPrice,
+    unitSellingPrice: p.unitSellingPrice,
+    priceLevelC: p.priceLevelC,
+    priceLevelD: p.priceLevelD,
+    priceLevelE: p.priceLevelE,
+    priceLevelF: p.priceLevelF,
+    effectivePrice: p.price,
+  };
+}
+
+async function fetchCatalog(audience: CatalogAudience): Promise<BackendCatalogProduct[]> {
+  const path =
+    audience === "retail" ? "/api/v1/retail/catalog" : "/api/v1/b2b/catalog";
+  const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
+    auth: "required",
+  });
+  return data.products;
 }
 
 export async function getProducts(opts: {
@@ -52,51 +79,31 @@ export async function getProducts(opts: {
   take?: number;
   skip?: number;
 }): Promise<ProductCard[]> {
-  const { audience, category, take, skip } = opts;
-  return prisma.product.findMany({
-    where: {
-      ...visibilityFilter(audience),
-      ...(category ? { category } : {}),
-    },
-    select: productCardSelect,
-    orderBy: { name: "asc" },
-    take,
-    skip,
-  });
+  const all = await fetchCatalog(opts.audience);
+  const filtered = opts.category
+    ? all.filter((p) => p.category === opts.category)
+    : all;
+  const skip = opts.skip ?? 0;
+  const take = opts.take ?? filtered.length;
+  return filtered.slice(skip, skip + take).map(toProductCard);
 }
 
 export async function getProduct(
   id: string,
   audience: CatalogAudience,
 ): Promise<ProductCard | null> {
-  const product = await prisma.product.findUnique({
-    where: { id },
-    select: productCardSelect,
-  });
-  if (!product) return null;
-  // Enforce visibility for the audience.
-  const visibility = await prisma.product.findUnique({
-    where: { id },
-    select: { visibility: true },
-  });
-  if (!visibility) return null;
-  if (audience === "retail" && visibility.visibility === "WHOLESALE") return null;
-  if (audience === "pro" && visibility.visibility === "RETAIL") return null;
-  return product;
+  const all = await fetchCatalog(audience);
+  const found = all.find((p) => p.id === id);
+  return found ? toProductCard(found) : null;
 }
 
-export async function getCategories(
-  audience: CatalogAudience,
-): Promise<string[]> {
-  const rows = await prisma.product.findMany({
-    where: visibilityFilter(audience),
-    select: { category: true },
-    distinct: ["category"],
-    orderBy: { category: "asc" },
-  });
-  return rows.map((r) => r.category);
+export async function getCategories(audience: CatalogAudience): Promise<string[]> {
+  const all = await fetchCatalog(audience);
+  return Array.from(new Set(all.map((p) => p.category))).sort();
 }
 
+// Legacy upcoming deliveries (still direct Prisma until back-end exposes a
+// public endpoint for the new Delivery v2 model).
 export type UpcomingDelivery = {
   id: string;
   city: string;
@@ -116,4 +123,3 @@ export async function getUpcomingDeliveries(
     select: { id: true, city: true, scheduledDate: true, note: true },
   });
 }
-
