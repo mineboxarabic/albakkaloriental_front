@@ -319,8 +319,10 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [ ] `POST /api/v1/retail/auth/login` accepte `email` en plus de `phone`
 
 ### Phase F.C — Pages magic-link nouvelles
-- [ ] `app/(public)/set-password/page.tsx` (lien envoyé après création compte B2B par admin)
-- [ ] `app/(public)/verify-email/page.tsx` (lien envoyé après register B2C)
+- [x] `actions/set-password.ts` (Zod + backendFetch POST `/api/v1/auth/set-password`) — 5 tests
+- [x] `app/(public)/set-password/page.tsx` + `set-password-form.tsx` (useActionState, hidden token)
+- [x] `actions/verify-email.ts` (backendFetch POST `/api/v1/auth/verify-email`) — 3 tests
+- [x] `app/(public)/verify-email/page.tsx` (server component, auto-submit via searchParams.token)
 
 ### Phase F.D — Auth actions refactor
 - [ ] `actions/retail-auth.ts` register → `POST /api/v1/retail/auth/register`
