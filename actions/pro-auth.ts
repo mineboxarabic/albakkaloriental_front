@@ -1,14 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
-import prisma from "@/lib/prisma";
-import {
-  clearSessionCookie,
-  setSessionCookie,
-  type ProSession,
-} from "@/lib/session";
+import { ApiClientError, backendFetch } from "@/lib/api-client";
+import { clearSessionCookie, storeBackendToken } from "@/lib/session";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Adresse e-mail invalide."),
@@ -37,6 +32,7 @@ export async function loginPro(
     formData.get("redirectTo") as string | null,
     "/pro/account",
   );
+
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
@@ -46,47 +42,27 @@ export async function loginPro(
     };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email },
-    select: {
-      id: true,
-      email: true,
-      password: true,
-      role: true,
-      isActive: true,
-      customerId: true,
-      customer: {
-        select: {
-          id: true,
-          companyName: true,
-          pricingLevel: true,
-        },
-      },
-    },
-  });
+  try {
+    const result = await backendFetch<{
+      token: string;
+      user: { id: string; email: string };
+    }>("/api/v1/b2b/auth/login", {
+      method: "POST",
+      auth: "none",
+      body: parsed.data,
+    });
 
-  const invalid = (): ProLoginState => ({
-    ok: false,
-    error: "Identifiants invalides ou compte non autorisé.",
-    values: { email: raw.email },
-  });
-
-  if (!user || !user.isActive || user.role !== "B2B_CLIENT" || !user.customer) {
-    return invalid();
+    await storeBackendToken(result.token);
+  } catch (error) {
+    const message =
+      error instanceof ApiClientError ? error.message : "Identifiants invalides.";
+    return {
+      ok: false,
+      error: message,
+      values: { email: raw.email },
+    };
   }
 
-  const ok = await bcrypt.compare(parsed.data.password, user.password);
-  if (!ok) return invalid();
-
-  const session: ProSession = {
-    type: "pro",
-    userId: user.id,
-    customerId: user.customer.id,
-    email: user.email,
-    companyName: user.customer.companyName,
-    pricingLevel: user.customer.pricingLevel,
-  };
-  await setSessionCookie(session);
   redirect(redirectTo);
 }
 

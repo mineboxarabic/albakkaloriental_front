@@ -1,14 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
-import prisma from "@/lib/prisma";
-import {
-  clearSessionCookie,
-  setSessionCookie,
-  type RetailSession,
-} from "@/lib/session";
+import { ApiClientError, backendFetch } from "@/lib/api-client";
+import { clearSessionCookie, storeBackendToken } from "@/lib/session";
 
 const phoneSchema = z
   .string()
@@ -32,6 +27,7 @@ const registerSchema = z.object({
 
 export type RegisterState =
   | { ok: false; errors: Record<string, string>; values?: Record<string, string> }
+  | { ok: true; message: string }
   | null;
 
 export async function registerRetail(
@@ -59,52 +55,54 @@ export async function registerRetail(
   }
 
   const data = parsed.data;
+  const name = `${data.firstName} ${data.lastName}`.trim();
 
-  const conflict = await prisma.retailCustomer.findFirst({
-    where: { OR: [{ phone: data.phone }, { email: data.email }] },
-    select: { phone: true, email: true },
-  });
-  if (conflict) {
-    const errors: Record<string, string> = {};
-    if (conflict.phone === data.phone) {
-      errors.phone = "Un compte existe déjà avec ce numéro.";
+  try {
+    await backendFetch<{
+      needsEmailVerification: boolean;
+      customer: { id: string; name: string; phone: string };
+    }>("/api/v1/retail/auth/register", {
+      method: "POST",
+      auth: "none",
+      body: {
+        name,
+        email: data.email,
+        phone: data.phone,
+        city: data.city,
+        address: data.address,
+        password: data.password,
+      },
+    });
+
+    return {
+      ok: true,
+      message:
+        "Votre compte est créé. Un email de confirmation vient de vous être envoyé.",
+    };
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      const errors: Record<string, string> = {};
+      const message = error.message.toLowerCase();
+      if (message.includes("email")) errors.email = error.message;
+      else if (message.includes("phone")) errors.phone = error.message;
+      else errors.form = error.message;
+      return { ok: false, errors, values: raw };
     }
-    if (conflict.email === data.email) {
-      errors.email = "Un compte existe déjà avec cette adresse e-mail.";
-    }
-    return { ok: false, errors, values: raw };
+    return {
+      ok: false,
+      errors: { form: "Inscription impossible pour le moment." },
+      values: raw,
+    };
   }
-
-  const hash = await bcrypt.hash(data.password, 10);
-  const customer = await prisma.retailCustomer.create({
-    data: {
-      name: `${data.firstName} ${data.lastName}`.trim(),
-      email: data.email,
-      phone: data.phone,
-      password: hash,
-      city: data.city,
-      address: data.address,
-    },
-    select: { id: true, name: true, phone: true },
-  });
-
-  const session: RetailSession = {
-    type: "retail",
-    customerId: customer.id,
-    name: customer.name,
-    phone: customer.phone,
-  };
-  await setSessionCookie(session);
-  redirect("/");
 }
 
 const loginSchema = z.object({
-  email: z.string().trim().email("Adresse e-mail invalide."),
+  identifier: z.string().trim().min(1, "Email ou téléphone requis."),
   password: z.string().min(1, "Mot de passe requis."),
 });
 
 export type LoginState =
-  | { ok: false; error: string; values?: { email?: string } }
+  | { ok: false; error: string; values?: { identifier?: string } }
   | null;
 
 function sanitizeRedirect(raw: string | null): string {
@@ -118,47 +116,42 @@ export async function loginRetail(
   formData: FormData,
 ): Promise<LoginState> {
   const raw = {
-    email: String(formData.get("email") ?? "").toLowerCase().trim(),
+    identifier: String(formData.get("identifier") ?? formData.get("email") ?? "").trim(),
     password: String(formData.get("password") ?? ""),
   };
   const redirectTo = sanitizeRedirect(formData.get("redirectTo") as string | null);
+
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
       ok: false,
       error: parsed.error.issues[0]?.message ?? "Identifiants invalides.",
-      values: { email: raw.email },
+      values: { identifier: raw.identifier },
     };
   }
 
-  const customer = await prisma.retailCustomer.findUnique({
-    where: { email: parsed.data.email },
-    select: { id: true, name: true, phone: true, password: true, isActive: true },
-  });
+  try {
+    const result = await backendFetch<{
+      token: string;
+      customer: { id: string; name: string; phone: string };
+    }>("/api/v1/retail/auth/login", {
+      method: "POST",
+      auth: "none",
+      body: {
+        identifier: parsed.data.identifier,
+        password: parsed.data.password,
+      },
+    });
 
-  if (!customer || !customer.isActive) {
-    return {
-      ok: false,
-      error: "Identifiants invalides.",
-      values: { email: raw.email },
-    };
+    await storeBackendToken(result.token);
+  } catch (error) {
+    const message =
+      error instanceof ApiClientError
+        ? error.message
+        : "Identifiants invalides.";
+    return { ok: false, error: message, values: { identifier: raw.identifier } };
   }
 
-  const ok = await bcrypt.compare(parsed.data.password, customer.password);
-  if (!ok) {
-    return {
-      ok: false,
-      error: "Identifiants invalides.",
-      values: { email: raw.email },
-    };
-  }
-
-  await setSessionCookie({
-    type: "retail",
-    customerId: customer.id,
-    name: customer.name,
-    phone: customer.phone,
-  });
   redirect(redirectTo);
 }
 

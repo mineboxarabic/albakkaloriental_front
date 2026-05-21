@@ -2,10 +2,11 @@ import { cookies } from "next/headers";
 import { jwtVerify, type JWTPayload } from "jose";
 
 /**
- * Cookie holding the JWT (Bearer) issued by AlimExpressApp /api/v1/*/auth/*.
- * The token's payload tells us whether the session is retail (B2C) or pro (B2B).
- * No server-side signing happens here anymore: this front is just a client
- * of the back-end and stores its tokens.
+ * Cookie holding the JWT (Bearer) issued by AlimExpressApp under
+ * /api/v1/<scope>/auth/login. The token's payload tells us whether the
+ * session is retail (B2C) or pro (B2B). No server-side signing happens
+ * here anymore: this front is just a client of the back-end and stores
+ * its tokens.
  */
 export const SESSION_COOKIE = "catalog_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days (matches back-end JWT expiry)

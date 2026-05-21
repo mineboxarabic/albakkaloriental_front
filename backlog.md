@@ -325,10 +325,11 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] `app/(public)/verify-email/page.tsx` (server component, auto-submit via searchParams.token)
 
 ### Phase F.D — Auth actions refactor
-- [ ] `actions/retail-auth.ts` register → `POST /api/v1/retail/auth/register`
-- [ ] `actions/retail-auth.ts` login → `POST /api/v1/retail/auth/login`
-- [ ] `actions/pro-auth.ts` login → `POST /api/v1/b2b/auth/login`
-- [ ] Logout: clear cookie
+- [x] `actions/retail-auth.ts` `registerRetail` → `POST /api/v1/retail/auth/register` (success message "vérifie email", plus de redirect immédiat) — 3 tests
+- [x] `actions/retail-auth.ts` `loginRetail` → `POST /api/v1/retail/auth/login` avec identifier (email ou phone), store JWT via `storeBackendToken`, redirect — 7 tests
+- [x] `actions/pro-auth.ts` `loginPro` → `POST /api/v1/b2b/auth/login` — 5 tests
+- [x] `logoutRetail` + `logoutPro` → `clearSessionCookie` + redirect
+- [x] Note: fix bug bloc commentaire dans `lib/session.ts` (`/api/v1/*/auth/*` parsé comme fin de comment)
 
 ### Phase F.E — Catalog
 - [ ] `app/(retail)/page.tsx` + `products` → `GET /api/v1/retail/catalog`
