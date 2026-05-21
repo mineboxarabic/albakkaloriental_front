@@ -1,0 +1,103 @@
+// @vitest-environment node
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { backendFetchMock } = vi.hoisted(() => ({ backendFetchMock: vi.fn() }));
+
+vi.mock("@/lib/api-client", () => ({
+  backendFetch: backendFetchMock,
+  ApiClientError: class ApiClientError extends Error {
+    constructor(public status: number, message: string) {
+      super(message);
+      this.name = "ApiClientError";
+    }
+  },
+}));
+
+import { acceptQuote, getQuote } from "@/actions/pro-quote";
+
+describe("getQuote", () => {
+  beforeEach(() => {
+    backendFetchMock.mockReset();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("GETs /api/v1/b2b/quotes/[id] and returns the quote", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      quote: {
+        id: "q1",
+        quoteNumber: "QUO-001",
+        total: 100,
+        validUntil: "2026-06-14T21:00:00.000Z",
+        acceptedAt: null,
+        lines: [],
+        order: { orderNumber: "CMD-001", status: "PENDING" },
+      },
+    });
+
+    const result = await getQuote("q1");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.quote.id).toBe("q1");
+      expect(result.quote.acceptedAt).toBeNull();
+    }
+    expect(backendFetchMock).toHaveBeenCalledWith(
+      "/api/v1/b2b/quotes/q1",
+      expect.objectContaining({ auth: "required" }),
+    );
+  });
+
+  it("returns ok=false on 404", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(new ApiClientError(404, "Not found"));
+
+    const result = await getQuote("missing");
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe("acceptQuote", () => {
+  beforeEach(() => {
+    backendFetchMock.mockReset();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("POSTs /api/v1/b2b/quotes/[id]/accept", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      quoteId: "q1",
+      orderId: "ord1",
+      deliveryCityId: "city1",
+    });
+
+    const result = await acceptQuote("q1");
+    expect(result.ok).toBe(true);
+    expect(backendFetchMock).toHaveBeenCalledWith(
+      "/api/v1/b2b/quotes/q1/accept",
+      expect.objectContaining({ method: "POST", auth: "required" }),
+    );
+  });
+
+  it("surfaces 410 (expired/already accepted)", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(new ApiClientError(410, "Devis expiré"));
+
+    const result = await acceptQuote("q1");
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/expir/i);
+    }
+  });
+
+  it("surfaces 422 (no geocoding)", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(
+      new ApiClientError(422, "Adresse client non géocodée"),
+    );
+
+    const result = await acceptQuote("q1");
+    expect(result.ok).toBe(false);
+  });
+});

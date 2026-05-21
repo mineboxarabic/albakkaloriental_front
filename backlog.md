@@ -351,8 +351,10 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] `confirmProforma` devient stub deprecated (workflow remplacé par accept-quote Phase F.H)
 
 ### Phase F.H — Quote (B2B)
-- [ ] `app/(pro)/pro/quotes/[id]/page.tsx` → `GET /api/v1/b2b/quotes/[id]`
-- [ ] Bouton accept → `POST /api/v1/b2b/quotes/[id]/accept`
+- [x] `actions/pro-quote.ts` (getQuote + acceptQuote) — 5 tests
+- [x] `app/(pro)/pro/quotes/[id]/page.tsx` server component (fetch quote + table lignes + bandeau totaux + état expiré/signé)
+- [x] `accept-button.tsx` client component (confirmation 2-clics, captures router refresh, surface 410/422 errors)
+- [x] **Back** correction URL email: `/quotes/${id}` → `/pro/quotes/${id}` dans `validate-b2b-order.action.ts`
 
 ### Phase F.I — Cleanup
 - [ ] Supprimer `actions/*` qui font du direct Prisma (sauf lectures admin si justifié)
