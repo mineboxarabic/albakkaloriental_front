@@ -6,13 +6,6 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
-// TODO(invoices): brancher le modele `Invoice` quand l'admin AlimExpressApp
-// genere les factures. Champs disponibles cote admin :
-// invoiceNumber, invoiceDate, dueDate, status (UNPAID/PAID/OVERDUE/CANCELLED),
-// totalAmount, paidAmount, pdfPath, sentAt, items.
-// Lister par customerId via : prisma.invoice.findMany({ where: { customerId } })
-// et exposer le PDF via pdfPath (S3) ou un endpoint signe.
-
 export default async function ProInvoicesPage() {
   const session = await getSession();
   if (!session || session.type !== "pro") {

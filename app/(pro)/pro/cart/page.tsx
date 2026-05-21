@@ -44,7 +44,7 @@ export default function ProCartPage() {
         return;
       }
       clearCart();
-      router.push(`/pro/proforma/${res.orderId}`);
+      router.push(`/pro/orders/${res.orderId}`);
     });
   };
 

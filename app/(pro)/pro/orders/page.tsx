@@ -151,7 +151,7 @@ export default async function ProOrdersPage() {
                   style={{ borderColor: COLORS.border }}
                 >
                   <Link
-                    href={`/pro/proforma/${o.id}`}
+                    href={`/pro/orders/${o.id}`}
                     className="grid grid-cols-12 items-center gap-3 px-4 py-4 text-[13.5px] transition hover:bg-[#FAF8F2]"
                   >
                     <div className="col-span-3 flex items-center gap-2">
