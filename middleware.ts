@@ -4,17 +4,21 @@ import { jwtVerify } from "jose";
 const SESSION_COOKIE = "catalog_session";
 
 function secret(): Uint8Array | null {
-  const raw = process.env.JWT_SECRET;
-  if (!raw || raw.length < 16) return null;
+  const raw =
+    process.env.BACKEND_JWT_SECRET ??
+    process.env.RETAIL_JWT_SECRET ??
+    process.env.B2B_JWT_SECRET ??
+    process.env.AUTH_SECRET;
+  if (!raw || raw.length < 8) return null;
   return new TextEncoder().encode(raw);
 }
 
-async function getProSession(token: string): Promise<boolean> {
+async function isPro(token: string): Promise<boolean> {
   const key = secret();
   if (!key) return false;
   try {
     const { payload } = await jwtVerify(token, key);
-    return payload.type === "pro";
+    return payload.role === "B2B_CLIENT";
   } catch {
     return false;
   }
@@ -23,15 +27,14 @@ async function getProSession(token: string): Promise<boolean> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // /pro/login is public.
   if (pathname === "/pro/login" || pathname.startsWith("/pro/login/")) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const isPro = token ? await getProSession(token) : false;
+  const allowed = token ? await isPro(token) : false;
 
-  if (!isPro) {
+  if (!allowed) {
     const url = req.nextUrl.clone();
     url.pathname = "/pro/login";
     if (pathname && pathname !== "/pro") {

@@ -287,3 +287,74 @@ Une tache est terminee quand :
 - `AlimExpressApp` doit avoir les migrations et modeles DB necessaires.
 - `AlimExpressCatalog` partage la base de donnees mais ne possede pas les migrations.
 - Si un champ Prisma ne correspond pas au schema reel, corriger le subset local pour matcher `AlimExpressApp` avant `prisma generate`.
+
+---
+
+# Phase F — Refactor: utiliser l'API REST v1 d'AlimExpressApp (date: 2026-05-21)
+
+Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) avec workflows magic-link, cart serveur, checkout, quote accept, lock 21h J-1, PDFs. Ce front utilisait jusqu'ici un accès direct à Prisma + sessions cookie maison; on bascule sur l'API v1 pour:
+
+- éviter la duplication de logique métier (snapshot prix, validations, quotas, lock)
+- supporter les flows manquants: magic-link B2B, email verify B2C, quote accept
+- séparer proprement les responsabilités (front = UI, back = règles métier)
+
+## Décisions
+
+- Le cookie de session continue de s'appeler `catalog_session` mais contient désormais **le JWT bearer renvoyé par le back** (B2B ou retail). Plus de signing local maison.
+- Variable d'env `BACKEND_URL` (server-only) + `NEXT_PUBLIC_BACKEND_URL` (si appels client-side nécessaires).
+- Le client API est dans `lib/api-client.ts`. Toutes les server actions appellent `backendFetch`.
+- `Order.status=PENDING` redevient strictement "avant validation admin". Le concept "proforma" actuel disparaît au profit du flow officiel: `cart` → `checkout` → `Order PENDING` → admin valide → `Quote` → client accepte → `CONFIRMED`.
+- Pour le login B2C: le back accepte désormais email **ou** phone (adapté côté back, voir F.B).
+
+## Phases
+
+### Phase F.A — Infrastructure
+- [x] Branche `feat/use-back-api-v1`
+- [x] `lib/api-client.ts` (fetch wrapper Bearer, `ApiClientError` typé)
+- [x] Adapter `lib/session.ts` (vérifie JWT back-end via shared secret, plus de signing local; expose `storeBackendToken` + `getSession`)
+- [x] Adapter `middleware.ts` (role-based check)
+- [x] `.env.example` créé avec `BACKEND_URL`, `NEXT_PUBLIC_BACKEND_URL`, `BACKEND_JWT_SECRET`
+
+### Phase F.B — Back-end adapter (autre repo)
+- [ ] `POST /api/v1/retail/auth/login` accepte `email` en plus de `phone`
+
+### Phase F.C — Pages magic-link nouvelles
+- [ ] `app/(public)/set-password/page.tsx` (lien envoyé après création compte B2B par admin)
+- [ ] `app/(public)/verify-email/page.tsx` (lien envoyé après register B2C)
+
+### Phase F.D — Auth actions refactor
+- [ ] `actions/retail-auth.ts` register → `POST /api/v1/retail/auth/register`
+- [ ] `actions/retail-auth.ts` login → `POST /api/v1/retail/auth/login`
+- [ ] `actions/pro-auth.ts` login → `POST /api/v1/b2b/auth/login`
+- [ ] Logout: clear cookie
+
+### Phase F.E — Catalog
+- [ ] `app/(retail)/page.tsx` + `products` → `GET /api/v1/retail/catalog`
+- [ ] `app/(pro)/pro/products/*` → `GET /api/v1/b2b/catalog`
+
+### Phase F.F — Cart
+- [ ] Retail cart pages → `GET/POST/PATCH/DELETE /api/v1/retail/cart{,/items,/items/[id]}`
+- [ ] Pro cart pages → `/api/v1/b2b/cart*`
+- [ ] Supprimer cart localStorage si présent
+
+### Phase F.G — Checkout
+- [ ] `actions/retail-order.ts` → `POST /api/v1/retail/orders/checkout`
+- [ ] `actions/pro-order.ts` → `POST /api/v1/b2b/orders/checkout`
+
+### Phase F.H — Quote (B2B)
+- [ ] `app/(pro)/pro/quotes/[id]/page.tsx` → `GET /api/v1/b2b/quotes/[id]`
+- [ ] Bouton accept → `POST /api/v1/b2b/quotes/[id]/accept`
+
+### Phase F.I — Cleanup
+- [ ] Supprimer `actions/*` qui font du direct Prisma (sauf lectures admin si justifié)
+- [ ] Supprimer `lib/prisma.ts` si plus utilisé
+- [ ] Supprimer page `proforma` (remplacée par flow Order/Quote propre)
+- [ ] `package.json`: retirer `@prisma/client`, `prisma`, `bcryptjs` si plus utilisés
+
+## Critères d'acceptation Phase F (global)
+
+- Plus aucune server action n'importe `@/lib/prisma` ni `bcryptjs`.
+- `lib/api-client.ts` est l'unique point d'entrée vers le back-end.
+- `BACKEND_URL` documenté dans README.
+- Tous les flows fonctionnent end-to-end avec le back-end lancé localement (lien magic-link, verify email, login, panier, checkout, accept devis).
+- `npm run lint` + tests vitest passent.

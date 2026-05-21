@@ -1,12 +1,19 @@
 import { cookies } from "next/headers";
-import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { jwtVerify, type JWTPayload } from "jose";
 
+/**
+ * Cookie holding the JWT (Bearer) issued by AlimExpressApp /api/v1/*/auth/*.
+ * The token's payload tells us whether the session is retail (B2C) or pro (B2B).
+ * No server-side signing happens here anymore: this front is just a client
+ * of the back-end and stores its tokens.
+ */
 export const SESSION_COOKIE = "catalog_session";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days (matches back-end JWT expiry)
 
 export type RetailSession = {
   type: "retail";
   customerId: string;
+  userId?: string;
   name: string;
   phone: string;
 };
@@ -14,39 +21,61 @@ export type RetailSession = {
 export type ProSession = {
   type: "pro";
   userId: string;
-  customerId: string;
+  customerId: string | null;
   email: string;
-  companyName: string;
-  pricingLevel: "C" | "D" | "E" | "F" | null;
+  name: string;
 };
 
 export type CatalogSession = RetailSession | ProSession;
 
-function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET;
-  if (!secret || secret.length < 16) {
-    throw new Error("JWT_SECRET is missing or too short (min 16 chars).");
+function getSharedSecret(): Uint8Array {
+  const secret =
+    process.env.BACKEND_JWT_SECRET ??
+    process.env.RETAIL_JWT_SECRET ??
+    process.env.B2B_JWT_SECRET ??
+    process.env.AUTH_SECRET;
+  if (!secret) {
+    throw new Error(
+      "BACKEND_JWT_SECRET / RETAIL_JWT_SECRET / B2B_JWT_SECRET / AUTH_SECRET must be set (same value as AlimExpressApp).",
+    );
   }
   return new TextEncoder().encode(secret);
 }
 
-export async function signSession(session: CatalogSession): Promise<string> {
-  return new SignJWT(session as unknown as JWTPayload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime(`${SESSION_MAX_AGE}s`)
-    .sign(getSecret());
+function payloadToSession(payload: JWTPayload): CatalogSession | null {
+  const sub = typeof payload.sub === "string" ? payload.sub : null;
+  if (!sub) return null;
+
+  if (payload.role === "B2C_CLIENT") {
+    return {
+      type: "retail",
+      customerId: sub,
+      userId: typeof payload.userId === "string" ? payload.userId : undefined,
+      name: typeof payload.name === "string" ? payload.name : "",
+      phone: typeof payload.phone === "string" ? payload.phone : "",
+    };
+  }
+
+  if (payload.role === "B2B_CLIENT") {
+    return {
+      type: "pro",
+      userId: sub,
+      customerId:
+        typeof payload.customerId === "string" ? payload.customerId : null,
+      email: typeof payload.email === "string" ? payload.email : "",
+      name: typeof payload.name === "string" ? payload.name : "",
+    };
+  }
+
+  return null;
 }
 
 export async function verifySessionToken(
   token: string,
 ): Promise<CatalogSession | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret());
-    if (payload.type === "retail" || payload.type === "pro") {
-      return payload as unknown as CatalogSession;
-    }
-    return null;
+    const { payload } = await jwtVerify(token, getSharedSecret());
+    return payloadToSession(payload);
   } catch {
     return null;
   }
@@ -59,8 +88,7 @@ export async function getSession(): Promise<CatalogSession | null> {
   return verifySessionToken(token);
 }
 
-export async function setSessionCookie(session: CatalogSession): Promise<void> {
-  const token = await signSession(session);
+export async function storeBackendToken(token: string): Promise<void> {
   const store = await cookies();
   store.set({
     name: SESSION_COOKIE,
