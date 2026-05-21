@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
-import { createRetailOrder } from "@/actions/retail-order";
+import { checkoutRetail } from "@/actions/retail-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
 
@@ -39,16 +39,12 @@ export function CheckoutForm({
       return;
     }
     startTransition(async () => {
-      const res = await createRetailOrder({
+      const res = await checkoutRetail({
         deliveryName: delivery.name,
         deliveryPhone: delivery.phone,
         deliveryCity: delivery.city,
         deliveryAddress: delivery.address,
         notes: notes || undefined,
-        items: items.map((it) => ({
-          productId: it.productId,
-          quantity: it.quantity,
-        })),
       });
       if (!res.ok) {
         setError(res.error);

@@ -345,8 +345,10 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] Test obsolète `cart-context.test.tsx` (localStorage) + `session.test.ts` (signSession legacy) supprimés
 
 ### Phase F.G — Checkout
-- [ ] `actions/retail-order.ts` → `POST /api/v1/retail/orders/checkout`
-- [ ] `actions/pro-order.ts` → `POST /api/v1/b2b/orders/checkout`
+- [x] `actions/retail-order.ts` → `checkoutRetail` POSTs delivery info à `/api/v1/retail/orders/checkout` (back vide le panier serveur + crée RetailOrder snapshot prix) — 4 tests
+- [x] `actions/pro-order.ts` → `checkoutPro` POSTs `{ notes?, dueDate? }` à `/api/v1/b2b/orders/checkout` (back vide le panier + crée Order PENDING avec priceLevel snapshot) — 4 tests
+- [x] Pages migrées: `(retail)/checkout/checkout-form.tsx`, `(pro)/pro/cart/page.tsx`
+- [x] `confirmProforma` devient stub deprecated (workflow remplacé par accept-quote Phase F.H)
 
 ### Phase F.H — Quote (B2B)
 - [ ] `app/(pro)/pro/quotes/[id]/page.tsx` → `GET /api/v1/b2b/quotes/[id]`

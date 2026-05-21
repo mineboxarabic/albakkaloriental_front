@@ -14,7 +14,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { useCart } from "@/components/cart-context";
-import { createProforma } from "@/actions/pro-order";
+import { checkoutPro } from "@/actions/pro-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 
@@ -38,14 +38,7 @@ export default function ProCartPage() {
       return;
     }
     startTransition(async () => {
-      const res = await createProforma({
-        notes: notes || undefined,
-        items: items.map((it) => ({
-          productId: it.productId,
-          quantity: it.quantity,
-          saleUnit: it.saleUnit ?? "PACK",
-        })),
-      });
+      const res = await checkoutPro({ notes: notes || undefined });
       if (!res.ok) {
         setError(res.error);
         return;
