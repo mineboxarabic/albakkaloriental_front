@@ -14,14 +14,6 @@ export type ProCheckoutResult =
   | { ok: true; orderId: string; orderNumber: string }
   | { ok: false; error: string };
 
-/** @deprecated Replaced by /pro/quotes/[id]/accept flow (Phase F.H). */
-export async function confirmProforma(_orderId: string): Promise<{ ok: false; error: string }> {
-  return {
-    ok: false,
-    error: "Le workflow proforma est remplacé par la signature de devis. Voir vos devis dans votre espace.",
-  };
-}
-
 export async function checkoutPro(input: ProCheckoutInput): Promise<ProCheckoutResult> {
   const parsed = checkoutSchema.safeParse(input);
   if (!parsed.success) {

@@ -2,12 +2,12 @@
 
 import { Plus, Check, Lock } from "lucide-react";
 import { useState } from "react";
-import { useCart, type CartItem } from "@/components/cart-context";
+import { useCart, type AddCartItem } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
 
-export function QuickAddButton({ item }: { item: Omit<CartItem, "quantity"> }) {
+export function QuickAddButton({ item }: { item: AddCartItem }) {
   const { addItem } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();

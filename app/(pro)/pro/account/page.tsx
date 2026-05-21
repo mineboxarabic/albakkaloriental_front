@@ -11,7 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getEnrichedProSession } from "@/lib/session";
 import { logoutPro } from "@/actions/pro-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -25,8 +25,8 @@ const PRICING_DESC: Record<string, string> = {
 };
 
 export default async function ProAccountPage() {
-  const session = await getSession();
-  if (!session || session.type !== "pro") {
+  const session = await getEnrichedProSession();
+  if (!session) {
     redirect("/pro/login?next=/pro/account");
   }
 

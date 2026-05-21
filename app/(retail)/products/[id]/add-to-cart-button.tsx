@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Minus, Plus, ShoppingCart, Check, Lock } from "lucide-react";
-import { useCart, type CartItem } from "@/components/cart-context";
+import { useCart, type AddCartItem } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
@@ -10,7 +10,7 @@ import { COLORS } from "@/lib/ui";
 export function AddToCartButton({
   item,
 }: {
-  item: Omit<CartItem, "quantity">;
+  item: AddCartItem;
 }) {
   const { addItem } = useCart();
   const { isConnected } = useSession();

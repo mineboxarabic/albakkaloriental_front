@@ -135,7 +135,7 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
     initial,
   );
 
-  const emailVal = state && !state.ok ? (state.values?.email ?? "") : "";
+  const emailVal = state && !state.ok ? (state.values?.identifier ?? "") : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-3">

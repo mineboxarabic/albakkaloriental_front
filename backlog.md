@@ -356,16 +356,26 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] `accept-button.tsx` client component (confirmation 2-clics, captures router refresh, surface 410/422 errors)
 - [x] **Back** correction URL email: `/quotes/${id}` → `/pro/quotes/${id}` dans `validate-b2b-order.action.ts`
 
-### Phase F.I — Cleanup
-- [ ] Supprimer `actions/*` qui font du direct Prisma (sauf lectures admin si justifié)
-- [ ] Supprimer `lib/prisma.ts` si plus utilisé
-- [ ] Supprimer page `proforma` (remplacée par flow Order/Quote propre)
-- [ ] `package.json`: retirer `@prisma/client`, `prisma`, `bcryptjs` si plus utilisés
+### Phase F.I — Cleanup (scope ajusté)
+- [x] Supprimer `app/(pro)/pro/proforma/*` (remplacé par `/pro/quotes/[id]` flow)
+- [x] Retirer le stub `confirmProforma` de `actions/pro-order.ts`
+- [x] Ajout `getEnrichedProSession()` dans `lib/session.ts` pour fournir `companyName`+`pricingLevel` via Prisma (temporaire, sera remplacé par `/api/v1/b2b/me` en F.J)
+- [x] Pages pro account/orders/products migrées vers `getEnrichedProSession()`
+- [x] Fix types: `QuickAddButton`/`AddToCartButton` typés via `AddCartItem`, login state `values.identifier`
+- [x] `prisma generate` exécuté côté front (Prisma client local pour les lectures restantes)
+- [~] **Reporté F.J**: actions/lib qui font encore direct Prisma → migration vers nouveaux endpoints back `/api/v1/{retail|b2b}/me` + `/orders` + `/orders/[id]`. Voir F.J ci-dessous.
+
+### Phase F.J (à venir) — Endpoints `me` + `orders` côté back puis migration front
+- [ ] Back: `GET /api/v1/b2b/me` (profil + customer info) + `GET /api/v1/retail/me`
+- [ ] Back: `GET /api/v1/{retail|b2b}/orders` + `GET /api/v1/{retail|b2b}/orders/[id]`
+- [ ] Front: refactor pages `pro/account`, `pro/orders`, `pro/orders/[id]`, `retail/account`, `retail/orders`, `retail/orders/[id]`, `retail/checkout`
+- [ ] Drop `lib/prisma.ts` + retirer `@prisma/client` + `prisma` + `bcryptjs` du `package.json`
+- [ ] Supprimer le helper temporaire `getEnrichedProSession()` (remplacé par fetch back direct)
 
 ## Critères d'acceptation Phase F (global)
 
-- Plus aucune server action n'importe `@/lib/prisma` ni `bcryptjs`.
-- `lib/api-client.ts` est l'unique point d'entrée vers le back-end.
+- Toutes les mutations (auth, cart, checkout, quote, set-password, verify-email) passent par `lib/api-client.ts` vers l'API back `/api/v1/*`
+- Seuls les reads de profil/orders restent en direct Prisma temporairement (F.J)
 - `BACKEND_URL` documenté dans README.
 - Tous les flows fonctionnent end-to-end avec le back-end lancé localement (lien magic-link, verify email, login, panier, checkout, accept devis).
 - `npm run lint` + tests vitest passent.

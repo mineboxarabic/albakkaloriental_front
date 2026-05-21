@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Package, Tag } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
-import { getSession } from "@/lib/session";
+import { getEnrichedProSession } from "@/lib/session";
 import { COLORS, DISPLAY_FONT, buildWeightLabel, productImage } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { AddToProCartButton } from "./add-to-pro-cart-button";
@@ -17,8 +17,8 @@ export default async function ProProductDetailPage({
 }: {
   params: Params;
 }) {
-  const session = await getSession();
-  if (!session || session.type !== "pro") {
+  const session = await getEnrichedProSession();
+  if (!session) {
     redirect("/pro/login");
   }
   const { id } = await params;

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, ShieldCheck, Truck, XCircle, ChevronRight } from "lucide-react";
 import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getEnrichedProSession } from "@/lib/session";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -47,8 +47,8 @@ const STATUS_META: Record<
 };
 
 export default async function ProOrdersPage() {
-  const session = await getSession();
-  if (!session || session.type !== "pro") {
+  const session = await getEnrichedProSession();
+  if (!session || !session.customerId) {
     redirect("/pro/login?next=/pro/orders");
   }
 
