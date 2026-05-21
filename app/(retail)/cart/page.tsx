@@ -69,7 +69,7 @@ export default function CartPage() {
               <ul>
                 {items.map((it, idx) => (
                   <li
-                    key={it.productId}
+                    key={it.lineId}
                     className="flex items-center gap-4 px-4 py-4"
                     style={{
                       borderTop: idx === 0 ? "none" : `1px solid ${COLORS.border}`,
@@ -109,7 +109,7 @@ export default function CartPage() {
                       <button
                         type="button"
                         aria-label="Diminuer la quantité"
-                        onClick={() => updateQty(it.productId, it.quantity - 1)}
+                        onClick={() => updateQty(it.lineId, it.quantity - 1)}
                         className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                         style={{ color: COLORS.text }}
                       >
@@ -124,7 +124,7 @@ export default function CartPage() {
                       <button
                         type="button"
                         aria-label="Augmenter la quantité"
-                        onClick={() => updateQty(it.productId, it.quantity + 1)}
+                        onClick={() => updateQty(it.lineId, it.quantity + 1)}
                         className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                         style={{ color: COLORS.text }}
                       >
@@ -142,7 +142,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       aria-label={`Supprimer ${it.name} du panier`}
-                      onClick={() => removeItem(it.productId)}
+                      onClick={() => removeItem(it.lineId)}
                       className="grid h-9 w-9 place-items-center rounded-md transition hover:bg-[#FAF8F2]"
                       style={{ color: COLORS.muted }}
                     >
