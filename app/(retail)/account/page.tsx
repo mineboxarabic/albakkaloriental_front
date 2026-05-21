@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Phone, MapPin, LogOut, Package } from "lucide-react";
-import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getRetailMe, getRetailOrders } from "@/actions/retail-me";
 import { logoutRetail } from "@/actions/retail-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -15,30 +14,19 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
 });
 
 export default async function AccountPage() {
-  const session = await getSession();
-  if (!session || session.type !== "retail") {
+  const [meResult, ordersResult] = await Promise.all([
+    getRetailMe(),
+    getRetailOrders(),
+  ]);
+  if (!meResult.ok) {
     redirect("/login?next=/account");
   }
-
-  const customer = await prisma.retailCustomer.findUnique({
-    where: { id: session.customerId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      city: true,
-      address: true,
-      createdAt: true,
-    },
-  });
-  if (!customer) {
-    redirect("/login");
-  }
-
-  const orderCount = await prisma.retailOrder.count({
-    where: { customerId: customer.id },
-  });
+  const customer = {
+    ...meResult.customer,
+    email: meResult.user.email,
+    createdAt: new Date(),
+  };
+  const orderCount = ordersResult.ok ? ordersResult.orders.length : 0;
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-10 pb-16">

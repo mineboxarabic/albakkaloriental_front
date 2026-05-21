@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Tag } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/catalog";
-import { getEnrichedProSession } from "@/lib/session";
+import { getProMe } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 
@@ -15,7 +15,7 @@ export default async function ProProductsPage({
 }: {
   searchParams: Params;
 }) {
-  const session = await getEnrichedProSession();
+  const meRes = await getProMe(); if (!meRes.ok) { return null; } const session = { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel };
   if (!session) {
     redirect("/pro/login?next=/pro/products");
   }

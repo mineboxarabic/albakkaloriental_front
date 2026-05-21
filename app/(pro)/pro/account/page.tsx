@@ -10,8 +10,7 @@ import {
   ArrowLeft,
   Tag,
 } from "lucide-react";
-import prisma from "@/lib/prisma";
-import { getEnrichedProSession } from "@/lib/session";
+import { getProMe } from "@/actions/pro-me";
 import { logoutPro } from "@/actions/pro-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -25,38 +24,11 @@ const PRICING_DESC: Record<string, string> = {
 };
 
 export default async function ProAccountPage() {
-  const session = await getEnrichedProSession();
-  if (!session) {
+  const result = await getProMe();
+  if (!result.ok) {
     redirect("/pro/login?next=/pro/account");
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      isActive: true,
-      customer: {
-        select: {
-          id: true,
-          companyName: true,
-          contactName: true,
-          email: true,
-          phone: true,
-          address: true,
-          city: true,
-          postalCode: true,
-          country: true,
-          pricingLevel: true,
-        },
-      },
-    },
-  });
-  if (!user || !user.customer) {
-    redirect("/pro/login");
-  }
-  const c = user.customer;
+  const { user, customer: c } = result;
 
   return (
     <main

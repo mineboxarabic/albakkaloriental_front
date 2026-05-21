@@ -1,26 +1,17 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getRetailMe } from "@/actions/retail-me";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { CheckoutForm } from "./checkout-form";
 
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutPage() {
-  const session = await getSession();
-  if (!session || session.type !== "retail") {
+  const result = await getRetailMe();
+  if (!result.ok) {
     redirect("/login?next=/checkout");
   }
-
-  const customer = await prisma.retailCustomer.findUnique({
-    where: { id: session.customerId },
-    select: { name: true, phone: true, city: true, address: true },
-  });
-
-  if (!customer) {
-    redirect("/login?next=/checkout");
-  }
+  const customer = result.customer;
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">

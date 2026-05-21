@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
-import prisma from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getRetailOrderById } from "@/actions/retail-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -28,41 +27,12 @@ type Params = Promise<{ id: string }>;
 
 export default async function OrderPage({ params }: { params: Params }) {
   const { id } = await params;
-  const session = await getSession();
-  if (!session || session.type !== "retail") {
+  const result = await getRetailOrderById(id);
+  if (!result.ok) {
+    if (result.error.toLowerCase().includes("not found")) notFound();
     redirect("/login");
   }
-
-  const order = await prisma.retailOrder.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      orderNumber: true,
-      status: true,
-      totalAmount: true,
-      paymentMethod: true,
-      notes: true,
-      createdAt: true,
-      customerId: true,
-      deliveryName: true,
-      deliveryPhone: true,
-      deliveryCity: true,
-      deliveryAddress: true,
-      items: {
-        select: {
-          id: true,
-          productName: true,
-          unitPrice: true,
-          quantity: true,
-          totalPrice: true,
-        },
-      },
-    },
-  });
-
-  if (!order || order.customerId !== session.customerId) {
-    notFound();
-  }
+  const order = result.order;
 
   const statusInfo = STATUS_LABELS[order.status] ?? {
     label: order.status,

@@ -365,12 +365,22 @@ Le back-end (`AlimExpressApp`) a livré une API REST complète (`/api/v1/*`) ave
 - [x] `prisma generate` exécuté côté front (Prisma client local pour les lectures restantes)
 - [~] **Reporté F.J**: actions/lib qui font encore direct Prisma → migration vers nouveaux endpoints back `/api/v1/{retail|b2b}/me` + `/orders` + `/orders/[id]`. Voir F.J ci-dessous.
 
-### Phase F.J (à venir) — Endpoints `me` + `orders` côté back puis migration front
-- [ ] Back: `GET /api/v1/b2b/me` (profil + customer info) + `GET /api/v1/retail/me`
-- [ ] Back: `GET /api/v1/{retail|b2b}/orders` + `GET /api/v1/{retail|b2b}/orders/[id]`
-- [ ] Front: refactor pages `pro/account`, `pro/orders`, `pro/orders/[id]`, `retail/account`, `retail/orders`, `retail/orders/[id]`, `retail/checkout`
-- [ ] Drop `lib/prisma.ts` + retirer `@prisma/client` + `prisma` + `bcryptjs` du `package.json`
-- [ ] Supprimer le helper temporaire `getEnrichedProSession()` (remplacé par fetch back direct)
+### Phase F.J ✅ — Endpoints `me` + `orders` côté back puis migration front
+- [x] Back `GET /api/v1/b2b/me` (3 tests) + `GET /api/v1/retail/me` (2 tests)
+- [x] Back `GET /api/v1/b2b/orders` (2 tests) + `GET /api/v1/b2b/orders/[orderId]` (3 tests)
+- [x] Back `GET /api/v1/retail/orders/me` (2 tests) + `GET /api/v1/retail/orders/me/[orderId]` (3 tests)
+- [x] Front actions `actions/pro-me.ts` (getProMe, getProOrders, getProOrderById) + `actions/retail-me.ts` (getRetailMe, getRetailOrders, getRetailOrderById)
+- [x] Pages migrées: `pro/account`, `pro/orders`, `pro/products`, `pro/products/[id]`, `retail/account`, `retail/orders/[id]`, `retail/checkout`
+- [x] Drop `lib/prisma.ts` + `prisma.config.ts` + dossier `prisma/`
+- [x] Drop `getEnrichedProSession` (remplacé par `getProMe`)
+- [x] Inliné types `PricingLevel`/`SaleUnit` (plus de import `@prisma/client`)
+- [x] `package.json`: retiré `@prisma/client`, `@prisma/adapter-pg`, `prisma`, `pg`, `bcryptjs`, `@types/bcryptjs`
+- [x] `getUpcomingDeliveries` retourne `[]` temporairement (F.K si réintroduction)
+- ✅ 0 TS errors, 59 tests passants
+
+### Phase F.K (à venir, optionnel) — Public delivery schedule endpoint
+- [ ] Back: `GET /api/v1/public/deliveries/upcoming` (sans auth, futures Delivery v2)
+- [ ] Front: réintroduire `getUpcomingDeliveries` via API
 
 ## Critères d'acceptation Phase F (global)
 

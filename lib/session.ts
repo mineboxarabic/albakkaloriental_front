@@ -102,33 +102,6 @@ export async function storeBackendToken(token: string): Promise<void> {
   });
 }
 
-/**
- * Enrich a ProSession with customer.companyName + pricingLevel via direct Prisma.
- * Temporary helper — to be replaced when /api/v1/b2b/me is added (Phase F.J).
- */
-export type EnrichedProSession = ProSession & {
-  companyName: string;
-  pricingLevel: "C" | "D" | "E" | "F" | null;
-};
-
-export async function getEnrichedProSession(): Promise<EnrichedProSession | null> {
-  const session = await getSession();
-  if (!session || session.type !== "pro" || !session.customerId) return null;
-
-  const prisma = (await import("@/lib/prisma")).default;
-  const customer = await prisma.customer.findUnique({
-    where: { id: session.customerId },
-    select: { companyName: true, pricingLevel: true },
-  });
-  if (!customer) return null;
-
-  return {
-    ...session,
-    companyName: customer.companyName,
-    pricingLevel: customer.pricingLevel,
-  };
-}
-
 export async function clearSessionCookie(): Promise<void> {
   const store = await cookies();
   store.set({

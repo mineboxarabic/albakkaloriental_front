@@ -1,4 +1,5 @@
-import type { PricingLevel, SaleUnit } from "@prisma/client";
+type PricingLevel = "C" | "D" | "E" | "F";
+type SaleUnit = "PACK" | "UNIT";
 
 export type TierPriceInput = {
   sellingPrice: number;

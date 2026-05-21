@@ -1,5 +1,4 @@
 import "server-only";
-import prisma from "@/lib/prisma";
 import { backendFetch } from "@/lib/api-client";
 
 export { getTierPrice, formatPriceEUR, type TierPriceInput } from "@/lib/catalog-pricing";
@@ -102,8 +101,9 @@ export async function getCategories(audience: CatalogAudience): Promise<string[]
   return Array.from(new Set(all.map((p) => p.category))).sort();
 }
 
-// Legacy upcoming deliveries (still direct Prisma until back-end exposes a
-// public endpoint for the new Delivery v2 model).
+// Upcoming deliveries: temporarily returns an empty list until the back-end
+// exposes a public read endpoint over the new Delivery v2 model.
+// Tracked as F.K in backlog.md.
 export type UpcomingDelivery = {
   id: string;
   city: string;
@@ -112,14 +112,7 @@ export type UpcomingDelivery = {
 };
 
 export async function getUpcomingDeliveries(
-  limit = 6,
+  _limit = 6,
 ): Promise<UpcomingDelivery[]> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return prisma.deliverySchedule.findMany({
-    where: { isActive: true, scheduledDate: { gte: today } },
-    orderBy: { scheduledDate: "asc" },
-    take: limit,
-    select: { id: true, city: true, scheduledDate: true, note: true },
-  });
+  return [];
 }

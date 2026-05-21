@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Package, Box } from "lucide-react";
-import type { PricingLevel } from "@prisma/client";
+type PricingLevel = "C" | "D" | "E" | "F";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import {
   formatPriceEUR,

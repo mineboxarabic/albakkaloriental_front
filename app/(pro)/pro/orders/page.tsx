@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, ShieldCheck, Truck, XCircle, ChevronRight } from "lucide-react";
-import prisma from "@/lib/prisma";
-import { getEnrichedProSession } from "@/lib/session";
+import { getProMe, getProOrders } from "@/actions/pro-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -47,23 +46,18 @@ const STATUS_META: Record<
 };
 
 export default async function ProOrdersPage() {
-  const session = await getEnrichedProSession();
-  if (!session || !session.customerId) {
+  const [meResult, ordersResult] = await Promise.all([
+    getProMe(),
+    getProOrders(),
+  ]);
+  if (!meResult.ok || !ordersResult.ok) {
     redirect("/pro/login?next=/pro/orders");
   }
-
-  const orders = await prisma.order.findMany({
-    where: { customerId: session.customerId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      orderNumber: true,
-      status: true,
-      totalAmount: true,
-      createdAt: true,
-      _count: { select: { items: true } },
-    },
-  });
+  const session = { companyName: meResult.customer.companyName };
+  const orders = ordersResult.orders.map((o) => ({
+    ...o,
+    createdAt: new Date(o.createdAt),
+  }));
 
   const pendingCount = orders.filter((o) => o.status === "PENDING").length;
   const confirmedCount = orders.filter(
