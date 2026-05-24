@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { loginPro, type ProLoginState } from "@/actions/pro-auth";
@@ -34,8 +35,17 @@ export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
         required
       />
 
+      <Link
+        href="/forgot-password?role=pro"
+        className="-mt-1 self-end text-[11.5px] font-semibold uppercase tracking-[0.1em] underline-offset-2 hover:underline"
+        style={{ color: COLORS.primary }}
+      >
+        Mot de passe oublié ?
+      </Link>
+
       {state && !state.ok && (
         <div
+          role="alert"
           className="border-l-4 px-3 py-2 text-[12.5px]"
           style={{
             background: "#FDEEEA",

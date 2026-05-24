@@ -54,16 +54,22 @@ export async function loginPro(
 
     await storeBackendToken(result.token);
   } catch (error) {
-    const message =
-      error instanceof ApiClientError ? error.message : "Identifiants invalides.";
     return {
       ok: false,
-      error: message,
+      error: mapLoginError(error),
       values: { email: raw.email },
     };
   }
 
   redirect(redirectTo);
+}
+
+function mapLoginError(error: unknown): string {
+  if (error instanceof ApiClientError) {
+    if (error.status === 401) return "Adresse e-mail ou mot de passe incorrect.";
+    return error.message;
+  }
+  return "Connexion impossible pour le moment.";
 }
 
 export async function logoutPro() {

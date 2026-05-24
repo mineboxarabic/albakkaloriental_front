@@ -70,7 +70,7 @@ async function fetchCatalog(audience: CatalogAudience): Promise<BackendCatalogPr
   const path =
     audience === "retail" ? "/api/v1/retail/catalog" : "/api/v1/b2b/catalog";
   const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
-    auth: "required",
+    auth: audience === "retail" ? "none" : "required",
   });
   return data.products;
 }

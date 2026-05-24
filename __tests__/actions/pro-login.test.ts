@@ -73,7 +73,7 @@ describe("loginPro", () => {
     expect(redirectMock).toHaveBeenCalledWith("/pro/account");
   });
 
-  it("returns ok=false on 401", async () => {
+  it("returns explicit FR message on 401 from backend", async () => {
     const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
     backendFetchMock.mockRejectedValueOnce(new ApiClientError(401, "Unauthorized"));
 
@@ -82,7 +82,26 @@ describe("loginPro", () => {
       makeForm({ email: "x@x.fr", password: "bad" }),
     );
     expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.error).toMatch(/incorrect/i);
+    }
     expect(storeTokenMock).not.toHaveBeenCalled();
+  });
+
+  it("passes back-end FR message through on 403 (account disabled)", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(
+      new ApiClientError(403, "Compte désactivé. Contactez votre commercial."),
+    );
+
+    const result = await loginPro(
+      null,
+      makeForm({ email: "x@x.fr", password: "Password!23" }),
+    );
+    expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.error).toMatch(/désactivé/i);
+    }
   });
 
   it("returns ok=false on invalid email", async () => {

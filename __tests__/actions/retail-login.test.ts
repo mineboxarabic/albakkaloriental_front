@@ -52,57 +52,72 @@ describe("loginRetail", () => {
     vi.restoreAllMocks();
   });
 
-  it("calls backend with identifier+password, stores returned token, redirects", async () => {
+  it("calls backend with email+password, stores returned token, redirects", async () => {
     backendFetchMock.mockResolvedValueOnce({
       token: "jwt.token.here",
       customer: { id: "rc1", name: "Test", phone: "+33600000001" },
     });
 
     await expect(
-      loginRetail(null, makeForm({ identifier: "test@x.fr", password: "Password!23" })),
+      loginRetail(null, makeForm({ email: "test@x.fr", password: "Password!23" })),
     ).rejects.toThrow("NEXT_REDIRECT");
 
     expect(backendFetchMock).toHaveBeenCalledWith(
       "/api/v1/retail/auth/login",
       expect.objectContaining({
         method: "POST",
-        body: { identifier: "test@x.fr", password: "Password!23" },
+        body: { email: "test@x.fr", password: "Password!23" },
       }),
     );
     expect(storeTokenMock).toHaveBeenCalledWith("jwt.token.here");
     expect(redirectMock).toHaveBeenCalledWith("/");
   });
 
-  it("accepts legacy 'email' field name for the identifier", async () => {
-    backendFetchMock.mockResolvedValueOnce({
-      token: "t",
-      customer: { id: "x", name: "x", phone: "x" },
-    });
-
-    await expect(
-      loginRetail(null, makeForm({ email: "test@x.fr", password: "Password!23" })),
-    ).rejects.toThrow("NEXT_REDIRECT");
-    const body = backendFetchMock.mock.calls[0][1].body;
-    expect(body.identifier).toBe("test@x.fr");
-  });
-
-  it("returns ok=false on 401 from backend", async () => {
+  it("returns explicit FR message on 401 from backend (wrong credentials)", async () => {
     const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
     backendFetchMock.mockRejectedValueOnce(new ApiClientError(401, "Unauthorized"));
 
     const result = await loginRetail(
       null,
-      makeForm({ identifier: "x", password: "bad" }),
+      makeForm({ email: "test@x.fr", password: "bad" }),
     );
     expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.error).toMatch(/incorrect/i);
+    }
     expect(storeTokenMock).not.toHaveBeenCalled();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it("returns ok=false on validation error (empty identifier)", async () => {
+  it("passes back-end FR message through on 403 (account disabled)", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(
+      new ApiClientError(403, "Compte désactivé. Contactez le support."),
+    );
+
     const result = await loginRetail(
       null,
-      makeForm({ identifier: "", password: "x" }),
+      makeForm({ email: "test@x.fr", password: "Password!23" }),
+    );
+    expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.error).toMatch(/désactivé/i);
+    }
+  });
+
+  it("returns ok=false on validation error (empty email)", async () => {
+    const result = await loginRetail(
+      null,
+      makeForm({ email: "", password: "x" }),
+    );
+    expect(result).toMatchObject({ ok: false });
+    expect(backendFetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns ok=false on validation error (malformed email)", async () => {
+    const result = await loginRetail(
+      null,
+      makeForm({ email: "not-an-email", password: "x" }),
     );
     expect(result).toMatchObject({ ok: false });
     expect(backendFetchMock).not.toHaveBeenCalled();
@@ -116,7 +131,7 @@ describe("loginRetail", () => {
     await expect(
       loginRetail(
         null,
-        makeForm({ identifier: "x", password: "Password!23", redirectTo: "/account" }),
+        makeForm({ email: "test@x.fr", password: "Password!23", redirectTo: "/account" }),
       ),
     ).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith("/account");
@@ -130,7 +145,7 @@ describe("loginRetail", () => {
     await expect(
       loginRetail(
         null,
-        makeForm({ identifier: "x", password: "Password!23", redirectTo: "//evil.com" }),
+        makeForm({ email: "test@x.fr", password: "Password!23", redirectTo: "//evil.com" }),
       ),
     ).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith("/");

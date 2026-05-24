@@ -135,20 +135,20 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
     initial,
   );
 
-  const emailVal = state && !state.ok ? (state.values?.identifier ?? "") : "";
+  const emailVal = state && !state.ok ? (state.values?.email ?? "") : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <ModalField
         icon={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
-        label="Email ou téléphone"
-        name="identifier"
-        type="text"
+        label="Adresse e-mail"
+        name="email"
+        type="email"
         required
         defaultValue={emailVal}
         autoComplete="email"
-        placeholder="vous@exemple.com ou +33 6 12 34 56 78"
+        placeholder="vous@exemple.com"
       />
       <ModalField
         icon={<Lock className="h-3.5 w-3.5" strokeWidth={2} />}

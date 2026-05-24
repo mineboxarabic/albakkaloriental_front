@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
@@ -13,7 +14,7 @@ export function LoginForm() {
     loginRetail,
     initial,
   );
-  const emailVal = state && !state.ok ? (state.values?.identifier ?? "") : "";
+  const emailVal = state && !state.ok ? (state.values?.email ?? "") : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -36,8 +37,17 @@ export function LoginForm() {
         required
       />
 
+      <Link
+        href="/forgot-password"
+        className="-mt-1 self-end text-[12.5px] font-semibold underline-offset-2 hover:underline"
+        style={{ color: COLORS.primary }}
+      >
+        Mot de passe oublié ?
+      </Link>
+
       {state && !state.ok && (
         <div
+          role="alert"
           className="rounded-xl border-l-4 px-4 py-2.5 text-[12.5px]"
           style={{
             background: "#FCE9E5",
