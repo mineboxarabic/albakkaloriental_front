@@ -170,9 +170,6 @@ export function SiteHeader() {
                 {item}
               </Link>
             ))}
-            <Link href="/products?promo=1" style={{ color: COLORS.red }}>
-              PROMOTIONS
-            </Link>
           </div>
         </nav>
       </header>
