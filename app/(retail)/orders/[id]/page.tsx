@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Truck } from "lucide-react";
 import { getRetailOrderById } from "@/actions/retail-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
@@ -21,6 +21,13 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
+});
+
+const DAY_FMT = new Intl.DateTimeFormat("fr-FR", {
+  weekday: "long",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
 });
 
 type Params = Promise<{ id: string }>;
@@ -132,6 +139,33 @@ export default async function OrderPage({ params }: { params: Params }) {
             <h2 className="text-[14px] font-bold tracking-wide" style={{ color: COLORS.text }}>
               LIVRAISON
             </h2>
+
+            {order.deliveryCityRef?.delivery?.scheduledDate && (
+              <div
+                className="mt-3 flex items-start gap-3 rounded-md border-l-4 px-3 py-2.5"
+                style={{
+                  background: "#E5F0D9",
+                  borderColor: COLORS.primary,
+                  color: "#2E3F17",
+                }}
+              >
+                <Truck className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className="text-[13px]">
+                  <div className="font-bold">Livraison prévue</div>
+                  <div className="capitalize">
+                    {DAY_FMT.format(
+                      new Date(order.deliveryCityRef.delivery.scheduledDate),
+                    )}
+                  </div>
+                  {order.deliveryCityRef.name && (
+                    <div className="text-[12px]" style={{ color: "#3F561F" }}>
+                      Tournée — {order.deliveryCityRef.name}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="mt-3 text-[13.5px] leading-relaxed" style={{ color: COLORS.text }}>
               <div className="font-semibold">{order.deliveryName}</div>
               <div style={{ color: COLORS.muted }}>{order.deliveryPhone}</div>

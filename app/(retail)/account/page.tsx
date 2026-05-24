@@ -111,8 +111,9 @@ export default async function AccountPage() {
         </section>
 
         <aside className="col-span-4 flex flex-col gap-4">
-          <div
-            className="rounded-xl border bg-white p-5"
+          <Link
+            href="/orders"
+            className="block rounded-xl border bg-white p-5 transition hover:bg-[#FAF8F2]"
             style={{ borderColor: COLORS.border }}
           >
             <div className="flex items-center gap-3">
@@ -122,7 +123,7 @@ export default async function AccountPage() {
               >
                 <Package className="h-5 w-5" strokeWidth={1.8} />
               </div>
-              <div>
+              <div className="flex-1">
                 <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
                   Commandes passées
                 </div>
@@ -130,8 +131,11 @@ export default async function AccountPage() {
                   {orderCount}
                 </div>
               </div>
+              <span className="text-[11.5px] font-semibold" style={{ color: COLORS.primary }}>
+                Voir tout →
+              </span>
             </div>
-          </div>
+          </Link>
 
           <form action={logoutRetail}>
             <button

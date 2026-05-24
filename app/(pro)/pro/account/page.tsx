@@ -163,6 +163,41 @@ export default async function ProAccountPage() {
               </p>
             </div>
 
+            <div
+              className="rounded-sm border p-5"
+              style={{
+                borderColor: "rgba(255,255,255,0.18)",
+                background:
+                  c.outstandingBalance > 0
+                    ? "rgba(213,43,20,0.18)"
+                    : "rgba(63,86,31,0.22)",
+              }}
+            >
+              <div
+                className="text-[10.5px] font-bold tracking-[0.16em]"
+                style={{ color: "rgba(255,255,255,0.6)" }}
+              >
+                SOLDE EN COURS
+              </div>
+              <div
+                className="mt-2 text-[32px] font-extrabold leading-none text-white"
+                style={{ fontFamily: DISPLAY_FONT }}
+              >
+                {c.outstandingBalance.toLocaleString("fr-FR", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
+              </div>
+              <p
+                className="mt-2 text-[11.5px]"
+                style={{ color: "rgba(255,255,255,0.65)" }}
+              >
+                {c.outstandingBalance > 0
+                  ? "Total des factures non réglées. Réglez via votre interlocuteur commercial."
+                  : "Aucune facture en attente de règlement."}
+              </p>
+            </div>
+
             <form action={logoutPro}>
               <button
                 type="submit"

@@ -69,6 +69,18 @@ export type ProOrderDetail = ProOrderSummary & {
   } | null;
 };
 
+export type ProInvoice = {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  status: "UNPAID" | "PAID" | "PARTIAL" | "OVERDUE";
+  totalAmount: number;
+  paidAmount: number;
+  isSent: boolean;
+  order: { id: string; orderNumber: string } | null;
+};
+
 type Ok<T> = { ok: true } & T;
 type Err = { ok: false; error: string };
 
@@ -194,6 +206,18 @@ export async function getProOrders(): Promise<Ok<{ orders: ProOrderSummary[] }> 
       { auth: "required" },
     );
     return { ok: true, orders: data.orders };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function listProInvoices(): Promise<Ok<{ invoices: ProInvoice[] }> | Err> {
+  try {
+    const data = await backendFetch<{ invoices: ProInvoice[] }>(
+      "/api/v1/b2b/invoices",
+      { auth: "required" },
+    );
+    return { ok: true, invoices: data.invoices };
   } catch (error) {
     return fail(error);
   }

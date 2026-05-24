@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Package,
   FileText,
+  FileSignature,
   Receipt,
   ShoppingCart,
   User,
@@ -18,6 +19,7 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 const NAV = [
   { label: "Catalogue", href: "/pro/products", icon: Package },
   { label: "Commandes", href: "/pro/orders", icon: FileText },
+  { label: "Devis", href: "/pro/quotes", icon: FileSignature },
   { label: "Factures", href: "/pro/invoices", icon: Receipt },
 ];
 

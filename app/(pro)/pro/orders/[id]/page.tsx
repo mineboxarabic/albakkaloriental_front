@@ -67,6 +67,13 @@ const STATUS_FALLBACK = {
   description: "Statut non reconnu, contactez le support.",
 } satisfies (typeof STATUS_META)[string];
 
+const PAYMENT_META: Record<string, { label: string; bg: string; color: string }> = {
+  UNPAID: { label: "Non réglée", bg: "#FFF1D6", color: "#7A5409" },
+  PARTIAL: { label: "Partiellement réglée", bg: "#FFE3C4", color: "#7A3F09" },
+  PAID: { label: "Réglée", bg: "#E5F0D9", color: "#2E3F17" },
+  OVERDUE: { label: "En retard", bg: "#FCE9E5", color: "#7A1709" },
+};
+
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit",
   month: "long",
@@ -264,6 +271,22 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
               {DATE_FMT.format(new Date(order.deliveryCity.delivery.scheduledDate))}
             </div>
           )}
+
+          {(() => {
+            const pm = PAYMENT_META[order.paymentStatus] ?? null;
+            if (!pm) return null;
+            return (
+              <div
+                className="mt-3 flex items-center justify-between rounded-sm px-3 py-2 text-[11.5px]"
+                style={{ background: pm.bg, color: pm.color }}
+              >
+                <span className="font-bold tracking-[0.1em] uppercase">
+                  Paiement
+                </span>
+                <span className="font-bold">{pm.label}</span>
+              </div>
+            );
+          })()}
         </aside>
       </section>
     </main>

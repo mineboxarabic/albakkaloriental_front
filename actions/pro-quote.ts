@@ -33,6 +33,42 @@ export type QuoteDTO = {
   };
 };
 
+export type QuoteSummary = {
+  id: string;
+  quoteNumber: string;
+  subtotal: number;
+  taxTotal: number;
+  total: number;
+  validUntil: string;
+  acceptedAt: string | null;
+  createdAt: string;
+  order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    lockedAt: string | null;
+  };
+};
+
+export type ListQuotesResult =
+  | { ok: true; quotes: QuoteSummary[] }
+  | { ok: false; error: string };
+
+export async function listQuotes(): Promise<ListQuotesResult> {
+  try {
+    const data = await backendFetch<{ quotes: QuoteSummary[] }>(
+      "/api/v1/b2b/quotes",
+      { auth: "required" },
+    );
+    return { ok: true, quotes: data.quotes };
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: "Devis introuvables." };
+  }
+}
+
 export type GetQuoteResult =
   | { ok: true; quote: QuoteDTO }
   | { ok: false; error: string };
