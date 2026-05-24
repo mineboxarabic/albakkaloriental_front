@@ -1,7 +1,18 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { backendFetchMock } = vi.hoisted(() => ({ backendFetchMock: vi.fn() }));
+const { backendFetchMock, headersMock } = vi.hoisted(() => {
+  const headersStore = new Map<string, string>();
+  return {
+    backendFetchMock: vi.fn(),
+    headersMock: {
+      store: headersStore,
+      get: vi.fn(async () => ({
+        get: (key: string) => headersStore.get(key.toLowerCase()) ?? null,
+      })),
+    },
+  };
+});
 
 vi.mock("@/lib/api-client", () => ({
   backendFetch: backendFetchMock,
@@ -11,6 +22,10 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
+}));
+
+vi.mock("next/headers", () => ({
+  headers: headersMock.get,
 }));
 
 import { acceptQuote, getQuote } from "@/actions/pro-quote";
@@ -60,6 +75,7 @@ describe("getQuote", () => {
 describe("acceptQuote", () => {
   beforeEach(() => {
     backendFetchMock.mockReset();
+    headersMock.store.clear();
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -78,6 +94,24 @@ describe("acceptQuote", () => {
       "/api/v1/b2b/quotes/q1/accept",
       expect.objectContaining({ method: "POST", auth: "required" }),
     );
+  });
+
+  it("forwards user-agent + x-forwarded-for to the back-end for signature audit", async () => {
+    headersMock.store.set("user-agent", "Mozilla/5.0 TestSig");
+    headersMock.store.set("x-forwarded-for", "82.65.10.42");
+    backendFetchMock.mockResolvedValueOnce({
+      quoteId: "q1",
+      orderId: "ord1",
+      deliveryCityId: "city1",
+    });
+
+    await acceptQuote("q1");
+
+    const call = backendFetchMock.mock.calls[0][1];
+    expect(call.forwardHeaders).toMatchObject({
+      "user-agent": "Mozilla/5.0 TestSig",
+      "x-forwarded-for": "82.65.10.42",
+    });
   });
 
   it("surfaces 410 (expired/already accepted)", async () => {

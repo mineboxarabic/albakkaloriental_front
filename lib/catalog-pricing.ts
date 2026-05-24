@@ -42,22 +42,18 @@ export function formatPriceEUR(value: number): string {
  * Resolves the unit price a pro should pay for a given sale unit + pricing level.
  *
  * - PACK : `getTierPrice(product, level)` — tier-aware (C/D/E/F with fallback to sellingPrice).
- * - UNIT : `product.unitSellingPrice` if set, otherwise `sellingPrice / unitsPerPack`.
- *          The admin DB has no per-tier unit price, so UNIT pricing is NOT tier-aware.
+ * - UNIT : tier price (or sellingPrice fallback) divided by `unitsPerPack` — tier-aware.
+ *          `unitSellingPrice` on the product is a B2C field and is ignored for pros.
  */
 export function resolveProPrice(
   product: ProPriceInput,
   saleUnit: SaleUnit,
   level: PricingLevel | null | undefined,
 ): number {
-  if (saleUnit === "PACK") {
-    return getTierPrice(product, level);
-  }
-  if (product.unitSellingPrice != null) {
-    return product.unitSellingPrice;
-  }
+  const packPrice = getTierPrice(product, level);
+  if (saleUnit === "PACK") return packPrice;
   const packs = Math.max(1, product.unitsPerPack);
-  return product.sellingPrice / packs;
+  return packPrice / packs;
 }
 
 /**

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarClock, FileText } from "lucide-react";
+import { ArrowLeft, CalendarClock, FileText, Lock } from "lucide-react";
 import { getQuote } from "@/actions/pro-quote";
 import AcceptButton from "./accept-button";
 
@@ -35,13 +35,14 @@ export default async function QuoteDetailPage({
   const { quote } = result;
   const isAccepted = quote.acceptedAt !== null;
   const isExpired = new Date(quote.validUntil).getTime() <= Date.now();
-  const canAccept = !isAccepted && !isExpired;
+  const isLocked = quote.order.lockedAt !== null;
+  const canAccept = !isAccepted && !isExpired && !isLocked;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8 space-y-6">
       <div className="flex items-center gap-3">
         <Link
-          href="/pro/account"
+          href={`/pro/orders/${quote.order.id}`}
           className="inline-flex h-9 w-9 items-center justify-center rounded-md border"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -97,9 +98,19 @@ export default async function QuoteDetailPage({
             ✓ Devis signé le {formatDate(quote.acceptedAt!)}.
           </div>
         )}
-        {isExpired && !isAccepted && (
+        {isExpired && !isAccepted && !isLocked && (
           <div className="mt-2 text-sm text-red-700">
             Ce devis a expiré. Contactez-nous pour le renouveler.
+          </div>
+        )}
+        {isLocked && !isAccepted && (
+          <div role="alert" className="mt-2 flex items-start gap-2 text-sm text-amber-900">
+            <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Devis verrouillé : la commande a dépassé la date limite de
+              modifications (J-1 21h Paris). Contactez votre commercial pour la
+              suite.
+            </span>
           </div>
         )}
       </div>
@@ -117,7 +128,12 @@ export default async function QuoteDetailPage({
           <tbody>
             {quote.lines.map((line, idx) => (
               <tr key={idx} className="border-t">
-                <td className="px-4 py-2 font-medium">{line.productId}</td>
+                <td className="px-4 py-2">
+                  <div className="font-medium">{line.product.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {line.product.sku} · {line.product.category}
+                  </div>
+                </td>
                 <td className="px-4 py-2 text-right">{line.quantity}</td>
                 <td className="px-4 py-2 text-right">{formatPrice(line.unitPrice)}</td>
                 <td className="px-4 py-2 text-right font-semibold">

@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
 
 export type ProMe = {
@@ -82,6 +83,107 @@ export async function getProMe(): Promise<Ok<ProMe> | Err> {
     return { ok: true, ...data };
   } catch (error) {
     return fail(error);
+  }
+}
+
+const updateProProfileSchema = z.object({
+  phone: z
+    .string()
+    .trim()
+    .min(8, "Téléphone trop court.")
+    .regex(/^[0-9 +().-]+$/, "Téléphone invalide.")
+    .optional(),
+  mobilePhone: z
+    .string()
+    .trim()
+    .min(0)
+    .optional(),
+});
+
+export type UpdateProProfileInput = z.infer<typeof updateProProfileSchema>;
+export type UpdateProProfileResult =
+  | { ok: true }
+  | { ok: false; errors: Record<string, string> };
+
+export async function updateProProfile(
+  input: UpdateProProfileInput,
+): Promise<UpdateProProfileResult> {
+  const parsed = updateProProfileSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0] ?? "form");
+      if (!errors[key]) errors[key] = issue.message;
+    }
+    return { ok: false, errors };
+  }
+  try {
+    await backendFetch("/api/v1/b2b/me", {
+      method: "PATCH",
+      auth: "required",
+      body: parsed.data,
+    });
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      return { ok: false, errors: { form: error.message } };
+    }
+    return { ok: false, errors: { form: "Mise à jour impossible pour le moment." } };
+  }
+}
+
+const changeProPasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Mot de passe actuel requis."),
+    newPassword: z
+      .string()
+      .min(8, "Mot de passe trop court (8 caractères min).")
+      .max(72, "Mot de passe trop long."),
+    confirmPassword: z.string().min(1, "Confirmation requise."),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas.",
+    path: ["confirmPassword"],
+  });
+
+export type ChangeProPasswordInput = z.infer<typeof changeProPasswordSchema>;
+export type ChangeProPasswordResult =
+  | { ok: true }
+  | { ok: false; errors: Record<string, string> };
+
+export async function changeProPassword(
+  input: ChangeProPasswordInput,
+): Promise<ChangeProPasswordResult> {
+  const parsed = changeProPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0] ?? "form");
+      if (!errors[key]) errors[key] = issue.message;
+    }
+    return { ok: false, errors };
+  }
+  try {
+    await backendFetch("/api/v1/b2b/auth/change-password", {
+      method: "POST",
+      auth: "required",
+      body: {
+        currentPassword: parsed.data.currentPassword,
+        newPassword: parsed.data.newPassword,
+      },
+    });
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      const errors: Record<string, string> = {};
+      if (error.status === 403) errors.currentPassword = error.message;
+      else errors.form = error.message;
+      return { ok: false, errors };
+    }
+    return {
+      ok: false,
+      errors: { form: "Changement de mot de passe impossible pour le moment." },
+    };
   }
 }
 

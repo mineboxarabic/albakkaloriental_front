@@ -38,6 +38,7 @@ export default async function CheckoutPage() {
             name: customer.name,
             phone: customer.phone,
             city: customer.city,
+            postalCode: customer.postalCode ?? "",
             address: customer.address,
           }}
         />

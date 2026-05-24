@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, ShieldCheck, Truck, XCircle, ChevronRight } from "lucide-react";
+import { FileText, ShieldCheck, Truck, XCircle, ChevronRight, Package } from "lucide-react";
 import { getProMe, getProOrders } from "@/actions/pro-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
@@ -13,10 +13,8 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
-type StatusKey = "PENDING" | "CONFIRMED" | "DELIVERED" | "CANCELLED";
-
 const STATUS_META: Record<
-  StatusKey,
+  string,
   { label: string; bg: string; color: string; icon: typeof FileText }
 > = {
   PENDING: {
@@ -31,6 +29,12 @@ const STATUS_META: Record<
     color: COLORS.primary,
     icon: ShieldCheck,
   },
+  PREPARED: {
+    label: "Préparée",
+    bg: "#DDE7CB",
+    color: "#2E3F17",
+    icon: Package,
+  },
   DELIVERED: {
     label: "Livrée",
     bg: "#DDE7CB",
@@ -44,6 +48,13 @@ const STATUS_META: Record<
     icon: XCircle,
   },
 };
+
+const STATUS_FALLBACK = {
+  label: "Statut inconnu",
+  bg: "#F0F0F0",
+  color: "#555555",
+  icon: FileText,
+} satisfies (typeof STATUS_META)[string];
 
 export default async function ProOrdersPage() {
   const [meResult, ordersResult] = await Promise.all([
@@ -142,7 +153,7 @@ export default async function ProOrdersPage() {
 
           <ul>
             {orders.map((o) => {
-              const meta = STATUS_META[o.status as StatusKey];
+              const meta = STATUS_META[o.status] ?? STATUS_FALLBACK;
               const Icon = meta.icon;
               return (
                 <li

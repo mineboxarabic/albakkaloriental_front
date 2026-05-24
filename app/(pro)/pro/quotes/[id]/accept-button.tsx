@@ -40,8 +40,8 @@ export default function AcceptButton({ quoteId }: { quoteId: string }) {
     <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 p-4">
       <div className="text-sm text-amber-900">
         En cliquant sur <strong>« J&apos;accepte »</strong>, vous engagez votre société
-        et confirmez le devis. Cette action est définitive. Votre IP et la date
-        seront enregistrées comme preuve de signature.
+        et confirmez le devis. Cette action est définitive. Votre adresse IP,
+        votre navigateur et la date seront enregistrés comme preuve de signature.
       </div>
       <div className="flex flex-wrap gap-2">
         <button

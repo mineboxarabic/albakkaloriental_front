@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Phone, MapPin, LogOut, Package } from "lucide-react";
+import { User, Mail, LogOut, Package } from "lucide-react";
 import { getRetailMe, getRetailOrders } from "@/actions/retail-me";
 import { logoutRetail } from "@/actions/retail-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { AccountEditForm } from "./account-edit-form";
+import { ChangePasswordForm } from "./change-password-form";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,16 @@ const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
+function splitName(name: string): { firstName: string; lastName: string } {
+  const trimmed = name.trim();
+  if (!trimmed) return { firstName: "", lastName: "" };
+  const parts = trimmed.split(/\s+/);
+  return {
+    firstName: parts[0] ?? "",
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
 export default async function AccountPage() {
   const [meResult, ordersResult] = await Promise.all([
     getRetailMe(),
@@ -21,11 +33,9 @@ export default async function AccountPage() {
   if (!meResult.ok) {
     redirect("/login?next=/account");
   }
-  const customer = {
-    ...meResult.customer,
-    email: meResult.user.email,
-    createdAt: new Date(),
-  };
+  const customer = meResult.customer;
+  const email = meResult.user.email;
+  const { firstName, lastName } = splitName(customer.name);
   const orderCount = ordersResult.ok ? ordersResult.orders.length : 0;
 
   return (
@@ -57,22 +67,47 @@ export default async function AccountPage() {
       </header>
 
       <div className="mt-8 grid grid-cols-12 gap-6">
-        <section className="col-span-8 flex flex-col gap-4">
-          <Card title="INFORMATIONS PERSONNELLES">
-            <Row icon={<User className="h-4 w-4" />} label="Nom complet" value={customer.name} />
-            <Row icon={<Mail className="h-4 w-4" />} label="Adresse e-mail" value={customer.email ?? "—"} />
-            <Row icon={<Phone className="h-4 w-4" />} label="Téléphone" value={customer.phone} />
-          </Card>
+        <section className="col-span-8">
+          <AccountEditForm
+            defaults={{
+              firstName,
+              lastName,
+              phone: customer.phone,
+              city: customer.city,
+              postalCode: customer.postalCode ?? "",
+              address: customer.address,
+            }}
+          />
 
-          <Card title="ADRESSE DE LIVRAISON">
-            <Row icon={<MapPin className="h-4 w-4" />} label="Ville" value={customer.city} />
-            <Row label="Adresse complète" value={customer.address} />
-          </Card>
+          <div className="mt-4">
+            <ChangePasswordForm />
+          </div>
 
-          <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
-            Pour modifier vos informations, contactez notre service client au
-            09 70 70 70 70. La modification en ligne arrive bientôt.
-          </p>
+          <div
+            className="mt-4 rounded-xl border bg-white p-6"
+            style={{ borderColor: COLORS.border }}
+          >
+            <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.muted }}>
+              ADRESSE E-MAIL
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <div
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-md"
+                style={{ background: COLORS.beige, color: COLORS.primary }}
+              >
+                <Mail className="h-4 w-4" />
+              </div>
+              <div className="flex-1 leading-tight">
+                <div className="text-[14px] font-semibold" style={{ color: COLORS.text }}>
+                  {email}
+                </div>
+                <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
+                  Pour modifier votre adresse e-mail, contactez le support
+                  (re-vérification requise — bientôt disponible).
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <aside className="col-span-4 flex flex-col gap-4">
@@ -111,57 +146,5 @@ export default async function AccountPage() {
         </aside>
       </div>
     </main>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div
-      className="rounded-xl border bg-white p-6"
-      style={{ borderColor: COLORS.border }}
-    >
-      <div
-        className="text-[11px] font-bold tracking-[0.14em]"
-        style={{ color: COLORS.muted }}
-      >
-        {title}
-      </div>
-      <dl className="mt-4 grid grid-cols-1 gap-3">{children}</dl>
-    </div>
-  );
-}
-
-function Row({
-  icon,
-  label,
-  value,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div
-        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md"
-        style={{
-          background: icon ? COLORS.beige : "transparent",
-          color: COLORS.primary,
-        }}
-      >
-        {icon}
-      </div>
-      <div className="leading-tight">
-        <dt className="text-[11px]" style={{ color: COLORS.muted }}>
-          {label}
-        </dt>
-        <dd
-          className="mt-0.5 text-[14px] font-semibold"
-          style={{ color: COLORS.text }}
-        >
-          {value}
-        </dd>
-      </div>
-    </div>
   );
 }

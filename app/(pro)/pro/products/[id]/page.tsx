@@ -119,7 +119,7 @@ export default async function ProProductDetailPage({
             Prix HT, TVA 20% appliquée sur le devis. Vos prix sont calculés selon
             votre niveau de tarification (
             <strong style={{ color: COLORS.primary }}>{session.pricingLevel ?? "—"}</strong>
-            ). Devis valable 30 jours après émission.
+            ). Devis valable jusqu&apos;à la veille de la livraison (J-1, 21h Paris).
           </div>
         </div>
       </div>

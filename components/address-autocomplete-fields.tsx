@@ -92,17 +92,38 @@ function Field({
 export function AddressAutocompleteFields({
   defaults,
   errors,
+  onChange,
 }: {
   defaults: { address: string; postalCode: string; city: string };
   errors: { address?: string; postalCode?: string; city?: string };
+  onChange?: (value: { address: string; postalCode: string; city: string }) => void;
 }) {
-  const [address, setAddress] = useState(defaults.address);
-  const [postalCode, setPostalCode] = useState(defaults.postalCode);
-  const [city, setCity] = useState(defaults.city);
+  const [address, setAddressRaw] = useState(defaults.address);
+  const [postalCode, setPostalCodeRaw] = useState(defaults.postalCode);
+  const [city, setCityRaw] = useState(defaults.city);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const setAddress = (v: string) => {
+    setAddressRaw(v);
+    onChange?.({ address: v, postalCode, city });
+  };
+  const setPostalCode = (v: string) => {
+    setPostalCodeRaw(v);
+    onChange?.({ address, postalCode: v, city });
+  };
+  const setCity = (v: string) => {
+    setCityRaw(v);
+    onChange?.({ address, postalCode, city: v });
+  };
+  const setAddressBundle = (next: { address: string; postalCode: string; city: string }) => {
+    setAddressRaw(next.address);
+    setPostalCodeRaw(next.postalCode);
+    setCityRaw(next.city);
+    onChange?.(next);
+  };
 
   useEffect(() => {
     if (address.trim().length < MIN_LEN) {
@@ -192,9 +213,11 @@ export function AddressAutocompleteFields({
                 type="button"
                 key={`${s.label}-${idx}`}
                 onClick={() => {
-                  setAddress(s.addressLine || s.label);
-                  setPostalCode(s.postalCode);
-                  setCity(s.city);
+                  setAddressBundle({
+                    address: s.addressLine || s.label,
+                    postalCode: s.postalCode,
+                    city: s.city,
+                  });
                   setOpen(false);
                 }}
                 className="flex w-full items-start gap-2 px-3 py-2 text-left text-[13px] hover:bg-[#FAF8F2]"

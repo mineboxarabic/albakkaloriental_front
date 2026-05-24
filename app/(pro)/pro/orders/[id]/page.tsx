@@ -36,6 +36,13 @@ const STATUS_META: Record<
     icon: ShieldCheck,
     description: "Devis signé. Préparation en cours.",
   },
+  PREPARED: {
+    label: "Préparée",
+    bg: "#DDE7CB",
+    color: "#2E3F17",
+    icon: Package,
+    description: "Commande préparée, prête à partir en livraison.",
+  },
   DELIVERED: {
     label: "Livrée",
     bg: "#DDE7CB",
@@ -51,6 +58,14 @@ const STATUS_META: Record<
     description: "Commande annulée.",
   },
 };
+
+const STATUS_FALLBACK = {
+  label: "Statut inconnu",
+  bg: "#F0F0F0",
+  color: "#555555",
+  icon: FileText,
+  description: "Statut non reconnu, contactez le support.",
+} satisfies (typeof STATUS_META)[string];
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit",
@@ -70,7 +85,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
     redirect("/pro/login?next=/pro/orders");
   }
   const order = result.order;
-  const meta = STATUS_META[order.status] ?? STATUS_META.PENDING;
+  const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
   const itemsTotal = order.items.reduce((sum, i) => sum + i.totalPrice, 0);
   const tva = Number((itemsTotal * (TAX_RATE / 100)).toFixed(2));

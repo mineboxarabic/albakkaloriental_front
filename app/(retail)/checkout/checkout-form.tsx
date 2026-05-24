@@ -15,6 +15,7 @@ export function CheckoutForm({
     name: string;
     phone: string;
     city: string;
+    postalCode: string;
     address: string;
   };
 }) {
@@ -43,6 +44,7 @@ export function CheckoutForm({
         deliveryName: delivery.name,
         deliveryPhone: delivery.phone,
         deliveryCity: delivery.city,
+        deliveryPostalCode: delivery.postalCode || undefined,
         deliveryAddress: delivery.address,
         notes: notes || undefined,
       });
@@ -88,7 +90,12 @@ export function CheckoutForm({
           <div className="mt-4 grid grid-cols-1 gap-3">
             <Field label="Nom du destinataire" name="deliveryName" value={delivery.name} onChange={onChange("name")} required />
             <Field label="Téléphone" name="deliveryPhone" type="tel" value={delivery.phone} onChange={onChange("phone")} required />
-            <Field label="Ville" name="deliveryCity" value={delivery.city} onChange={onChange("city")} required />
+            <div className="grid grid-cols-3 gap-3">
+              <Field label="Code postal" name="deliveryPostalCode" value={delivery.postalCode} onChange={onChange("postalCode")} />
+              <div className="col-span-2">
+                <Field label="Ville" name="deliveryCity" value={delivery.city} onChange={onChange("city")} required />
+              </div>
+            </div>
             <Field label="Adresse complète" name="deliveryAddress" value={delivery.address} onChange={onChange("address")} required />
           </div>
         </div>
