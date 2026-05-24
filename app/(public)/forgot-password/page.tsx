@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { Mail, MessageCircle } from "lucide-react";
+import { ForgotPasswordForm } from "./forgot-password-form";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Mot de passe oublié",
+};
 
 export default async function ForgotPasswordPage({
   searchParams,
@@ -14,38 +18,19 @@ export default async function ForgotPasswordPage({
   return (
     <div className="mx-auto max-w-md py-16 px-4">
       <div className="rounded-2xl border bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold mb-2">Mot de passe oublié</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          La réinitialisation en libre-service est en cours de déploiement.
-          {isPro
-            ? " En attendant, contactez votre interlocuteur commercial pour récupérer l'accès à votre portail professionnel."
-            : " En attendant, contactez le support pour réinitialiser votre mot de passe."}
+        <h1 className="mb-2 text-2xl font-semibold">Mot de passe oublié</h1>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Saisissez votre adresse e-mail. Si un compte existe, vous recevrez un
+          lien de réinitialisation valable 1 heure.
         </p>
 
-        <div className="flex flex-col gap-3">
-          {isPro ? (
-            <a
-              href="https://wa.me/33970707070"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-lg border bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Contacter par WhatsApp
-            </a>
-          ) : (
-            <a
-              href="mailto:support@bakkaloriental.fr"
-              className="flex items-center justify-center gap-2 rounded-lg border bg-[#3F561F] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
-            >
-              <Mail className="h-4 w-4" />
-              Écrire au support
-            </a>
-          )}
+        <ForgotPasswordForm />
 
+        <div className="mt-6 text-center">
           <Link
             href={isPro ? "/pro/login" : "/login"}
-            className="text-center text-sm text-muted-foreground underline-offset-2 hover:underline"
+            className="text-sm font-semibold underline-offset-2 hover:underline"
+            style={{ color: "#3F561F" }}
           >
             Retour à la connexion
           </Link>

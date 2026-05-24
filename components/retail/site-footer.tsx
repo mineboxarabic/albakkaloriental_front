@@ -112,6 +112,7 @@ export function SiteFooter() {
           <span className="flex items-center gap-4">
             <a href="/cgv" className="hover:underline">CGV</a>
             <a href="/confidentialite" className="hover:underline">Confidentialité</a>
+            <a href="/contact" className="hover:underline">Contact</a>
           </span>
         </div>
       </div>
