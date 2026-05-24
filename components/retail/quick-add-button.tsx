@@ -25,7 +25,7 @@ export function QuickAddButton({ item }: { item: AddCartItem }) {
         e.preventDefault();
         e.stopPropagation();
         if (!isConnected) {
-          open();
+          open({ ...item, quantity: 1 });
           return;
         }
         addItem(item);

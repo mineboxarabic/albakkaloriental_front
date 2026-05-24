@@ -96,10 +96,10 @@ function ProField({
   return (
     <label className="flex flex-col gap-2">
       <span
-        className="text-[10.5px] font-bold tracking-[0.14em]"
+        className="text-[10.5px] font-bold uppercase tracking-[0.14em]"
         style={{ color: COLORS.muted }}
       >
-        {label.toUpperCase()}
+        {label}
       </span>
       <input
         name={name}

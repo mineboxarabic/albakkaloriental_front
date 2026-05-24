@@ -56,7 +56,7 @@ export function AddToCartButton({
           type="button"
           onClick={() => {
             if (!isConnected) {
-              open();
+              open({ ...item, quantity: qty });
               return;
             }
             addItem(item, qty);

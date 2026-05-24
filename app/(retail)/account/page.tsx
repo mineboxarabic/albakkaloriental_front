@@ -66,8 +66,8 @@ export default async function AccountPage() {
         </div>
       </header>
 
-      <div className="mt-8 grid grid-cols-12 gap-6">
-        <section className="col-span-8">
+      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-12">
+        <section className="md:col-span-8">
           <AccountEditForm
             defaults={{
               firstName,
@@ -110,7 +110,7 @@ export default async function AccountPage() {
           </div>
         </section>
 
-        <aside className="col-span-4 flex flex-col gap-4">
+        <aside className="md:col-span-4 flex flex-col gap-4">
           <Link
             href="/orders"
             className="block rounded-xl border bg-white p-5 transition hover:bg-[#FAF8F2]"

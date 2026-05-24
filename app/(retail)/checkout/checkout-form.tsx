@@ -78,8 +78,8 @@ export function CheckoutForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid grid-cols-12 gap-6">
-      <section className="col-span-7 flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <section className="md:col-span-7 flex flex-col gap-4">
         <div
           className="rounded-xl border bg-white p-6"
           style={{ borderColor: COLORS.border }}
@@ -137,7 +137,7 @@ export function CheckoutForm({
         </div>
       </section>
 
-      <aside className="col-span-5">
+      <aside className="md:col-span-5">
         <div
           className="rounded-xl border bg-white p-5"
           style={{ borderColor: COLORS.border }}

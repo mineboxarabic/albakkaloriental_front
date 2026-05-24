@@ -55,7 +55,10 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <header className="w-full" style={{ background: "#FFFFFF" }}>
+      <header
+        className="sticky top-0 z-40 w-full border-b backdrop-blur"
+        style={{ background: "rgba(255,255,255,0.96)", borderColor: "#EAE6D8" }}
+      >
         <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-6 py-5">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>

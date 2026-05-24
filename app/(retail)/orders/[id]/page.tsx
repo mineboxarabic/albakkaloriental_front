@@ -77,8 +77,8 @@ export default async function OrderPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <div className="mt-6 grid grid-cols-12 gap-6">
-        <section className="col-span-8 flex flex-col gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">
+        <section className="md:col-span-8 flex flex-col gap-4">
           <div
             className="flex items-center justify-between rounded-xl border bg-white px-6 py-4"
             style={{ borderColor: COLORS.border }}
@@ -180,7 +180,7 @@ export default async function OrderPage({ params }: { params: Params }) {
           </div>
         </section>
 
-        <aside className="col-span-4">
+        <aside className="md:col-span-4">
           <div
             className="rounded-xl border bg-white p-5"
             style={{ borderColor: COLORS.border }}

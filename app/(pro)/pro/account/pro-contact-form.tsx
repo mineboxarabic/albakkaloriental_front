@@ -106,10 +106,10 @@ function DarkField({
   return (
     <label className="flex flex-col gap-1">
       <span
-        className="text-[10.5px] font-bold tracking-[0.12em]"
+        className="text-[10.5px] font-bold uppercase tracking-[0.12em]"
         style={{ color: "rgba(255,255,255,0.55)" }}
       >
-        {label.toUpperCase()}
+        {label}
       </span>
       <input
         name={name}

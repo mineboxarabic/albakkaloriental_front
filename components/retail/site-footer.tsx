@@ -107,12 +107,11 @@ export function SiteFooter() {
       <div className="border-t border-white/15">
         <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-2 px-6 py-4 text-[11.5px] opacity-80 md:flex-row">
           <span>
-            © {new Date().getFullYear()} AlimExpress / Le Bakkal Oriental. Tous droits réservés.
+            © {new Date().getFullYear()} Le Bakkal Oriental. Tous droits réservés.
           </span>
           <span className="flex items-center gap-4">
-            <a href="#" className="hover:underline">Mentions légales</a>
-            <a href="#" className="hover:underline">CGV</a>
-            <a href="#" className="hover:underline">Cookies</a>
+            <a href="/cgv" className="hover:underline">CGV</a>
+            <a href="/confidentialite" className="hover:underline">Confidentialité</a>
           </span>
         </div>
       </div>

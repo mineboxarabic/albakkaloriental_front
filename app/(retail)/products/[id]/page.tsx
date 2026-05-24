@@ -77,14 +77,29 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </p>
 
           <div className="mt-6 max-w-[420px]">
-            <AddToCartButton
-              item={{
-                productId: product.id,
-                name: product.name,
-                unitPrice: product.sellingPrice,
-                imageUrl: product.imageUrl,
-              }}
-            />
+            {product.isOutOfStock ? (
+              <div
+                role="alert"
+                className="rounded-md border-l-4 px-4 py-3 text-[13.5px]"
+                style={{
+                  background: "#FCE9E5",
+                  borderColor: "#D52B14",
+                  color: "#7A1709",
+                }}
+              >
+                <strong className="font-bold">Produit en rupture de stock.</strong>{" "}
+                Indisponible à la commande pour le moment.
+              </div>
+            ) : (
+              <AddToCartButton
+                item={{
+                  productId: product.id,
+                  name: product.name,
+                  unitPrice: product.sellingPrice,
+                  imageUrl: product.imageUrl,
+                }}
+              />
+            )}
           </div>
 
           <div

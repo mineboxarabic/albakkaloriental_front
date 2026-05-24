@@ -59,8 +59,8 @@ export default async function ProAccountPage() {
           </span>
         </header>
 
-        <section className="mt-10 grid grid-cols-12 gap-6">
-          <div className="col-span-8">
+        <section className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-12">
+          <div className="md:col-span-8">
             <h1
               className="text-[36px] font-extrabold leading-[1.05] tracking-tight text-white"
               style={{ fontFamily: DISPLAY_FONT }}
@@ -74,7 +74,7 @@ export default async function ProAccountPage() {
               Compte professionnel · {c.country}
             </p>
 
-            <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-sm border" style={{ borderColor: "rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)" }}>
+            <div className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-sm border sm:grid-cols-2" style={{ borderColor: "rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)" }}>
               <Card title="ENTREPRISE">
                 <Row icon={<Building2 className="h-4 w-4" />} label="Raison sociale" value={c.companyName} />
                 {c.companyType && <Row label="Forme juridique" value={c.companyType} />}
@@ -140,7 +140,7 @@ export default async function ProAccountPage() {
             </div>
           </div>
 
-          <aside className="col-span-4 flex flex-col gap-4">
+          <aside className="md:col-span-4 flex flex-col gap-4">
             <div
               className="rounded-sm border bg-white p-5"
               style={{ borderColor: "rgba(255,255,255,0.18)" }}
@@ -228,7 +228,7 @@ function Card({
 }) {
   return (
     <div
-      className={`bg-white p-6 ${full ? "col-span-2" : ""}`}
+      className={`bg-white p-6 ${full ? "sm:col-span-2" : ""}`}
       style={{ background: "rgba(0,0,0,0.15)" }}
     >
       <div className="flex items-center justify-between">
