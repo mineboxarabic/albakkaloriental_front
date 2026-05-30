@@ -5,6 +5,7 @@ import { getProducts, getCategories } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
+import { CatalogSearchInput } from "@/components/catalog-search-input";
 
 export const dynamic = "force-dynamic";
 
@@ -61,20 +62,23 @@ export default async function ProProductsPage({
           </p>
         </div>
 
-        <span
-          className="inline-flex items-center gap-2 rounded-sm border px-3 py-2 text-[12px] font-bold uppercase tracking-[0.1em]"
-          style={{ borderColor: COLORS.border, color: COLORS.primary, background: "#FFFFFF" }}
-        >
-          <Tag className="h-3.5 w-3.5" strokeWidth={2.2} />
-          Niveau{" "}
-          <span className="text-[14px]" style={{ color: COLORS.text }}>
-            {session.pricingLevel ?? "—"}
+        <div className="flex items-center gap-3">
+          <CatalogSearchInput className="w-72" />
+          <span
+            className="inline-flex items-center gap-2 rounded-sm border px-3 py-2 text-[12px] font-bold uppercase tracking-[0.1em]"
+            style={{ borderColor: COLORS.border, color: COLORS.primary, background: "#FFFFFF" }}
+          >
+            <Tag className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Niveau{" "}
+            <span className="text-[14px]" style={{ color: COLORS.text }}>
+              {session.pricingLevel ?? "—"}
+            </span>
           </span>
-        </span>
+        </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
-        <aside className="col-span-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        <aside className="md:col-span-3">
           <div
             className="rounded-sm border bg-white p-4"
             style={{ borderColor: COLORS.border }}
@@ -119,7 +123,7 @@ export default async function ProProductsPage({
           </div>
         </aside>
 
-        <section className="col-span-9">
+        <section className="md:col-span-9">
           {filtered.length === 0 ? (
             <div
               className="rounded-sm border bg-white px-6 py-10 text-center text-[14px]"
@@ -128,7 +132,7 @@ export default async function ProProductsPage({
               Aucun produit dans cette catégorie.
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {filtered.map((p) => (
                 <ProProductCard
                   key={p.id}

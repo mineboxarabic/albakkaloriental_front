@@ -36,6 +36,13 @@ const STATUS_META: Record<
     icon: ShieldCheck,
     description: "Devis signé. Préparation en cours.",
   },
+  PREPARED: {
+    label: "Préparée",
+    bg: "#DDE7CB",
+    color: "#2E3F17",
+    icon: Package,
+    description: "Commande préparée, prête à partir en livraison.",
+  },
   DELIVERED: {
     label: "Livrée",
     bg: "#DDE7CB",
@@ -50,6 +57,21 @@ const STATUS_META: Record<
     icon: XCircle,
     description: "Commande annulée.",
   },
+};
+
+const STATUS_FALLBACK = {
+  label: "Statut inconnu",
+  bg: "#F0F0F0",
+  color: "#555555",
+  icon: FileText,
+  description: "Statut non reconnu, contactez le support.",
+} satisfies (typeof STATUS_META)[string];
+
+const PAYMENT_META: Record<string, { label: string; bg: string; color: string }> = {
+  UNPAID: { label: "Non réglée", bg: "#FFF1D6", color: "#7A5409" },
+  PARTIAL: { label: "Partiellement réglée", bg: "#FFE3C4", color: "#7A3F09" },
+  PAID: { label: "Réglée", bg: "#E5F0D9", color: "#2E3F17" },
+  OVERDUE: { label: "En retard", bg: "#FCE9E5", color: "#7A1709" },
 };
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
@@ -70,7 +92,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
     redirect("/pro/login?next=/pro/orders");
   }
   const order = result.order;
-  const meta = STATUS_META[order.status] ?? STATUS_META.PENDING;
+  const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
   const itemsTotal = order.items.reduce((sum, i) => sum + i.totalPrice, 0);
   const tva = Number((itemsTotal * (TAX_RATE / 100)).toFixed(2));
@@ -249,6 +271,22 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
               {DATE_FMT.format(new Date(order.deliveryCity.delivery.scheduledDate))}
             </div>
           )}
+
+          {(() => {
+            const pm = PAYMENT_META[order.paymentStatus] ?? null;
+            if (!pm) return null;
+            return (
+              <div
+                className="mt-3 flex items-center justify-between rounded-sm px-3 py-2 text-[11.5px]"
+                style={{ background: pm.bg, color: pm.color }}
+              >
+                <span className="font-bold tracking-[0.1em] uppercase">
+                  Paiement
+                </span>
+                <span className="font-bold">{pm.label}</span>
+              </div>
+            );
+          })()}
         </aside>
       </section>
     </main>

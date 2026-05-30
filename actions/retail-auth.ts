@@ -24,11 +24,16 @@ const registerSchema = z.object({
     .string()
     .min(8, "Mot de passe trop court (8 caractères min).")
     .max(72, "Mot de passe trop long."),
+  acceptCgv: z.literal("on", {
+    message: "Vous devez accepter les CGV pour continuer.",
+  }),
+  acceptPrivacy: z.literal("on", {
+    message: "Vous devez accepter la politique de confidentialité pour continuer.",
+  }),
 });
 
 export type RegisterState =
   | { ok: false; errors: Record<string, string>; values?: Record<string, string> }
-  | { ok: true; message: string }
   | null;
 
 export async function registerRetail(
@@ -44,6 +49,8 @@ export async function registerRetail(
     postalCode: String(formData.get("postalCode") ?? ""),
     address: String(formData.get("address") ?? ""),
     password: String(formData.get("password") ?? ""),
+    acceptCgv: String(formData.get("acceptCgv") ?? ""),
+    acceptPrivacy: String(formData.get("acceptPrivacy") ?? ""),
   };
 
   const parsed = registerSchema.safeParse(raw);
@@ -76,12 +83,6 @@ export async function registerRetail(
         password: data.password,
       },
     });
-
-    return {
-      ok: true,
-      message:
-        "Votre compte est créé. Un email de confirmation vient de vous être envoyé.",
-    };
   } catch (error) {
     if (error instanceof ApiClientError) {
       const errors: Record<string, string> = {};
@@ -97,15 +98,21 @@ export async function registerRetail(
       values: raw,
     };
   }
+
+  redirect(`/verify-pending?email=${encodeURIComponent(data.email)}`);
 }
 
 const loginSchema = z.object({
-  identifier: z.string().trim().min(1, "Email ou téléphone requis."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Adresse e-mail requise.")
+    .email("Adresse e-mail invalide."),
   password: z.string().min(1, "Mot de passe requis."),
 });
 
 export type LoginState =
-  | { ok: false; error: string; values?: { identifier?: string } }
+  | { ok: false; error: string; values?: { email?: string } }
   | null;
 
 function sanitizeRedirect(raw: string | null): string {
@@ -119,7 +126,7 @@ export async function loginRetail(
   formData: FormData,
 ): Promise<LoginState> {
   const raw = {
-    identifier: String(formData.get("identifier") ?? formData.get("email") ?? "").trim(),
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
     password: String(formData.get("password") ?? ""),
   };
   const redirectTo = sanitizeRedirect(formData.get("redirectTo") as string | null);
@@ -129,7 +136,7 @@ export async function loginRetail(
     return {
       ok: false,
       error: parsed.error.issues[0]?.message ?? "Identifiants invalides.",
-      values: { identifier: raw.identifier },
+      values: { email: raw.email },
     };
   }
 
@@ -141,21 +148,29 @@ export async function loginRetail(
       method: "POST",
       auth: "none",
       body: {
-        identifier: parsed.data.identifier,
+        email: parsed.data.email,
         password: parsed.data.password,
       },
     });
 
     await storeBackendToken(result.token);
   } catch (error) {
-    const message =
-      error instanceof ApiClientError
-        ? error.message
-        : "Identifiants invalides.";
-    return { ok: false, error: message, values: { identifier: raw.identifier } };
+    return {
+      ok: false,
+      error: mapLoginError(error),
+      values: { email: raw.email },
+    };
   }
 
   redirect(redirectTo);
+}
+
+function mapLoginError(error: unknown): string {
+  if (error instanceof ApiClientError) {
+    if (error.status === 401) return "Adresse e-mail ou mot de passe incorrect.";
+    return error.message;
+  }
+  return "Connexion impossible pour le moment.";
 }
 
 export async function logoutRetail() {

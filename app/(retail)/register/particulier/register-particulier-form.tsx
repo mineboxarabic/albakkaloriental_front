@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerRetail, type RegisterState } from "@/actions/retail-auth";
@@ -63,12 +64,83 @@ export function RegisterParticulierForm() {
         hint="8 caractères minimum."
       />
 
-      <SubmitButton />
+      <Consent name="acceptCgv" error={err("acceptCgv")}>
+        J&apos;ai lu et j&apos;accepte les{" "}
+        <Link href="/cgv" target="_blank" className="font-semibold underline">
+          conditions générales de vente
+        </Link>
+        .
+      </Consent>
+      <Consent name="acceptPrivacy" error={err("acceptPrivacy")}>
+        J&apos;ai lu et j&apos;accepte la{" "}
+        <Link
+          href="/confidentialite"
+          target="_blank"
+          className="font-semibold underline"
+        >
+          politique de confidentialité
+        </Link>
+        .
+      </Consent>
 
-      <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
-        En créant votre compte, vous acceptez nos conditions générales de vente.
-      </p>
+      {state && !state.ok && state.errors.form && (
+        <div
+          role="alert"
+          className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          style={{
+            background: "#FCE9E5",
+            borderColor: COLORS.red,
+            color: "#7A1709",
+          }}
+        >
+          {state.errors.form}
+        </div>
+      )}
+
+      <SubmitButton />
     </form>
+  );
+}
+
+function Consent({
+  name,
+  error,
+  children,
+}: {
+  name: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label
+      className="flex items-start gap-2 rounded-md border p-3 text-[12.5px]"
+      style={{
+        borderColor: error ? COLORS.red : COLORS.border,
+        background: "#FFFFFF",
+        color: COLORS.text,
+      }}
+    >
+      <input
+        type="checkbox"
+        name={name}
+        value="on"
+        required
+        aria-required="true"
+        className="mt-0.5 h-4 w-4 accent-[#3F561F]"
+      />
+      <span className="flex-1 leading-snug">
+        {children}
+        {error && (
+          <span
+            role="alert"
+            className="mt-1 block text-[11.5px]"
+            style={{ color: COLORS.red }}
+          >
+            {error}
+          </span>
+        )}
+      </span>
+    </label>
   );
 }
 

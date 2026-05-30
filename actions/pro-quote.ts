@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
 
 export type QuoteLine = {
@@ -11,6 +12,7 @@ export type QuoteLine = {
   subtotal: number;
   tax: number;
   totalPrice: number;
+  product: { name: string; sku: string; category: string };
 };
 
 export type QuoteDTO = {
@@ -22,8 +24,50 @@ export type QuoteDTO = {
   validUntil: string;
   acceptedAt: string | null;
   lines: QuoteLine[];
-  order: { orderNumber: string; status: string; customerId?: string };
+  order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    customerId?: string;
+    lockedAt: string | null;
+  };
 };
+
+export type QuoteSummary = {
+  id: string;
+  quoteNumber: string;
+  subtotal: number;
+  taxTotal: number;
+  total: number;
+  validUntil: string;
+  acceptedAt: string | null;
+  createdAt: string;
+  order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    lockedAt: string | null;
+  };
+};
+
+export type ListQuotesResult =
+  | { ok: true; quotes: QuoteSummary[] }
+  | { ok: false; error: string };
+
+export async function listQuotes(): Promise<ListQuotesResult> {
+  try {
+    const data = await backendFetch<{ quotes: QuoteSummary[] }>(
+      "/api/v1/b2b/quotes",
+      { auth: "required" },
+    );
+    return { ok: true, quotes: data.quotes };
+  } catch (error) {
+    if (error instanceof ApiClientError) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: "Devis introuvables." };
+  }
+}
 
 export type GetQuoteResult =
   | { ok: true; quote: QuoteDTO }
@@ -50,6 +94,15 @@ export type AcceptQuoteResult =
 
 export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
   try {
+    const incoming = await headers();
+    const forwardHeaders: Record<string, string> = {};
+    const ua = incoming.get("user-agent");
+    if (ua) forwardHeaders["user-agent"] = ua;
+    const xff = incoming.get("x-forwarded-for");
+    if (xff) forwardHeaders["x-forwarded-for"] = xff;
+    const realIp = incoming.get("x-real-ip");
+    if (realIp) forwardHeaders["x-real-ip"] = realIp;
+
     const data = await backendFetch<{
       quoteId: string;
       orderId: string;
@@ -57,6 +110,7 @@ export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
     }>(`/api/v1/b2b/quotes/${quoteId}/accept`, {
       method: "POST",
       auth: "required",
+      forwardHeaders,
     });
     return { ok: true, orderId: data.orderId, deliveryCityId: data.deliveryCityId };
   } catch (error) {

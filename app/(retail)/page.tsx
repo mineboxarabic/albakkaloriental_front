@@ -175,23 +175,23 @@ export default async function Home() {
             className="text-[34px] font-extrabold leading-[1.1] tracking-tight"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Des promotions
+            Épicerie orientale
             <br />
-            chaque semaine !
+            livrée chez vous
           </h3>
           <p className="mt-4 text-[15px] leading-relaxed" style={{ color: COLORS.muted }}>
-            Découvrez nos offres
+            Découvrez nos rayons
             <br />
-            sur une sélection de produits.
+            et commandez en quelques clics.
           </p>
         </div>
         <div className="col-span-3 flex justify-center">
           <Link
-            href="/products?promo=1"
+            href="/products"
             className="inline-flex items-center rounded-md px-7 py-4 text-[14px] font-semibold text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
-            Voir les promotions
+            Voir le catalogue
           </Link>
         </div>
         <div className="col-span-3 flex items-center justify-end">

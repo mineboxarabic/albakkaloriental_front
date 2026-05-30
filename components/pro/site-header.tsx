@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Package,
   FileText,
+  FileSignature,
   Receipt,
   ShoppingCart,
   User,
@@ -18,6 +19,7 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 const NAV = [
   { label: "Catalogue", href: "/pro/products", icon: Package },
   { label: "Commandes", href: "/pro/orders", icon: FileText },
+  { label: "Devis", href: "/pro/quotes", icon: FileSignature },
   { label: "Factures", href: "/pro/invoices", icon: Receipt },
 ];
 
@@ -34,9 +36,9 @@ export function ProSiteHeader() {
 
   return (
     <header
-      className="w-full border-b"
+      className="sticky top-0 z-40 w-full border-b backdrop-blur"
       style={{
-        background: "linear-gradient(180deg, #1E2A0E 0%, #2B3B14 100%)",
+        background: "linear-gradient(180deg, rgba(30,42,14,0.96) 0%, rgba(43,59,20,0.96) 100%)",
         borderColor: "rgba(255,255,255,0.08)",
       }}
     >

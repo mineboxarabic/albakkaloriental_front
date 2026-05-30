@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# private docs (smoke tests + backlog persos restent en local)
+/docs/manual-smoke-tests.md
+/backlog.md

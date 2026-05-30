@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { backendFetchMock } = vi.hoisted(() => ({ backendFetchMock: vi.fn() }));
+const { backendFetchMock, redirectMock } = vi.hoisted(() => ({
+  backendFetchMock: vi.fn(),
+  redirectMock: vi.fn(() => {
+    throw new Error("NEXT_REDIRECT");
+  }),
+}));
 
 vi.mock("@/lib/api-client", () => ({
   backendFetch: backendFetchMock,
@@ -11,6 +16,10 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
+}));
+
+vi.mock("next/navigation", () => ({
+  redirect: redirectMock,
 }));
 
 import { registerRetail } from "@/actions/retail-auth";
@@ -30,25 +39,32 @@ const validValues = {
   postalCode: "83300",
   address: "13 Rue Test",
   password: "Password!23",
+  acceptCgv: "on",
+  acceptPrivacy: "on",
 };
 
 describe("registerRetail", () => {
   beforeEach(() => {
     backendFetchMock.mockReset();
+    redirectMock.mockClear();
+    redirectMock.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
   });
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("POSTs the full body (name combined, email, phone, password, city, address)", async () => {
+  it("POSTs the body and redirects to /verify-pending on success", async () => {
     backendFetchMock.mockResolvedValueOnce({
       needsEmailVerification: true,
       customer: { id: "rc1", name: "Jean Dupont", phone: "+33600000001" },
     });
 
-    const result = await registerRetail(null, makeForm(validValues));
+    await expect(
+      registerRetail(null, makeForm(validValues)),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(result).toMatchObject({ ok: true });
     expect(backendFetchMock).toHaveBeenCalledWith(
       "/api/v1/retail/auth/register",
       expect.objectContaining({
@@ -65,6 +81,9 @@ describe("registerRetail", () => {
         },
       }),
     );
+    expect(redirectMock).toHaveBeenCalledWith(
+      "/verify-pending?email=jean%40example.test",
+    );
   });
 
   it("returns ok=false with field error when email is invalid", async () => {
@@ -75,6 +94,27 @@ describe("registerRetail", () => {
     expect(result).toMatchObject({ ok: false });
     if (result && !result.ok) {
       expect(result.errors.email).toBeDefined();
+    }
+    expect(backendFetchMock).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("returns ok=false when CGV checkbox is missing", async () => {
+    const { acceptCgv: _omit, ...withoutCgv } = validValues;
+    const result = await registerRetail(null, makeForm(withoutCgv));
+    expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.errors.acceptCgv).toBeDefined();
+    }
+    expect(backendFetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns ok=false when privacy checkbox is missing", async () => {
+    const { acceptPrivacy: _omit, ...withoutPrivacy } = validValues;
+    const result = await registerRetail(null, makeForm(withoutPrivacy));
+    expect(result).toMatchObject({ ok: false });
+    if (result && !result.ok) {
+      expect(result.errors.acceptPrivacy).toBeDefined();
     }
     expect(backendFetchMock).not.toHaveBeenCalled();
   });
@@ -90,5 +130,6 @@ describe("registerRetail", () => {
     if (result && !result.ok) {
       expect(result.errors.form ?? result.errors.email).toMatch(/already|exist/i);
     }
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 });

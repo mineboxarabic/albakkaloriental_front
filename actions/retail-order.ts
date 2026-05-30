@@ -11,6 +11,7 @@ const checkoutSchema = z.object({
     .min(8, "Téléphone requis.")
     .regex(/^[0-9 +().-]+$/, "Téléphone invalide."),
   deliveryCity: z.string().trim().min(1, "Ville requise."),
+  deliveryPostalCode: z.string().trim().min(1).optional(),
   deliveryAddress: z.string().trim().min(5, "Adresse requise."),
   notes: z.string().trim().max(500).optional(),
 });

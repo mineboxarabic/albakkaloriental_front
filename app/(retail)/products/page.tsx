@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getProducts, getCategories } from "@/lib/catalog";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
+import { CatalogSearchInput } from "@/components/catalog-search-input";
 
 export const revalidate = 60;
 
@@ -52,10 +53,13 @@ export default async function ProductsPage({
           {filteredProducts.length > 1 ? "produits" : "produit"}
           {q ? ` pour « ${q} »` : ""}
         </p>
+        <div className="mt-4 max-w-md">
+          <CatalogSearchInput />
+        </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
-        <aside className="col-span-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        <aside className="md:col-span-3">
           <div
             className="rounded-lg border bg-white p-4"
             style={{ borderColor: COLORS.border }}
@@ -100,7 +104,7 @@ export default async function ProductsPage({
           </div>
         </aside>
 
-        <section className="col-span-9">
+        <section className="md:col-span-9">
           {filteredProducts.length === 0 ? (
             <div
               className="rounded-lg border bg-white px-6 py-10 text-center text-[14px]"
@@ -109,7 +113,7 @@ export default async function ProductsPage({
               Aucun produit ne correspond à votre recherche.
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {filteredProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

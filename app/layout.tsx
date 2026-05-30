@@ -9,9 +9,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "AlimExpress — Vos produits orientaux préférés, au meilleur prix",
+  title: {
+    default: "Le Bakkal Oriental — Épicerie orientale livrée chez vous",
+    template: "%s · Le Bakkal Oriental",
+  },
   description:
-    "Épicerie, produits frais, boissons, surgelés et hygiène. Livraison à domicile dans toute la France.",
+    "Épicerie, produits frais, boissons, surgelés et hygiène. Livraison à domicile dans le Var et alentours.",
 };
 
 export default function RootLayout({

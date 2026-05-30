@@ -16,8 +16,18 @@ import { Mail, Lock, X, ArrowRight, Sparkles } from "lucide-react";
 import { loginRetail, type LoginState } from "@/actions/retail-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
+export type CartIntent = {
+  productId: string;
+  name: string;
+  unitPrice: number;
+  imageUrl?: string | null;
+  quantity: number;
+};
+
+const PENDING_INTENT_KEY = "pending_cart_intent";
+
 type AuthModalContextValue = {
-  open: () => void;
+  open: (intent?: CartIntent) => void;
   close: () => void;
 };
 
@@ -30,11 +40,35 @@ export function useAuthModal() {
   return useContext(AuthModalContext);
 }
 
+export function consumePendingCartIntent(): CartIntent | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(PENDING_INTENT_KEY);
+    if (!raw) return null;
+    window.sessionStorage.removeItem(PENDING_INTENT_KEY);
+    return JSON.parse(raw) as CartIntent;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const open = useCallback(() => setOpen(true), []);
+  const open = useCallback((intent?: CartIntent) => {
+    if (intent && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem(
+          PENDING_INTENT_KEY,
+          JSON.stringify(intent),
+        );
+      } catch {
+        // sessionStorage may be unavailable (private mode); fail silently
+      }
+    }
+    setOpen(true);
+  }, []);
   const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
@@ -135,20 +169,20 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
     initial,
   );
 
-  const emailVal = state && !state.ok ? (state.values?.identifier ?? "") : "";
+  const emailVal = state && !state.ok ? (state.values?.email ?? "") : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <ModalField
         icon={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
-        label="Email ou téléphone"
-        name="identifier"
-        type="text"
+        label="Adresse e-mail"
+        name="email"
+        type="email"
         required
         defaultValue={emailVal}
         autoComplete="email"
-        placeholder="vous@exemple.com ou +33 6 12 34 56 78"
+        placeholder="vous@exemple.com"
       />
       <ModalField
         icon={<Lock className="h-3.5 w-3.5" strokeWidth={2} />}

@@ -46,7 +46,7 @@ describe("catalog (retail)", () => {
     vi.restoreAllMocks();
   });
 
-  it("getProducts({audience:retail}) calls /api/v1/retail/catalog and maps price → sellingPrice", async () => {
+  it("getProducts({audience:retail}) calls /api/v1/retail/catalog as public (auth:none)", async () => {
     backendFetchMock.mockResolvedValueOnce({
       products: [fakeProduct({ id: "a" }), fakeProduct({ id: "b", category: "boissons" })],
     });
@@ -55,7 +55,7 @@ describe("catalog (retail)", () => {
 
     expect(backendFetchMock).toHaveBeenCalledWith(
       "/api/v1/retail/catalog",
-      expect.objectContaining({ auth: "required" }),
+      expect.objectContaining({ auth: "none" }),
     );
     expect(result).toHaveLength(2);
     expect(result[0].sellingPrice).toBe(4.99);
