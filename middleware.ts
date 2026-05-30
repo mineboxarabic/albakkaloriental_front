@@ -14,7 +14,7 @@ async function isPro(token: string): Promise<boolean> {
   if (!key) return false;
   try {
     const { payload } = await jwtVerify(token, key);
-    return payload.role === "B2B_CLIENT";
+    return payload.role === "B2B_CLIENT" || payload.role === "ADMIN";
   } catch {
     return false;
   }

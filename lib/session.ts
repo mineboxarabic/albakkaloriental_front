@@ -53,7 +53,7 @@ function payloadToSession(payload: JWTPayload): CatalogSession | null {
     };
   }
 
-  if (payload.role === "B2B_CLIENT") {
+  if (payload.role === "B2B_CLIENT" || payload.role === "ADMIN") {
     return {
       type: "pro",
       userId: sub,

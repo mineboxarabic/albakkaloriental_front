@@ -6,13 +6,14 @@ import {
   Tag,
   Headphones,
   ChevronRight,
-  CalendarDays,
   WifiOff,
 } from "lucide-react";
 import { getProducts, getUpcomingDeliveries } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
+import { DeliveryChecker } from "@/components/retail/delivery-checker";
+
 
 export const revalidate = 60;
 
@@ -25,11 +26,6 @@ const FALLBACK_CATEGORIES = [
   "HYGIÈNE & MAISON",
 ];
 
-const DELIVERY_DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
 
 export default async function Home() {
   const [{ products: retailProducts, backendDown }, deliveries] = await Promise.all([
@@ -46,6 +42,8 @@ export default async function Home() {
   const categoryLabels =
     dbCategories.length >= 6 ? dbCategories.slice(0, 6) : FALLBACK_CATEGORIES;
 
+  const serverDate = new Date().toISOString();
+
   return (
     <main className="mx-auto max-w-[1180px] px-6 pb-16">
       {backendDown && (
@@ -57,6 +55,9 @@ export default async function Home() {
           Le serveur est temporairement indisponible — le catalogue ne peut pas être chargé.
         </div>
       )}
+
+      <DeliveryChecker deliveries={deliveries} serverDate={serverDate} />
+
       <section
         className="relative mt-5 overflow-hidden rounded-xl"
         style={{ background: COLORS.beige }}
@@ -67,19 +68,19 @@ export default async function Home() {
               className="text-[34px] font-extrabold leading-[1.1] tracking-tight"
               style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
             >
-              Vos produits
+              Vos produits orientaux
               <br />
-              orientaux préférés,
+              préférés,
               <br />
-              <span style={{ color: COLORS.primary }}>au meilleur prix</span>
+              <span style={{ color: COLORS.primary }}>livrés chez vous</span>
             </h1>
             <p
               className="mt-4 max-w-[300px] text-[13.5px] leading-relaxed"
               style={{ color: COLORS.muted }}
             >
-              Épicerie, produits frais, boissons
+              Faites vos courses en ligne et recevez-les
               <br />
-              et bien plus encore.
+              directement à domicile lors de nos tournées.
             </p>
             <Link
               href="/products"
@@ -218,72 +219,6 @@ export default async function Home() {
         emptyLabel="Les nouveautés arriveront bientôt."
       />
 
-      {deliveries.length > 0 && (
-        <section className="mt-9">
-          <div className="flex items-end justify-between">
-            <h2
-              className="text-[22px] font-extrabold tracking-tight"
-              style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-            >
-              Prochaines tournées de livraison
-            </h2>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-            {deliveries.map((d) => (
-              <div
-                key={d.id}
-                className="rounded-lg border bg-white px-5 py-4"
-                style={{ borderColor: COLORS.border }}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-md"
-                    style={{ background: COLORS.beige, color: COLORS.primary }}
-                  >
-                    <CalendarDays className="h-5 w-5" strokeWidth={1.8} />
-                  </div>
-                  <div className="leading-tight">
-                    <div
-                      className="text-[13px] font-bold capitalize"
-                      style={{ color: COLORS.text }}
-                    >
-                      {DELIVERY_DATE_FMT.format(new Date(d.scheduledDate))}
-                    </div>
-                    {d.comment && (
-                      <div className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
-                        {d.comment}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {d.cities.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {d.cities.map((c) => (
-                      <span
-                        key={c.id}
-                        className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
-                        style={{
-                          borderColor: COLORS.border,
-                          color: COLORS.text,
-                          background: "#FAF8F2",
-                        }}
-                      >
-                        <span
-                          className="grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold text-white"
-                          style={{ background: COLORS.primary }}
-                        >
-                          {c.position + 1}
-                        </span>
-                        {c.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   );
 }

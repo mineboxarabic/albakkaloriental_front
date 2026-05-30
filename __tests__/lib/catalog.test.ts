@@ -51,11 +51,11 @@ describe("catalog (retail)", () => {
       products: [fakeProduct({ id: "a" }), fakeProduct({ id: "b", category: "boissons" })],
     });
 
-    const result = await getProducts({ audience: "retail" });
+    const { products: result } = await getProducts({ audience: "retail" });
 
     expect(backendFetchMock).toHaveBeenCalledWith(
       "/api/v1/retail/catalog",
-      expect.objectContaining({ auth: "none" }),
+      expect.objectContaining({ auth: "optional" }),
     );
     expect(result).toHaveLength(2);
     expect(result[0].sellingPrice).toBe(4.99);
@@ -68,7 +68,7 @@ describe("catalog (retail)", () => {
         fakeProduct({ id: "b", category: "boissons" }),
       ],
     });
-    const result = await getProducts({ audience: "retail", category: "boissons" });
+    const { products: result } = await getProducts({ audience: "retail", category: "boissons" });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("b");
   });
@@ -79,7 +79,7 @@ describe("catalog (retail)", () => {
         fakeProduct({ id: `p${i}` }),
       ),
     });
-    const result = await getProducts({ audience: "retail", skip: 1, take: 2 });
+    const { products: result } = await getProducts({ audience: "retail", skip: 1, take: 2 });
     expect(result.map((p) => p.id)).toEqual(["p1", "p2"]);
   });
 });

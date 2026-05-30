@@ -86,7 +86,7 @@ async function fetchCatalog(
     }
   }
   const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
-    auth: audience === "retail" ? "none" : "required",
+    auth: "required",
   });
   return { products: data.products, backendDown: false };
 }
