@@ -1,5 +1,5 @@
 import "server-only";
-import { backendFetch } from "@/lib/api-client";
+import { backendFetch, ApiClientError } from "@/lib/api-client";
 
 export { getTierPrice, formatPriceEUR, type TierPriceInput } from "@/lib/catalog-pricing";
 
@@ -66,13 +66,29 @@ function toProductCard(p: BackendCatalogProduct): ProductCard {
   };
 }
 
-async function fetchCatalog(audience: CatalogAudience): Promise<BackendCatalogProduct[]> {
+async function fetchCatalog(
+  audience: CatalogAudience,
+): Promise<{ products: BackendCatalogProduct[]; backendDown: boolean }> {
   const path =
     audience === "retail" ? "/api/v1/retail/catalog" : "/api/v1/b2b/catalog";
+  if (audience === "retail") {
+    try {
+      const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
+        auth: "optional",
+      });
+      return { products: data.products, backendDown: false };
+    } catch (err) {
+      // 401 = no session cookie yet; not a server failure, just unauthenticated
+      if (err instanceof ApiClientError && err.status === 401) {
+        return { products: [], backendDown: false };
+      }
+      return { products: [], backendDown: true };
+    }
+  }
   const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
     auth: "required",
   });
-  return data.products;
+  return { products: data.products, backendDown: false };
 }
 
 export async function getProducts(opts: {
@@ -80,27 +96,27 @@ export async function getProducts(opts: {
   category?: string;
   take?: number;
   skip?: number;
-}): Promise<ProductCard[]> {
-  const all = await fetchCatalog(opts.audience);
+}): Promise<{ products: ProductCard[]; backendDown: boolean }> {
+  const { products: all, backendDown } = await fetchCatalog(opts.audience);
   const filtered = opts.category
     ? all.filter((p) => p.category === opts.category)
     : all;
   const skip = opts.skip ?? 0;
   const take = opts.take ?? filtered.length;
-  return filtered.slice(skip, skip + take).map(toProductCard);
+  return { products: filtered.slice(skip, skip + take).map(toProductCard), backendDown };
 }
 
 export async function getProduct(
   id: string,
   audience: CatalogAudience,
 ): Promise<ProductCard | null> {
-  const all = await fetchCatalog(audience);
+  const { products: all } = await fetchCatalog(audience);
   const found = all.find((p) => p.id === id);
   return found ? toProductCard(found) : null;
 }
 
 export async function getCategories(audience: CatalogAudience): Promise<string[]> {
-  const all = await fetchCatalog(audience);
+  const { products: all } = await fetchCatalog(audience);
   return Array.from(new Set(all.map((p) => p.category))).sort();
 }
 

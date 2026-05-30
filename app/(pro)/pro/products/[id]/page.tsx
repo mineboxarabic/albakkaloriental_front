@@ -25,11 +25,12 @@ export default async function ProProductDetailPage({
   const product = await getProduct(id, "pro");
   if (!product) notFound();
 
-  const related = (
-    await getProducts({ audience: "pro", category: product.category, take: 8 })
-  )
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4);
+  const { products: relatedRaw } = await getProducts({
+    audience: "pro",
+    category: product.category,
+    take: 8,
+  });
+  const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">

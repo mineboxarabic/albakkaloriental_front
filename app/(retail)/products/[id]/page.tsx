@@ -17,11 +17,12 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
   if (!product) notFound();
 
   // Suggestions: same category, exclude self.
-  const related = (
-    await getProducts({ audience: "retail", category: product.category, take: 8 })
-  )
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4);
+  const { products: relatedRaw } = await getProducts({
+    audience: "retail",
+    category: product.category,
+    take: 8,
+  });
+  const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">

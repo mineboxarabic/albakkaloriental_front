@@ -7,6 +7,7 @@ import {
   Headphones,
   ChevronRight,
   CalendarDays,
+  WifiOff,
 } from "lucide-react";
 import { getProducts, getUpcomingDeliveries } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
@@ -31,7 +32,7 @@ const DELIVERY_DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
 });
 
 export default async function Home() {
-  const [retailProducts, deliveries] = await Promise.all([
+  const [{ products: retailProducts, backendDown }, deliveries] = await Promise.all([
     getProducts({ audience: "retail", take: 12 }),
     getUpcomingDeliveries(4),
   ]);
@@ -47,6 +48,15 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 pb-16">
+      {backendDown && (
+        <div
+          className="mt-4 flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-[13px]"
+          style={{ borderColor: "#F2C400", background: "#FFFBEA", color: "#92740A" }}
+        >
+          <WifiOff className="h-4 w-4 shrink-0" />
+          Le serveur est temporairement indisponible — le catalogue ne peut pas être chargé.
+        </div>
+      )}
       <section
         className="relative mt-5 overflow-hidden rounded-xl"
         style={{ background: COLORS.beige }}

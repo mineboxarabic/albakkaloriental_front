@@ -21,7 +21,7 @@ export default async function ProProductsPage({
   }
 
   const { category, q } = await searchParams;
-  const [products, categories] = await Promise.all([
+  const [{ products }, categories] = await Promise.all([
     getProducts({ audience: "pro", category }),
     getCategories("pro"),
   ]);
