@@ -23,6 +23,7 @@ import {
   removeProCartItem,
   updateProCartItem,
 } from "@/actions/pro-cart";
+import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
 
 export type CartSaleUnit = "PACK" | "UNIT";
 export type CartAudience = "retail" | "pro";
@@ -143,6 +144,14 @@ export function CartProvider({
   const addItem = useCallback(
     async (item: AddCartItem, quantity = 1) => {
       if (quantity <= 0) return;
+      const existingQty =
+        items.find((i) => i.productId === item.productId)?.quantity ?? 0;
+      if (existingQty + quantity > MAX_QTY_PER_PRODUCT) {
+        setError(
+          `Vous ne pouvez pas commander plus de ${MAX_QTY_PER_PRODUCT} unités du même produit.`,
+        );
+        return;
+      }
       const result = await actions.add({
         productId: item.productId,
         quantity,
@@ -154,12 +163,13 @@ export function CartProvider({
       }
       await refresh();
     },
-    [actions, refresh],
+    [actions, refresh, items],
   );
 
   const updateQty = useCallback(
     async (lineId: string, quantity: number) => {
-      const result = await actions.update(lineId, Math.max(0, quantity));
+      const clamped = Math.min(MAX_QTY_PER_PRODUCT, Math.max(0, quantity));
+      const result = await actions.update(lineId, clamped);
       if (!result.ok) {
         setError(result.error);
         return;
