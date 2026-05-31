@@ -12,8 +12,8 @@ This repository is the standalone catalog portal for AlimExpress / JardinVert. I
 
 Use these Desktop paths as the source references for this project:
 
-- CDC / specification document: `C:\Users\anasl\Desktop\Cahier_des_charges_AlimExpress_JardinVert.docx`
-- Backend / admin app reference: `C:\Users\anasl\Desktop\AlimExpressApp`
+- CDC / specification document: `C:\Users\Yassin\Desktop\Cahier_des_charges_AlimExpress_JardinVert.docx`
+- Backend / admin app reference: `C:\Projects\Personal\AlimExpressApp`
 
 Before implementing database, Prisma, auth, order, invoice, or business-rule work, inspect the backend reference app and keep AlimExpressCatalog compatible with it.
 
@@ -66,6 +66,7 @@ Primary routes:
 - Unauthenticated professional traffic redirects to `/pro/login`.
 - Retail cart key: `retail_cart`.
 - Professional cart key: `pro_cart`.
+- Order rule thresholds (minimum order, delivery fee, free-delivery threshold, max qty per product) are defined in `lib/order-rules.ts`. Change values there only — never use magic numbers in components.
 
 ## Development Workflow
 
