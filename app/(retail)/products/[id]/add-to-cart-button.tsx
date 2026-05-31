@@ -6,17 +6,22 @@ import { useCart, type AddCartItem } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
+import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
 
 export function AddToCartButton({
   item,
 }: {
   item: AddCartItem;
 }) {
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
+
+  const existingQty = items.find((i) => i.productId === item.productId)?.quantity ?? 0;
+  const remainingQty = Math.max(0, MAX_QTY_PER_PRODUCT - existingQty);
+  const effectiveQty = Math.min(qty, remainingQty);
 
   return (
     <div className="flex flex-col gap-3">
@@ -39,13 +44,14 @@ export function AddToCartButton({
             className="grid h-11 w-12 place-items-center text-[15px] font-bold"
             style={{ color: COLORS.text }}
           >
-            {qty}
+            {effectiveQty}
           </div>
           <button
             type="button"
             aria-label="Augmenter la quantité"
-            onClick={() => setQty((q) => Math.min(99, q + 1))}
-            className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
+            onClick={() => setQty((q) => Math.min(remainingQty, q + 1))}
+            disabled={effectiveQty >= remainingQty}
+            className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
             style={{ color: COLORS.text }}
           >
             <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -56,17 +62,20 @@ export function AddToCartButton({
           type="button"
           onClick={() => {
             if (!isConnected) {
-              open({ ...item, quantity: qty });
+              open({ ...item, quantity: effectiveQty });
               return;
             }
-            addItem(item, qty);
+            addItem(item, effectiveQty);
             setConfirmed(true);
             window.setTimeout(() => setConfirmed(false), 1400);
           }}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md text-[14px] font-semibold text-white shadow-sm transition-transform active:scale-[0.98]"
+          disabled={remainingQty === 0}
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md text-[14px] font-semibold text-white shadow-sm transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
           style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
         >
-          {!isConnected ? (
+          {remainingQty === 0 ? (
+            "Quantité maximale atteinte"
+          ) : !isConnected ? (
             <>
               <Lock className="h-4 w-4" strokeWidth={2} />
               Se connecter pour ajouter

@@ -7,6 +7,7 @@ import { useCart } from "@/components/cart-context";
 import { checkoutRetail } from "@/actions/retail-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
+import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
 
 export function CheckoutForm({
   defaultDelivery,
@@ -20,6 +21,9 @@ export function CheckoutForm({
   };
 }) {
   const { items, total, clearCart } = useCart();
+  const fee = deliveryFee(total);
+  const grandTotal = total + fee;
+  const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +41,10 @@ export function CheckoutForm({
     setError(null);
     if (items.length === 0) {
       setError("Votre panier est vide.");
+      return;
+    }
+    if (belowMinimum) {
+      setError(`Commande minimum de ${MIN_ORDER_EUR} €.`);
       return;
     }
     startTransition(async () => {
@@ -159,6 +167,22 @@ export function CheckoutForm({
             ))}
           </ul>
 
+          <dl className="mt-4 space-y-2 border-t pt-4 text-[13px]" style={{ borderColor: COLORS.border }}>
+            <div className="flex items-center justify-between">
+              <dt style={{ color: COLORS.muted }}>Sous-total</dt>
+              <dd className="font-semibold">{formatPriceEUR(total)}</dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt style={{ color: COLORS.muted }}>Livraison</dt>
+              <dd
+                className="font-semibold"
+                style={{ color: fee === 0 ? COLORS.primary : COLORS.text }}
+              >
+                {fee === 0 ? "Gratuite" : formatPriceEUR(fee)}
+              </dd>
+            </div>
+          </dl>
+
           <div
             className="mt-4 flex items-center justify-between border-t pt-4"
             style={{ borderColor: COLORS.border }}
@@ -167,7 +191,7 @@ export function CheckoutForm({
               Total
             </span>
             <span className="text-[20px] font-extrabold" style={{ color: COLORS.primary }}>
-              {formatPriceEUR(total)}
+              {formatPriceEUR(grandTotal)}
             </span>
           </div>
 
@@ -182,7 +206,7 @@ export function CheckoutForm({
 
           <button
             type="submit"
-            disabled={pending}
+            disabled={pending || belowMinimum}
             className="mt-5 grid h-11 w-full place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm disabled:opacity-70"
             style={{ background: COLORS.primary }}
           >
