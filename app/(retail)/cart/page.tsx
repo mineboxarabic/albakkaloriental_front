@@ -6,9 +6,20 @@ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
+import {
+  MIN_ORDER_EUR,
+  FREE_DELIVERY_THRESHOLD_EUR,
+  MAX_QTY_PER_PRODUCT,
+  deliveryFee,
+} from "@/lib/order-rules";
 
 export default function CartPage() {
   const { items, updateQty, removeItem, clearCart, total, itemCount } = useCart();
+
+  const fee = deliveryFee(total);
+  const grandTotal = total + fee;
+  const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
+  const nudgeFreeDelivery = total >= MIN_ORDER_EUR && total < FREE_DELIVERY_THRESHOLD_EUR;
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -125,7 +136,8 @@ export default function CartPage() {
                         type="button"
                         aria-label="Augmenter la quantité"
                         onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
+                        disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
+                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
                         style={{ color: COLORS.text }}
                       >
                         <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -191,9 +203,32 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <dt style={{ color: COLORS.muted }}>Livraison</dt>
-                  <dd style={{ color: COLORS.muted }}>Calculée à l&apos;étape suivante</dd>
+                  <dd
+                    className="font-semibold"
+                    style={{ color: fee === 0 ? COLORS.primary : COLORS.text }}
+                  >
+                    {fee === 0 ? "Gratuite" : formatPriceEUR(fee)}
+                  </dd>
                 </div>
               </dl>
+
+              {nudgeFreeDelivery && (
+                <div
+                  className="mt-3 rounded-md px-3 py-2 text-[11.5px]"
+                  style={{ background: "#FEF9C3", color: "#854D0E" }}
+                >
+                  Plus {formatPriceEUR(FREE_DELIVERY_THRESHOLD_EUR - total)} pour la livraison gratuite
+                </div>
+              )}
+
+              {belowMinimum && (
+                <div
+                  className="mt-3 rounded-md px-3 py-2 text-[11.5px]"
+                  style={{ background: "#FCE9E5", color: "#7A1709" }}
+                >
+                  Minimum de commande&nbsp;: {formatPriceEUR(MIN_ORDER_EUR)}
+                </div>
+              )}
 
               <div
                 className="mt-4 flex items-center justify-between border-t pt-4"
@@ -203,17 +238,29 @@ export default function CartPage() {
                   Total
                 </span>
                 <span className="text-[20px] font-extrabold" style={{ color: COLORS.primary }}>
-                  {formatPriceEUR(total)}
+                  {formatPriceEUR(grandTotal)}
                 </span>
               </div>
 
-              <Link
-                href="/checkout"
-                className="mt-5 grid h-11 place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm"
-                style={{ background: COLORS.primary }}
-              >
-                Valider mon panier
-              </Link>
+              {belowMinimum ? (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 grid h-11 w-full cursor-not-allowed place-items-center rounded-md text-[14px] font-semibold text-white opacity-40 shadow-sm"
+                  style={{ background: COLORS.primary }}
+                >
+                  Valider mon panier
+                </button>
+              ) : (
+                <Link
+                  href="/checkout"
+                  className="mt-5 grid h-11 place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm"
+                  style={{ background: COLORS.primary }}
+                >
+                  Valider mon panier
+                </Link>
+              )}
+
               <p className="mt-3 text-center text-[11.5px]" style={{ color: COLORS.muted }}>
                 Paiement à la livraison disponible.
               </p>
