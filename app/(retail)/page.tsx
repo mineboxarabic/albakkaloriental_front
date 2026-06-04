@@ -8,8 +8,9 @@ import {
   ChevronRight,
   WifiOff,
 } from "lucide-react";
-import { getProducts, getUpcomingDeliveries } from "@/lib/catalog";
+import { getCategories, getProducts, getUpcomingDeliveries } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
+import { getDisplayCategories } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
@@ -29,23 +30,29 @@ const FALLBACK_CATEGORIES = [
 
 
 export default async function Home() {
-  const [{ products: retailProducts, backendDown }, deliveries] = await Promise.all([
+  const [{ products: retailProducts, backendDown }, deliveries, categories] = await Promise.all([
     getProducts({ audience: "retail", take: 12 }),
     getUpcomingDeliveries(4),
+    getCategories("retail"),
   ]);
 
   const bestSellers = retailProducts.slice(0, 6);
   const newArrivals = retailProducts.slice(6, 12);
 
-  const dbCategories = Array.from(
+  const productCategories = Array.from(
     new Set(
       retailProducts.flatMap((p) =>
         p.category ? p.category.toUpperCase().split(",").map((c) => c.trim()) : []
       )
     )
   );
-  const categoryLabels =
-    dbCategories.length > 0 ? dbCategories.slice(0, 6) : FALLBACK_CATEGORIES;
+  const categoryDisplays = getDisplayCategories(
+    categories.length > 0
+      ? categories
+      : productCategories.length > 0
+        ? productCategories
+        : FALLBACK_CATEGORIES,
+  ).slice(0, 6);
 
   const serverDate = new Date().toISOString();
 
@@ -142,20 +149,28 @@ export default async function Home() {
           </Link>
         </div>
         <div className="mt-4 grid grid-cols-6 gap-3">
-          {categoryLabels.map((label) => (
+          {categoryDisplays.map((category) => (
             <Link
-              key={label}
-              href={`/products?category=${encodeURIComponent(label)}`}
+              key={category.name}
+              href={`/products?category=${encodeURIComponent(category.name)}`}
               className="group flex flex-col items-center overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
               style={{ borderColor: COLORS.border }}
             >
-              <div className="h-[110px] w-full" style={{ background: COLORS.beige }} />
+              <div className="relative h-[110px] w-full overflow-hidden" style={{ background: COLORS.beige }}>
+                <Image
+                  src={category.image}
+                  alt=""
+                  width={320}
+                  height={220}
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                />
+              </div>
               <div className="w-full px-2 py-2.5 text-center">
                 <div
                   className="text-[10px] font-bold tracking-wide"
                   style={{ color: COLORS.text }}
                 >
-                  {label}
+                  {category.name.toUpperCase()}
                 </div>
               </div>
             </Link>

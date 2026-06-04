@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Search, Heart, ShoppingCart, Menu, Truck, User } from "lucide-react";
+import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { useCart } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
@@ -22,7 +23,7 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
   const { itemCount, total } = useCart();
   const { isConnected, name } = useSession();
   const fn = firstName(name);
-  const uniqueCategories = Array.from(new Set(categories.length > 0 ? categories : DEFAULT_NAV_ITEMS));
+  const uniqueCategories = getOrderedCategoryNames(categories.length > 0 ? categories : DEFAULT_NAV_ITEMS);
   const navItems = uniqueCategories.slice(0, 6);
   const extraItems = uniqueCategories.slice(6);
 

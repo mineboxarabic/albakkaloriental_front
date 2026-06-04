@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProducts, getCategories } from "@/lib/catalog";
+import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
@@ -21,6 +22,7 @@ export default async function ProductsPage({
     getProducts({ audience: "retail", category }),
     getCategories("retail"),
   ]);
+  const orderedCategories = getOrderedCategoryNames(categories);
 
   const filteredProducts = q
     ? products.filter(
@@ -83,7 +85,7 @@ export default async function ProductsPage({
                   Toutes les catégories
                 </Link>
               </li>
-              {categories.map((c) => (
+              {orderedCategories.map((c) => (
                 <li key={c}>
                   <Link
                     href={{

@@ -93,8 +93,8 @@ describe("catalog (retail)", () => {
   it("supports legacy B2C status names from older catalog responses", async () => {
     backendFetchMock.mockResolvedValueOnce({
       products: [
-        fakeProduct({ id: "legacy-hidden", b2cStatus: "HIDDEN" }),
-        fakeProduct({ id: "legacy-oos", b2cStatus: "OUT_OF_STOCK" }),
+        fakeProduct({ id: "legacy-hidden", retailStatus: undefined, b2cStatus: "HIDDEN" }),
+        fakeProduct({ id: "legacy-oos", retailStatus: undefined, b2cStatus: "OUT_OF_STOCK" }),
       ],
     });
 
@@ -186,8 +186,18 @@ describe("catalog (pro)", () => {
   it("supports legacy B2B status names from older catalog responses", async () => {
     backendFetchMock.mockResolvedValueOnce({
       products: [
-        fakeProduct({ id: "legacy-hidden", visibility: "WHOLESALE", b2bStatus: "HIDDEN" }),
-        fakeProduct({ id: "legacy-visible", visibility: "WHOLESALE", b2bStatus: "VISIBLE" }),
+        fakeProduct({
+          id: "legacy-hidden",
+          visibility: "WHOLESALE",
+          wholesaleStatus: undefined,
+          b2bStatus: "HIDDEN",
+        }),
+        fakeProduct({
+          id: "legacy-visible",
+          visibility: "WHOLESALE",
+          wholesaleStatus: undefined,
+          b2bStatus: "VISIBLE",
+        }),
       ],
     });
 

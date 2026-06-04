@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Tag } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
+import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
@@ -26,6 +27,7 @@ export default async function ProProductsPage({
     getProducts({ audience: "pro", category }),
     getCategories("pro"),
   ]);
+  const orderedCategories = getOrderedCategoryNames(categories);
 
   const filtered = q
     ? products.filter(
@@ -102,7 +104,7 @@ export default async function ProProductsPage({
                   Tous les produits
                 </Link>
               </li>
-              {categories.map((c) => (
+              {orderedCategories.map((c) => (
                 <li key={c}>
                   <Link
                     href={{
