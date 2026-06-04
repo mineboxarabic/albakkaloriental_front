@@ -34,6 +34,13 @@ function fakeProduct(overrides: Record<string, unknown> = {}) {
     sellingPrice: 4.99,
     unitSellingPrice: null,
     price: 4.99,
+    priceLevelC: null,
+    priceLevelD: null,
+    priceLevelE: null,
+    priceLevelF: null,
+    retailStatus: "VISIBLE",
+    wholesaleStatus: "VISIBLE",
+    isOutOfStock: false,
     ...overrides,
   };
 }
@@ -61,6 +68,42 @@ describe("catalog (retail)", () => {
     expect(result[0].sellingPrice).toBe(4.99);
   });
 
+  it("only includes products visible to retail and respects retail status", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      products: [
+        fakeProduct({ id: "retail", visibility: "RETAIL" }),
+        fakeProduct({ id: "both", visibility: "BOTH" }),
+        fakeProduct({ id: "wholesale", visibility: "WHOLESALE" }),
+        fakeProduct({ id: "hidden", visibility: "BOTH", retailStatus: "HIDDEN" }),
+        fakeProduct({
+          id: "manual-oos",
+          visibility: "BOTH",
+          retailStatus: "OUT_OF_STOCK",
+          isOutOfStock: false,
+        }),
+      ],
+    });
+
+    const { products: result } = await getProducts({ audience: "retail" });
+
+    expect(result.map((p) => p.id)).toEqual(["retail", "both", "manual-oos"]);
+    expect(result.find((p) => p.id === "manual-oos")?.isOutOfStock).toBe(true);
+  });
+
+  it("supports legacy B2C status names from older catalog responses", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      products: [
+        fakeProduct({ id: "legacy-hidden", b2cStatus: "HIDDEN" }),
+        fakeProduct({ id: "legacy-oos", b2cStatus: "OUT_OF_STOCK" }),
+      ],
+    });
+
+    const { products: result } = await getProducts({ audience: "retail" });
+
+    expect(result.map((p) => p.id)).toEqual(["legacy-oos"]);
+    expect(result[0].isOutOfStock).toBe(true);
+  });
+
   it("getProducts filters by category client-side", async () => {
     backendFetchMock.mockResolvedValueOnce({
       products: [
@@ -71,6 +114,23 @@ describe("catalog (retail)", () => {
     const { products: result } = await getProducts({ audience: "retail", category: "boissons" });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("b");
+  });
+
+  it("getProducts filters by category client-side (including multi-category products)", async () => {
+    backendFetchMock.mockResolvedValue({
+      products: [
+        fakeProduct({ id: "a", category: "epicerie, boissons" }),
+        fakeProduct({ id: "b", category: "boissons" }),
+        fakeProduct({ id: "c", category: "epicerie" }),
+      ],
+    });
+    const { products: resBoissons } = await getProducts({ audience: "retail", category: "boissons" });
+    expect(resBoissons).toHaveLength(2);
+    expect(resBoissons.map(p => p.id)).toEqual(["a", "b"]);
+
+    const { products: resEpicerie } = await getProducts({ audience: "retail", category: "epicerie" });
+    expect(resEpicerie).toHaveLength(2);
+    expect(resEpicerie.map(p => p.id)).toEqual(["a", "c"]);
   });
 
   it("getProducts applies take + skip pagination client-side", async () => {
@@ -100,6 +160,41 @@ describe("catalog (pro)", () => {
       expect.objectContaining({ auth: "required" }),
     );
   });
+
+  it("only includes products visible to pros and respects wholesale status", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      products: [
+        fakeProduct({ id: "retail", visibility: "RETAIL" }),
+        fakeProduct({ id: "wholesale", visibility: "WHOLESALE" }),
+        fakeProduct({ id: "both", visibility: "BOTH" }),
+        fakeProduct({ id: "hidden", visibility: "BOTH", wholesaleStatus: "HIDDEN" }),
+        fakeProduct({
+          id: "stock-empty",
+          visibility: "WHOLESALE",
+          wholesaleStatus: "VISIBLE",
+          isOutOfStock: true,
+        }),
+      ],
+    });
+
+    const { products: result } = await getProducts({ audience: "pro" });
+
+    expect(result.map((p) => p.id)).toEqual(["wholesale", "both", "stock-empty"]);
+    expect(result.find((p) => p.id === "stock-empty")?.isOutOfStock).toBe(true);
+  });
+
+  it("supports legacy B2B status names from older catalog responses", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      products: [
+        fakeProduct({ id: "legacy-hidden", visibility: "WHOLESALE", b2bStatus: "HIDDEN" }),
+        fakeProduct({ id: "legacy-visible", visibility: "WHOLESALE", b2bStatus: "VISIBLE" }),
+      ],
+    });
+
+    const { products: result } = await getProducts({ audience: "pro" });
+
+    expect(result.map((p) => p.id)).toEqual(["legacy-visible"]);
+  });
 });
 
 describe("getProduct", () => {
@@ -120,6 +215,16 @@ describe("getProduct", () => {
     const result = await getProduct("nope", "retail");
     expect(result).toBeNull();
   });
+
+  it("returns null for a product hidden from that audience", async () => {
+    backendFetchMock.mockResolvedValueOnce({
+      products: [fakeProduct({ id: "a", visibility: "WHOLESALE" })],
+    });
+
+    const result = await getProduct("a", "retail");
+
+    expect(result).toBeNull();
+  });
 });
 
 describe("getCategories", () => {
@@ -127,16 +232,19 @@ describe("getCategories", () => {
     backendFetchMock.mockReset();
   });
 
-  it("returns unique sorted categories from the catalog", async () => {
+  it("returns sorted categories from the backend categories API", async () => {
     backendFetchMock.mockResolvedValueOnce({
-      products: [
-        fakeProduct({ category: "zucchini" }),
-        fakeProduct({ category: "apple" }),
-        fakeProduct({ category: "apple" }),
-        fakeProduct({ category: "milk" }),
+      categories: [
+        { id: "1", name: "apple" },
+        { id: "2", name: "milk" },
+        { id: "3", name: "zucchini" },
       ],
     });
     const result = await getCategories("retail");
+    expect(backendFetchMock).toHaveBeenCalledWith(
+      "/api/v1/public/categories",
+      expect.objectContaining({ auth: "none" }),
+    );
     expect(result).toEqual(["apple", "milk", "zucchini"]);
   });
 });

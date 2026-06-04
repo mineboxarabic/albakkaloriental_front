@@ -50,10 +50,9 @@ export function resolveProPrice(
   saleUnit: SaleUnit,
   level: PricingLevel | null | undefined,
 ): number {
-  const packPrice = getTierPrice(product, level);
-  if (saleUnit === "PACK") return packPrice;
-  const packs = Math.max(1, product.unitsPerPack);
-  return packPrice / packs;
+  const unitPrice = getTierPrice(product, level);
+  if (saleUnit === "UNIT") return unitPrice;
+  return unitPrice * Math.max(1, product.unitsPerPack);
 }
 
 /**

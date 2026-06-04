@@ -11,6 +11,16 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
+  handleActionError: async (error: any) => {
+    if (error && error.status === 401) {
+      return { ok: false, error: "Unauthorized", isUnauthorized: true };
+    }
+    return { ok: false, error: error?.message || "Error" };
+  },
+}));
+
+vi.mock("@/lib/session", () => ({
+  clearSessionCookie: vi.fn(),
 }));
 
 import {
@@ -45,7 +55,7 @@ describe("retail cart actions", () => {
     const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
     backendFetchMock.mockRejectedValueOnce(new ApiClientError(401, "Unauthorized"));
     const result = await getRetailCart();
-    expect(result).toMatchObject({ ok: false });
+    expect(result).toMatchObject({ ok: false, isUnauthorized: true });
   });
 
   it("addRetailCartItem POSTs to /cart/items", async () => {

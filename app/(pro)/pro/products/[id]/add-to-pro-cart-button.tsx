@@ -35,6 +35,7 @@ export function AddToProCartButton({
   const [saleUnit, setSaleUnit] = useState<CartSaleUnit>("PACK");
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
 
   const unitPrice = useMemo(
@@ -131,8 +132,9 @@ export function AddToProCartButton({
       ) : (
         <button
           type="button"
-          onClick={() => {
-            addItem(
+          onClick={async () => {
+            setError(null);
+            const res = await addItem(
               {
                 productId,
                 name,
@@ -143,8 +145,12 @@ export function AddToProCartButton({
               },
               qty,
             );
-            setConfirmed(true);
-            window.setTimeout(() => setConfirmed(false), 1400);
+            if (res.ok) {
+              setConfirmed(true);
+              window.setTimeout(() => setConfirmed(false), 1400);
+            } else {
+              setError(res.error || "Une erreur est survenue.");
+            }
           }}
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
           style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
@@ -161,6 +167,14 @@ export function AddToProCartButton({
             </span>
           )}
         </button>
+      )}
+      {error && (
+        <div
+          className="text-[12.5px] font-medium text-center"
+          style={{ color: COLORS.red }}
+        >
+          {error}
+        </div>
       )}
     </div>
   );

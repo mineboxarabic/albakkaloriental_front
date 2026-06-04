@@ -86,6 +86,14 @@ export async function backendFetch<T>(
       (parsed as { error?: string })?.error ??
       (parsed as { message?: string })?.message ??
       `Request failed: ${response.status}`;
+
+    if (response.status === 401) {
+      try {
+        const { clearSessionCookie } = await import("@/lib/session");
+        await clearSessionCookie();
+      } catch {}
+    }
+
     throw new ApiClientError(response.status, message, parsed);
   }
 
@@ -99,4 +107,24 @@ export async function backendFetch<T>(
   }
 
   return parsed as T;
+}
+
+export async function handleActionError(
+  error: unknown,
+): Promise<{ ok: false; error: string; isUnauthorized?: boolean }> {
+  if (error instanceof ApiClientError) {
+    if (error.status === 401) {
+      try {
+        const { clearSessionCookie } = await import("@/lib/session");
+        await clearSessionCookie();
+      } catch {}
+      return {
+        ok: false,
+        error: "Votre session a expiré. Veuillez vous reconnecter.",
+        isUnauthorized: true,
+      };
+    }
+    return { ok: false, error: error.message };
+  }
+  return { ok: false, error: "Opération impossible pour le moment." };
 }

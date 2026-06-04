@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { ApiClientError, backendFetch } from "@/lib/api-client";
+import { ApiClientError, backendFetch, handleActionError } from "@/lib/api-client";
 
 export type ProMe = {
   user: {
@@ -82,11 +82,10 @@ export type ProInvoice = {
 };
 
 type Ok<T> = { ok: true } & T;
-type Err = { ok: false; error: string };
+type Err = { ok: false; error: string; isUnauthorized?: boolean };
 
-function fail(error: unknown): Err {
-  if (error instanceof ApiClientError) return { ok: false, error: error.message };
-  return { ok: false, error: "Requête impossible pour le moment." };
+async function fail(error: unknown): Promise<Err> {
+  return handleActionError(error);
 }
 
 export async function getProMe(): Promise<Ok<ProMe> | Err> {
@@ -138,7 +137,7 @@ export async function updateProProfile(
     return { ok: true };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, errors: { form: error.message } };
+      return { ok: false, errors: { form: error.message }, isUnauthorized: error.status === 401 } as any;
     }
     return { ok: false, errors: { form: "Mise à jour impossible pour le moment." } };
   }
@@ -190,7 +189,7 @@ export async function changeProPassword(
       const errors: Record<string, string> = {};
       if (error.status === 403) errors.currentPassword = error.message;
       else errors.form = error.message;
-      return { ok: false, errors };
+      return { ok: false, errors, isUnauthorized: error.status === 401 } as any;
     }
     return {
       ok: false,

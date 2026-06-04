@@ -25,9 +25,10 @@ export default async function ProProductDetailPage({
   const product = await getProduct(id, "pro");
   if (!product) notFound();
 
+  const firstCategory = product.category.split(",")[0]?.trim();
   const { products: relatedRaw } = await getProducts({
     audience: "pro",
-    category: product.category,
+    category: firstCategory,
     take: 8,
   });
   const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
@@ -37,13 +38,21 @@ export default async function ProProductDetailPage({
       <nav className="mb-6 text-[11.5px]" style={{ color: COLORS.muted }}>
         <Link href="/pro/products" className="hover:underline">Catalogue pro</Link>{" "}
         <span className="mx-1">›</span>
-        <Link
-          href={`/pro/products?category=${encodeURIComponent(product.category)}`}
-          className="hover:underline"
-        >
-          {product.category}
-        </Link>{" "}
-        <span className="mx-1">›</span>
+        {product.category.split(",").map((cat, idx, arr) => {
+          const trimmed = cat.trim();
+          return (
+            <span key={trimmed}>
+              <Link
+                href={`/pro/products?category=${encodeURIComponent(trimmed)}`}
+                className="hover:underline"
+              >
+                {trimmed}
+              </Link>
+              {idx < arr.length - 1 && <span className="mx-1.5">,</span>}
+            </span>
+          );
+        })}
+        {" "}<span className="mx-1">›</span>
         <span style={{ color: COLORS.text }}>{product.name}</span>
       </nav>
 

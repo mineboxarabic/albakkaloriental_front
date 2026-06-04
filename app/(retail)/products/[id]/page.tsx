@@ -17,9 +17,10 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
   if (!product) notFound();
 
   // Suggestions: same category, exclude self.
+  const firstCategory = product.category.split(",")[0]?.trim();
   const { products: relatedRaw } = await getProducts({
     audience: "retail",
-    category: product.category,
+    category: firstCategory,
     take: 8,
   });
   const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
@@ -29,13 +30,21 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
       <nav className="mb-6 text-[11.5px]" style={{ color: COLORS.muted }}>
         <Link href="/" className="hover:underline">Accueil</Link>{" "}
         <span className="mx-1">›</span>
-        <Link
-          href={`/products?category=${encodeURIComponent(product.category)}`}
-          className="hover:underline"
-        >
-          {product.category}
-        </Link>{" "}
-        <span className="mx-1">›</span>
+        {product.category.split(",").map((cat, idx, arr) => {
+          const trimmed = cat.trim();
+          return (
+            <span key={trimmed}>
+              <Link
+                href={`/products?category=${encodeURIComponent(trimmed)}`}
+                className="hover:underline"
+              >
+                {trimmed}
+              </Link>
+              {idx < arr.length - 1 && <span className="mx-1.5">,</span>}
+            </span>
+          );
+        })}
+        {" "}<span className="mx-1">›</span>
         <span style={{ color: COLORS.text }}>{product.name}</span>
       </nav>
 

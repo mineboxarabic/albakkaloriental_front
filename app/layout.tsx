@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${poppins.variable} h-full antialiased`}>
+    <html lang="fr" className={`${poppins.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"

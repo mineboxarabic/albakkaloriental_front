@@ -12,7 +12,7 @@ export type ProCheckoutInput = z.infer<typeof checkoutSchema>;
 
 export type ProCheckoutResult =
   | { ok: true; orderId: string; orderNumber: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; isUnauthorized?: boolean };
 
 export async function checkoutPro(input: ProCheckoutInput): Promise<ProCheckoutResult> {
   const parsed = checkoutSchema.safeParse(input);
@@ -31,7 +31,7 @@ export async function checkoutPro(input: ProCheckoutInput): Promise<ProCheckoutR
     return { ok: true, orderId: data.order.id, orderNumber: data.order.orderNumber };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: error.message, isUnauthorized: error.status === 401 };
     }
     return { ok: false, error: "Commande impossible pour le moment." };
   }

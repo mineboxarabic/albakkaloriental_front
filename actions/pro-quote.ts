@@ -52,7 +52,7 @@ export type QuoteSummary = {
 
 export type ListQuotesResult =
   | { ok: true; quotes: QuoteSummary[] }
-  | { ok: false; error: string };
+  | { ok: false; error: string; isUnauthorized?: boolean };
 
 export async function listQuotes(): Promise<ListQuotesResult> {
   try {
@@ -63,7 +63,7 @@ export async function listQuotes(): Promise<ListQuotesResult> {
     return { ok: true, quotes: data.quotes };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: error.message, isUnauthorized: error.status === 401 };
     }
     return { ok: false, error: "Devis introuvables." };
   }
@@ -71,7 +71,7 @@ export async function listQuotes(): Promise<ListQuotesResult> {
 
 export type GetQuoteResult =
   | { ok: true; quote: QuoteDTO }
-  | { ok: false; error: string };
+  | { ok: false; error: string; isUnauthorized?: boolean };
 
 export async function getQuote(quoteId: string): Promise<GetQuoteResult> {
   try {
@@ -82,7 +82,7 @@ export async function getQuote(quoteId: string): Promise<GetQuoteResult> {
     return { ok: true, quote: data.quote };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: error.message, isUnauthorized: error.status === 401 };
     }
     return { ok: false, error: "Devis introuvable." };
   }
@@ -90,7 +90,7 @@ export async function getQuote(quoteId: string): Promise<GetQuoteResult> {
 
 export type AcceptQuoteResult =
   | { ok: true; orderId: string; deliveryCityId: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; isUnauthorized?: boolean };
 
 export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
   try {
@@ -115,7 +115,7 @@ export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
     return { ok: true, orderId: data.orderId, deliveryCityId: data.deliveryCityId };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: error.message, isUnauthorized: error.status === 401 };
     }
     return { ok: false, error: "Acceptation impossible pour le moment." };
   }

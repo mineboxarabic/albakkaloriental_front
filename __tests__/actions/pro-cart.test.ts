@@ -11,6 +11,16 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
+  handleActionError: async (error: any) => {
+    if (error && error.status === 401) {
+      return { ok: false, error: "Unauthorized", isUnauthorized: true };
+    }
+    return { ok: false, error: error?.message || "Error" };
+  },
+}));
+
+vi.mock("@/lib/session", () => ({
+  clearSessionCookie: vi.fn(),
 }));
 
 import {
@@ -37,6 +47,13 @@ describe("pro cart actions", () => {
       "/api/v1/b2b/cart",
       expect.objectContaining({ auth: "required" }),
     );
+  });
+
+  it("getProCart returns ok=false with error on 401", async () => {
+    const ApiClientError = (await import("@/lib/api-client")).ApiClientError;
+    backendFetchMock.mockRejectedValueOnce(new ApiClientError(401, "Unauthorized"));
+    const result = await getProCart();
+    expect(result).toMatchObject({ ok: false, isUnauthorized: true });
   });
 
   it("addProCartItem POSTs to /b2b/cart/items with saleUnit", async () => {

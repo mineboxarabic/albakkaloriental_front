@@ -57,32 +57,32 @@ describe("resolveProPrice", () => {
     unitsPerPack: 6,
   };
 
-  it("PACK returns the tier price for the level", () => {
-    expect(resolveProPrice(product, "PACK", "C")).toBe(10);
-    expect(resolveProPrice(product, "PACK", "D")).toBe(9);
-    expect(resolveProPrice(product, "PACK", "E")).toBe(8);
+  it("PACK returns the tier price multiplied by unitsPerPack", () => {
+    expect(resolveProPrice(product, "PACK", "C")).toBe(10 * 6);
+    expect(resolveProPrice(product, "PACK", "D")).toBe(9 * 6);
+    expect(resolveProPrice(product, "PACK", "E")).toBe(8 * 6);
   });
 
-  it("PACK falls back to sellingPrice when level missing or null", () => {
-    expect(resolveProPrice(product, "PACK", null)).toBe(12);
-    expect(resolveProPrice(product, "PACK", "F")).toBe(12);
+  it("PACK falls back to sellingPrice * unitsPerPack when level missing or null", () => {
+    expect(resolveProPrice(product, "PACK", null)).toBe(12 * 6);
+    expect(resolveProPrice(product, "PACK", "F")).toBe(12 * 6);
   });
 
-  it("UNIT divides the tier price by unitsPerPack (tier-aware)", () => {
-    expect(resolveProPrice(product, "UNIT", "C")).toBeCloseTo(10 / 6, 5);
-    expect(resolveProPrice(product, "UNIT", "D")).toBeCloseTo(9 / 6, 5);
-    expect(resolveProPrice(product, "UNIT", "E")).toBeCloseTo(8 / 6, 5);
+  it("UNIT returns the tier price directly (tier-aware)", () => {
+    expect(resolveProPrice(product, "UNIT", "C")).toBe(10);
+    expect(resolveProPrice(product, "UNIT", "D")).toBe(9);
+    expect(resolveProPrice(product, "UNIT", "E")).toBe(8);
   });
 
-  it("UNIT without level falls back to sellingPrice / unitsPerPack", () => {
-    expect(resolveProPrice(product, "UNIT", null)).toBeCloseTo(12 / 6, 5);
+  it("UNIT without level falls back to sellingPrice", () => {
+    expect(resolveProPrice(product, "UNIT", null)).toBe(12);
   });
 
-  it("UNIT with tier null falls back to sellingPrice / unitsPerPack", () => {
-    expect(resolveProPrice(product, "UNIT", "F")).toBeCloseTo(12 / 6, 5);
+  it("UNIT with tier null falls back to sellingPrice", () => {
+    expect(resolveProPrice(product, "UNIT", "F")).toBe(12);
   });
 
-  it("UNIT ignores the B2C unitSellingPrice (per spec: pro UNIT = tier / units)", () => {
+  it("UNIT ignores the B2C unitSellingPrice (per spec: pro UNIT = tier)", () => {
     expect(resolveProPrice(product, "UNIT", "C")).not.toBe(1.5);
   });
 

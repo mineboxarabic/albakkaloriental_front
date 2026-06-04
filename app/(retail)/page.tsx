@@ -18,12 +18,13 @@ import { DeliveryChecker } from "@/components/retail/delivery-checker";
 export const revalidate = 60;
 
 const FALLBACK_CATEGORIES = [
-  "ÉPICERIE SALÉE",
+  "CONFISERIES",
   "BOISSONS",
-  "ÉPICERIE SUCRÉE",
+  "ÉPICES",
   "PRODUITS FRAIS",
-  "SURGELÉS",
-  "HYGIÈNE & MAISON",
+  "HUILES",
+  "CONSERVES",
+  "RIZ ET PÂTES",
 ];
 
 
@@ -37,10 +38,14 @@ export default async function Home() {
   const newArrivals = retailProducts.slice(6, 12);
 
   const dbCategories = Array.from(
-    new Set(retailProducts.map((p) => p.category.toUpperCase())),
+    new Set(
+      retailProducts.flatMap((p) =>
+        p.category ? p.category.toUpperCase().split(",").map((c) => c.trim()) : []
+      )
+    )
   );
   const categoryLabels =
-    dbCategories.length >= 6 ? dbCategories.slice(0, 6) : FALLBACK_CATEGORIES;
+    dbCategories.length > 0 ? dbCategories.slice(0, 6) : FALLBACK_CATEGORIES;
 
   const serverDate = new Date().toISOString();
 

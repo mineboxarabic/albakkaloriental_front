@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiClientError, backendFetch } from "@/lib/api-client";
+import { ApiClientError, backendFetch, handleActionError } from "@/lib/api-client";
 
 export type CartItemDTO = {
   id: string;
@@ -27,21 +27,20 @@ export type CartDTO = {
 };
 
 type Ok<T> = { ok: true } & T;
-type Err = { ok: false; error: string };
+export type ActionErr = { ok: false; error: string; isUnauthorized?: boolean };
 
-function fail(error: unknown): Err {
-  if (error instanceof ApiClientError) return { ok: false, error: error.message };
-  return { ok: false, error: "Opération impossible pour le moment." };
+async function fail(error: unknown): Promise<ActionErr> {
+  return handleActionError(error);
 }
 
-export async function getRetailCart(): Promise<Ok<{ cart: CartDTO }> | Err> {
+export async function getRetailCart(): Promise<Ok<{ cart: CartDTO }> | ActionErr> {
   try {
     const data = await backendFetch<{ cart: CartDTO }>("/api/v1/retail/cart", {
       auth: "required",
     });
     return { ok: true, cart: data.cart };
   } catch (error) {
-    return fail(error);
+    return await fail(error);
   }
 }
 
@@ -49,7 +48,7 @@ export async function addRetailCartItem(input: {
   productId: string;
   quantity: number;
   saleUnit: "UNIT" | "PACK";
-}): Promise<Ok<{ item: CartItemDTO }> | Err> {
+}): Promise<Ok<{ item: CartItemDTO }> | ActionErr> {
   try {
     const data = await backendFetch<{ item: CartItemDTO }>(
       "/api/v1/retail/cart/items",
@@ -57,14 +56,14 @@ export async function addRetailCartItem(input: {
     );
     return { ok: true, item: data.item };
   } catch (error) {
-    return fail(error);
+    return await fail(error);
   }
 }
 
 export async function updateRetailCartItem(
   itemId: string,
   quantity: number,
-): Promise<Ok<{ itemId: string }> | Err> {
+): Promise<Ok<{ itemId: string }> | ActionErr> {
   try {
     await backendFetch(`/api/v1/retail/cart/items/${itemId}`, {
       method: "PATCH",
@@ -73,13 +72,13 @@ export async function updateRetailCartItem(
     });
     return { ok: true, itemId };
   } catch (error) {
-    return fail(error);
+    return await fail(error);
   }
 }
 
 export async function removeRetailCartItem(
   itemId: string,
-): Promise<Ok<{ itemId: string }> | Err> {
+): Promise<Ok<{ itemId: string }> | ActionErr> {
   try {
     await backendFetch(`/api/v1/retail/cart/items/${itemId}`, {
       method: "DELETE",
@@ -87,11 +86,11 @@ export async function removeRetailCartItem(
     });
     return { ok: true, itemId };
   } catch (error) {
-    return fail(error);
+    return await fail(error);
   }
 }
 
-export async function clearRetailCart(): Promise<Ok<{ cleared: boolean }> | Err> {
+export async function clearRetailCart(): Promise<Ok<{ cleared: boolean }> | ActionErr> {
   try {
     await backendFetch("/api/v1/retail/cart", {
       method: "DELETE",
@@ -99,6 +98,6 @@ export async function clearRetailCart(): Promise<Ok<{ cleared: boolean }> | Err>
     });
     return { ok: true, cleared: true };
   } catch (error) {
-    return fail(error);
+    return await fail(error);
   }
 }

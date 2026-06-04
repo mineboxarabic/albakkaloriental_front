@@ -6,7 +6,7 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { useCart } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 
-const NAV_ITEMS = ["ÉPICERIE", "BOISSONS", "PRODUITS FRAIS", "SURGELÉS", "HYGIÈNE & MAISON"];
+const DEFAULT_NAV_ITEMS = ["CONFISERIES", "BOISSONS", "ÉPICES", "PRODUITS FRAIS", "HUILES", "CONSERVES", "RIZ ET PÂTES"];
 
 function formatEUR(n: number) {
   return `${n.toFixed(2).replace(".", ",")} €`;
@@ -18,10 +18,13 @@ function firstName(full: string | null) {
   return p || null;
 }
 
-export function SiteHeader() {
+export function SiteHeader({ categories = [] }: { categories?: string[] }) {
   const { itemCount, total } = useCart();
   const { isConnected, name } = useSession();
   const fn = firstName(name);
+  const uniqueCategories = Array.from(new Set(categories.length > 0 ? categories : DEFAULT_NAV_ITEMS));
+  const navItems = uniqueCategories.slice(0, 6);
+  const extraItems = uniqueCategories.slice(6);
 
   return (
     <>
@@ -151,25 +154,81 @@ export function SiteHeader() {
         </div>
 
         <nav className="border-t" style={{ borderColor: COLORS.border, background: "#FFFFFF" }}>
-          <div className="mx-auto flex max-w-[1180px] items-center gap-7 px-6 py-3 text-[12px] font-semibold tracking-wide">
-            <Link
-              href="/products"
-              className="flex items-center gap-2"
-              style={{ color: COLORS.red }}
-            >
-              <Menu className="h-4 w-4" strokeWidth={2.4} />
-              TOUS LES RAYONS
-            </Link>
-            {NAV_ITEMS.map((item) => (
+          <div className="mx-auto flex max-w-[1180px] items-center gap-7 px-6 text-[12px] font-semibold tracking-wide">
+            {/* TOUS LES RAYONS Dropdown */}
+            <div className="relative group/rayons py-3">
+              <Link
+                href="/products"
+                className="flex items-center gap-2 hover:opacity-75 transition-opacity"
+                style={{ color: COLORS.red }}
+              >
+                <Menu className="h-4 w-4" strokeWidth={2.4} />
+                TOUS LES RAYONS
+              </Link>
+              <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/rayons:opacity-100 group-hover/rayons:visible group-hover/rayons:translate-y-0 transition-all duration-200 ease-out">
+                <div
+                  className="w-[280px] rounded-lg border bg-white p-2 shadow-xl"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <div className="grid gap-0.5 max-h-[350px] overflow-y-auto scrollbar-none">
+                    {uniqueCategories.map((item) => (
+                      <Link
+                        key={item}
+                        href={`/products?category=${encodeURIComponent(item)}`}
+                        className="flex items-center rounded-md px-3 py-2 text-[12.5px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                        style={{ color: COLORS.text }}
+                      >
+                        {item.toUpperCase()}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Categories */}
+            {navItems.map((item) => (
               <Link
                 key={item}
                 href={`/products?category=${encodeURIComponent(item)}`}
-                className="hover:opacity-70"
+                className="py-3 hover:opacity-70 transition-opacity"
                 style={{ color: COLORS.text }}
               >
-                {item}
+                {item.toUpperCase()}
               </Link>
             ))}
+
+            {/* PLUS Dropdown */}
+            {extraItems.length > 0 && (
+              <div className="relative group/plus py-3">
+                <button
+                  className="flex items-center gap-1 font-semibold hover:opacity-70 transition-opacity cursor-pointer uppercase"
+                  style={{ color: COLORS.text }}
+                >
+                  Plus
+                  <span className="text-[9px] transition-transform duration-200 group-hover/plus:rotate-180">▼</span>
+                </button>
+                <div className="absolute right-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/plus:opacity-100 group-hover/plus:visible group-hover/plus:translate-y-0 transition-all duration-200 ease-out">
+                  <div
+                    className="w-[260px] rounded-lg border bg-white p-2 shadow-xl"
+                    style={{ borderColor: COLORS.border }}
+                  >
+                    <div className="grid gap-0.5 max-h-[350px] overflow-y-auto scrollbar-none">
+                      {extraItems.map((item) => (
+                        <Link
+                          key={item}
+                          href={`/products?category=${encodeURIComponent(item)}`}
+                          className="flex items-center rounded-md px-3 py-2 text-[12.5px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                          style={{ color: COLORS.text }}
+                        >
+                          {item.toUpperCase()}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </nav>
       </header>

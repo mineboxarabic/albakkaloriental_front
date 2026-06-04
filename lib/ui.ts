@@ -26,5 +26,5 @@ export function buildWeightLabel(p: Pick<ProductCard, "baseUnit" | "unitsPerPack
     PIECE: "u.",
   };
   const u = unitMap[p.baseUnit] ?? p.baseUnit.toLowerCase();
-  return p.unitsPerPack > 1 ? `${p.unitsPerPack} × ${u}` : u;
+  return u;
 }

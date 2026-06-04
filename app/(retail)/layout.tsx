@@ -7,10 +7,14 @@ import { SiteFooter } from "@/components/retail/site-footer";
 import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getSession } from "@/lib/session";
+import { getCategories } from "@/lib/catalog";
 import { COLORS } from "@/lib/ui";
 
 export default async function RetailLayout({ children }: { children: ReactNode }) {
-  const session = await getSession();
+  const [session, categories] = await Promise.all([
+    getSession(),
+    getCategories("retail"),
+  ]);
   const isRetail = session?.type === "retail";
   const sessionValue: ClientSession = {
     isConnected: !!isRetail,
@@ -19,18 +23,18 @@ export default async function RetailLayout({ children }: { children: ReactNode }
   };
 
   return (
-    <CartProvider audience="retail">
-      <SessionProvider value={sessionValue}>
+    <SessionProvider value={sessionValue}>
+      <CartProvider audience="retail">
         <AuthModalProvider>
           <div className="flex min-h-screen flex-col" style={{ background: COLORS.bg }}>
-            <SiteHeader />
+            <SiteHeader categories={categories} />
             <PendingCartIntentConsumer />
             <div className="flex-1">{children}</div>
             <SiteFooter />
           </div>
           <CookieBanner />
         </AuthModalProvider>
-      </SessionProvider>
-    </CartProvider>
+      </CartProvider>
+    </SessionProvider>
   );
 }

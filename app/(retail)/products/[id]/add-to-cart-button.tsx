@@ -18,6 +18,7 @@ export function AddToCartButton({
   const { open } = useAuthModal();
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const existingQty = items.find((i) => i.productId === item.productId)?.quantity ?? 0;
   const remainingQty = Math.max(0, MAX_QTY_PER_PRODUCT - existingQty);
@@ -60,14 +61,19 @@ export function AddToCartButton({
 
         <button
           type="button"
-          onClick={() => {
+          onClick={async () => {
             if (!isConnected) {
               open({ ...item, quantity: effectiveQty });
               return;
             }
-            addItem(item, effectiveQty);
-            setConfirmed(true);
-            window.setTimeout(() => setConfirmed(false), 1400);
+            setError(null);
+            const res = await addItem(item, effectiveQty);
+            if (res.ok) {
+              setConfirmed(true);
+              window.setTimeout(() => setConfirmed(false), 1400);
+            } else {
+              setError(res.error || "Une erreur est survenue.");
+            }
           }}
           disabled={remainingQty === 0}
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md text-[14px] font-semibold text-white shadow-sm transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
@@ -93,6 +99,14 @@ export function AddToCartButton({
           )}
         </button>
       </div>
+      {error && (
+        <div
+          className="text-[12.5px] font-medium text-center"
+          style={{ color: COLORS.red }}
+        >
+          {error}
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,12 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
+  handleActionError: async (error: any) => {
+    if (error && error.status === 401) {
+      return { ok: false, error: "Unauthorized", isUnauthorized: true };
+    }
+    return { ok: false, error: error?.message || "Error" };
+  },
 }));
 
 import {
