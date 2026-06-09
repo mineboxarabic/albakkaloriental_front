@@ -132,8 +132,9 @@ export function CartProvider({
   const actions = useMemo(() => getActions(audience), [audience]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !(window as any).__fetchIntercepted) {
-      (window as any).__fetchIntercepted = true;
+    const w = window as Window & { __fetchIntercepted?: boolean };
+    if (typeof window !== "undefined" && !w.__fetchIntercepted) {
+      w.__fetchIntercepted = true;
       const originalFetch = window.fetch;
       window.fetch = async function (...args) {
         const response = await originalFetch(...args);
@@ -146,7 +147,7 @@ export function CartProvider({
               ? "/pro/login"
               : "/login";
           }
-        } catch (e) {
+        } catch {
           // Ignore
         }
         return response;

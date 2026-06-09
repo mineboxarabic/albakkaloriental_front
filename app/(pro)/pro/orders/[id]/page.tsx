@@ -94,9 +94,13 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const order = result.order;
   const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
-  const itemsTotal = order.items.reduce((sum, i) => sum + i.totalPrice, 0);
-  const tva = Number((itemsTotal * (TAX_RATE / 100)).toFixed(2));
-  const ttc = Number((itemsTotal + tva).toFixed(2));
+  // order.totalAmount is the authoritative amount owed (same figure the admin
+  // tracks payments against). TVA is informational; payments are recorded
+  // against totalAmount, so paid + remaining always reconcile to it.
+  const total = order.totalAmount;
+  const tva = Number((total * (TAX_RATE / 100)).toFixed(2));
+  const paid = order.paidAmount;
+  const remaining = Number(Math.max(0, total - paid).toFixed(2));
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -244,18 +248,18 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             RÉCAPITULATIF
           </div>
           <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
-            <Row label="Sous-total HT" value={formatPriceEUR(itemsTotal)} />
-            <Row label={`TVA ${TAX_RATE}%`} value={formatPriceEUR(tva)} />
+            <Row label="Sous-total HT" value={formatPriceEUR(total)} />
+            <Row label={`dont TVA ${TAX_RATE}%`} value={formatPriceEUR(tva)} />
           </dl>
           <div
             className="mt-4 flex items-center justify-between border-t pt-4"
             style={{ borderColor: COLORS.border }}
           >
             <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-              Total TTC
+              Total
             </span>
             <span className="text-[22px] font-extrabold" style={{ color: COLORS.primary }}>
-              {formatPriceEUR(ttc)}
+              {formatPriceEUR(total)}
             </span>
           </div>
           {order.deliveryCity && (
@@ -272,21 +276,53 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             </div>
           )}
 
-          {(() => {
-            const pm = PAYMENT_META[order.paymentStatus] ?? null;
-            if (!pm) return null;
-            return (
-              <div
-                className="mt-3 flex items-center justify-between rounded-sm px-3 py-2 text-[11.5px]"
-                style={{ background: pm.bg, color: pm.color }}
+          <div
+            className="mt-5 rounded-sm border p-4"
+            style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
+          >
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[10.5px] font-bold uppercase tracking-[0.14em]"
+                style={{ color: COLORS.muted }}
               >
-                <span className="font-bold tracking-[0.1em] uppercase">
-                  Paiement
-                </span>
-                <span className="font-bold">{pm.label}</span>
+                Paiement
+              </span>
+              {(() => {
+                const pm = PAYMENT_META[order.paymentStatus] ?? null;
+                if (!pm) return null;
+                return (
+                  <span
+                    className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold"
+                    style={{ background: pm.bg, color: pm.color }}
+                  >
+                    {pm.label}
+                  </span>
+                );
+              })()}
+            </div>
+            <dl className="mt-3 space-y-2 text-[13px]">
+              <div className="flex items-center justify-between">
+                <dt style={{ color: COLORS.muted }}>Déjà payé</dt>
+                <dd className="font-semibold" style={{ color: COLORS.primary }}>
+                  {formatPriceEUR(paid)}
+                </dd>
               </div>
-            );
-          })()}
+              <div
+                className="flex items-center justify-between border-t pt-2"
+                style={{ borderColor: COLORS.border }}
+              >
+                <dt className="font-bold" style={{ color: COLORS.text }}>
+                  Reste à payer
+                </dt>
+                <dd
+                  className="text-[16px] font-extrabold"
+                  style={{ color: remaining > 0 ? COLORS.red : COLORS.primary }}
+                >
+                  {formatPriceEUR(remaining)}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </aside>
       </section>
     </main>

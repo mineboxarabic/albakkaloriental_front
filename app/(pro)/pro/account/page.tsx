@@ -7,10 +7,9 @@ import {
   Shield,
   LogOut,
   ArrowLeft,
-  Tag,
   FileText,
 } from "lucide-react";
-import { getProMe } from "@/actions/pro-me";
+import { getProMe, getProOrders } from "@/actions/pro-me";
 import { logoutPro } from "@/actions/pro-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProContactForm } from "./pro-contact-form";
@@ -18,19 +17,25 @@ import { ProChangePasswordForm } from "./pro-change-password-form";
 
 export const dynamic = "force-dynamic";
 
-const PRICING_DESC: Record<string, string> = {
-  C: "Tarif Niveau C",
-  D: "Tarif Niveau D",
-  E: "Tarif Niveau E",
-  F: "Tarif Niveau F",
-};
-
 export default async function ProAccountPage() {
   const result = await getProMe();
   if (!result.ok) {
     redirect("/pro/login?next=/pro/account");
   }
   const { user, customer: c } = result;
+
+  // Amount still owed across all non-cancelled orders (what's left to pay,
+  // not what has been paid). Mirrors the admin "Reste à payer" figure.
+  const ordersResult = await getProOrders();
+  const remainingToPay = ordersResult.ok
+    ? ordersResult.orders.reduce(
+        (sum, o) =>
+          o.status === "CANCELLED"
+            ? sum
+            : sum + Math.max(0, o.totalAmount - o.paidAmount),
+        0,
+      )
+    : 0;
 
   return (
     <main
@@ -85,7 +90,6 @@ export default async function ProAccountPage() {
                     value={`${c.managerFirstName ?? ""} ${c.managerLastName ?? ""}`.trim()}
                   />
                 )}
-                <Row icon={<Tag className="h-4 w-4" />} label="Niveau de tarification" value={c.pricingLevel ? `${c.pricingLevel} — ${PRICING_DESC[c.pricingLevel]}` : "Non assigné"} />
               </Card>
 
               <Card title="INFORMATIONS LÉGALES (KBIS)">
@@ -142,33 +146,11 @@ export default async function ProAccountPage() {
 
           <aside className="md:col-span-4 flex flex-col gap-4">
             <div
-              className="rounded-sm border bg-white p-5"
-              style={{ borderColor: "rgba(255,255,255,0.18)" }}
-            >
-              <div
-                className="text-[10.5px] font-bold tracking-[0.16em]"
-                style={{ color: COLORS.muted }}
-              >
-                NIVEAU DE TARIFICATION
-              </div>
-              <div
-                className="mt-2 text-[56px] font-extrabold leading-none"
-                style={{ color: COLORS.primary, fontFamily: DISPLAY_FONT }}
-              >
-                {c.pricingLevel ?? "—"}
-              </div>
-              <p className="mt-2 text-[12px]" style={{ color: COLORS.muted }}>
-                Vos prix sont calculés selon ce niveau pour tous les produits du
-                catalogue professionnel.
-              </p>
-            </div>
-
-            <div
               className="rounded-sm border p-5"
               style={{
                 borderColor: "rgba(255,255,255,0.18)",
                 background:
-                  c.outstandingBalance > 0
+                  remainingToPay > 0
                     ? "rgba(213,43,20,0.18)"
                     : "rgba(63,86,31,0.22)",
               }}
@@ -177,13 +159,13 @@ export default async function ProAccountPage() {
                 className="text-[10.5px] font-bold tracking-[0.16em]"
                 style={{ color: "rgba(255,255,255,0.6)" }}
               >
-                SOLDE EN COURS
+                RESTE À PAYER
               </div>
               <div
                 className="mt-2 text-[32px] font-extrabold leading-none text-white"
                 style={{ fontFamily: DISPLAY_FONT }}
               >
-                {c.outstandingBalance.toLocaleString("fr-FR", {
+                {remainingToPay.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
                 })}
@@ -192,9 +174,9 @@ export default async function ProAccountPage() {
                 className="mt-2 text-[11.5px]"
                 style={{ color: "rgba(255,255,255,0.65)" }}
               >
-                {c.outstandingBalance > 0
-                  ? "Total des factures non réglées. Réglez via votre interlocuteur commercial."
-                  : "Aucune facture en attente de règlement."}
+                {remainingToPay > 0
+                  ? "Montant restant dû sur l'ensemble de vos commandes. Réglez via votre interlocuteur commercial."
+                  : "Toutes vos commandes sont réglées."}
               </p>
             </div>
 

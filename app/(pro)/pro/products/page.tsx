@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Tag } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
 import { getOrderedCategoryNames } from "@/lib/category-display";
@@ -66,16 +65,6 @@ export default async function ProProductsPage({
 
         <div className="flex items-center gap-3">
           <CatalogSearchInput className="w-72" />
-          <span
-            className="inline-flex items-center gap-2 rounded-sm border px-3 py-2 text-[12px] font-bold uppercase tracking-[0.1em]"
-            style={{ borderColor: COLORS.border, color: COLORS.primary, background: "#FFFFFF" }}
-          >
-            <Tag className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Niveau{" "}
-            <span className="text-[14px]" style={{ color: COLORS.text }}>
-              {session.pricingLevel ?? "—"}
-            </span>
-          </span>
         </div>
       </header>
 

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Package, Tag } from "lucide-react";
+import { Package } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, buildWeightLabel, productImage } from "@/lib/ui";
@@ -76,11 +76,6 @@ export default async function ProProductDetailPage({
         <div className="col-span-7 flex flex-col">
           <div className="flex items-center gap-2 text-[11.5px] uppercase tracking-[0.12em]" style={{ color: COLORS.muted }}>
             <span>{product.category}</span>
-            <span>·</span>
-            <span className="inline-flex items-center gap-1">
-              <Tag className="h-3 w-3" />
-              Niveau {session.pricingLevel ?? "—"}
-            </span>
           </div>
           <h1
             className="mt-1 text-[26px] font-extrabold leading-tight tracking-tight"
@@ -119,18 +114,6 @@ export default async function ProProductDetailPage({
             />
           </div>
 
-          <div
-            className="mt-8 rounded-sm border bg-white px-5 py-4 text-[13px]"
-            style={{ borderColor: COLORS.border, color: COLORS.muted }}
-          >
-            <div className="mb-2 text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.text }}>
-              CONDITIONS PROFESSIONNELLES
-            </div>
-            Prix HT, TVA 20% appliquée sur le devis. Vos prix sont calculés selon
-            votre niveau de tarification (
-            <strong style={{ color: COLORS.primary }}>{session.pricingLevel ?? "—"}</strong>
-            ). Devis valable jusqu&apos;à la veille de la livraison (J-1, 21h Paris).
-          </div>
         </div>
       </div>
 
