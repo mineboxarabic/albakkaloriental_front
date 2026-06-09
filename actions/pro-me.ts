@@ -46,6 +46,7 @@ export type ProOrderSummary = {
   status: string;
   paymentStatus: string;
   totalAmount: number;
+  paidAmount: number;
   lockedAt: string | null;
   createdAt: string;
   _count: { items: number };
