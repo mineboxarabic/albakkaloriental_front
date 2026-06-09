@@ -9,9 +9,10 @@ import {
   Truck,
   XCircle,
   CheckCircle2,
+  Download,
 } from "lucide-react";
 import Image from "next/image";
-import { getProOrderById } from "@/actions/pro-me";
+import { getProOrderById, listProInvoices } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 
@@ -94,6 +95,11 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const order = result.order;
   const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
+  // Find the invoice attached to this order (if any) to expose its PDF.
+  const invoicesRes = await listProInvoices();
+  const invoice = invoicesRes.ok
+    ? invoicesRes.invoices.find((i) => i.order?.id === order.id) ?? null
+    : null;
   // order.totalAmount is the authoritative amount owed (same figure the admin
   // tracks payments against). TVA is informational; payments are recorded
   // against totalAmount, so paid + remaining always reconcile to it.
@@ -141,13 +147,27 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           </p>
         </div>
 
-        <span
-          className="inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-[11.5px] font-bold tracking-[0.1em]"
-          style={{ background: meta.bg, color: meta.color }}
-        >
-          <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
-          {meta.label.toUpperCase()}
-        </span>
+        <div className="flex items-center gap-3">
+          {invoice && (
+            <a
+              href={`/pro/invoices/${invoice.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
+              style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Facture
+            </a>
+          )}
+          <span
+            className="inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-[11.5px] font-bold tracking-[0.1em]"
+            style={{ background: meta.bg, color: meta.color }}
+          >
+            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+            {meta.label.toUpperCase()}
+          </span>
+        </div>
       </header>
 
       <section
@@ -170,6 +190,16 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                   : `Valable jusqu'au ${DATE_FMT.format(new Date(order.quote.validUntil))}`}
               </div>
             </div>
+            <a
+              href={`/pro/quotes/${order.quote.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.1em]"
+              style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+            >
+              <Download className="h-3 w-3" />
+              Devis PDF
+            </a>
             <Link
               href={`/pro/quotes/${order.quote.id}`}
               className="inline-flex items-center gap-1 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.1em]"

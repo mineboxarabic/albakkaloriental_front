@@ -8,7 +8,6 @@ import {
   Minus,
   Plus,
   Trash2,
-  FileText,
   Package,
   Box,
   ShoppingBag,
@@ -310,16 +309,17 @@ export default function ProCartPage() {
                 className="mt-5 grid h-11 w-full place-items-center rounded-sm text-[12.5px] font-bold uppercase tracking-[0.12em] text-white shadow-md disabled:opacity-70"
                 style={{ background: COLORS.primary }}
               >
-                {pending ? "Génération du devis..." : (
+                {pending ? "Envoi de la commande..." : (
                   <span className="inline-flex items-center gap-2">
-                    <FileText className="h-4 w-4" strokeWidth={2} />
-                    Générer un devis
+                    <ShoppingBag className="h-4 w-4" strokeWidth={2} />
+                    Commander
                   </span>
                 )}
               </button>
 
               <p className="mt-3 text-center text-[11px]" style={{ color: COLORS.muted }}>
-                Le devis est valable 30 jours. Vous pourrez le valider ou le modifier.
+                Votre commande sera transmise pour validation. Un devis vous sera
+                ensuite envoyé à signer avant la livraison.
               </p>
             </div>
           </aside>

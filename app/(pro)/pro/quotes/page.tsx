@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter } from "lucide-react";
+import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter, Download } from "lucide-react";
 import { listQuotes } from "@/actions/pro-quote";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -128,10 +128,14 @@ export default async function ProQuotesPage({
             const meta = STATE_META[s];
             const Icon = meta.icon;
             return (
-              <li key={q.id} style={{ borderColor: COLORS.border }}>
+              <li
+                key={q.id}
+                className="flex items-center gap-2 px-5 py-4 hover:bg-[#FAF8F2]"
+                style={{ borderColor: COLORS.border }}
+              >
                 <Link
                   href={`/pro/quotes/${q.id}`}
-                  className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-[#FAF8F2]"
+                  className="flex min-w-0 flex-1 items-center justify-between gap-4"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -166,8 +170,18 @@ export default async function ProQuotesPage({
                       {formatPrice(q.total)}
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: COLORS.muted }} />
                 </Link>
+                <a
+                  href={`/pro/quotes/${q.id}/pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
+                  style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  PDF
+                </a>
+                <ChevronRight className="h-4 w-4 shrink-0" style={{ color: COLORS.muted }} />
               </li>
             );
           })}
