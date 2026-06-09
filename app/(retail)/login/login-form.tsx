@@ -5,7 +5,20 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { loginRetail, type LoginState } from "@/actions/retail-auth";
-import { COLORS } from "@/lib/ui";
+
+const QS = {
+  accent: "#3F561F",
+  accentText: "#FAF8F2",
+  danger: "#D52B14",
+  textPrimary: "#171717",
+  textSecondary: "#6B665D",
+  textMuted: "#9A968C",
+  border: "#DDD8CC",
+  borderStrong: "#CFC8B8",
+  surfaceInput: "#FFFFFF",
+} as const;
+
+const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
 
 const initial: LoginState = null;
 
@@ -18,8 +31,8 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <FunField
-        icon={<Mail className="h-4 w-4" strokeWidth={2} />}
+      <Field
+        icon={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
         label="Adresse e-mail"
         name="email"
         type="email"
@@ -28,19 +41,20 @@ export function LoginForm() {
         defaultValue={emailVal}
         placeholder="vous@exemple.com"
       />
-      <FunField
-        icon={<Lock className="h-4 w-4" strokeWidth={2} />}
+      <Field
+        icon={<Lock className="h-3.5 w-3.5" strokeWidth={2} />}
         label="Mot de passe"
         name="password"
         type="password"
         autoComplete="current-password"
         required
+        placeholder="••••••••"
       />
 
       <Link
         href="/forgot-password"
-        className="-mt-1 self-end text-[12.5px] font-semibold underline-offset-2 hover:underline"
-        style={{ color: COLORS.primary }}
+        className="-mt-1 self-end text-[11px] font-semibold uppercase underline-offset-2 hover:underline"
+        style={{ fontFamily: MONO, letterSpacing: "0.08em", color: QS.accent }}
       >
         Mot de passe oublié ?
       </Link>
@@ -48,11 +62,11 @@ export function LoginForm() {
       {state && !state.ok && (
         <div
           role="alert"
-          className="rounded-xl border-l-4 px-4 py-2.5 text-[12.5px]"
+          className="rounded-lg border px-4 py-2.5 text-[12.5px]"
           style={{
-            background: "#FCE9E5",
-            borderColor: COLORS.red,
-            color: "#7A1709",
+            background: "rgba(213,43,20,0.07)",
+            borderColor: "rgba(213,43,20,0.4)",
+            color: QS.textPrimary,
           }}
         >
           {state.error}
@@ -70,25 +84,21 @@ function Submit() {
     <button
       type="submit"
       disabled={pending}
-      className="group mt-1 flex h-12 items-center justify-center gap-2 rounded-full text-[14.5px] font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 disabled:opacity-70"
-      style={{
-        background:
-          "linear-gradient(135deg, #3F561F 0%, #5A7A2C 50%, #3F561F 100%)",
-        boxShadow: "0 6px 18px -6px rgba(63,86,31,0.55)",
-      }}
+      className="group mt-1 flex h-12 items-center justify-center gap-2 rounded-lg text-[12px] font-semibold uppercase transition-opacity hover:opacity-90 disabled:opacity-60"
+      style={{ fontFamily: MONO, letterSpacing: "0.1em", background: QS.accent, color: QS.accentText }}
     >
-      {pending ? "Connexion..." : "C'est parti !"}
+      {pending ? "Connexion..." : "Se connecter"}
       {!pending && (
         <ArrowRight
           className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-          strokeWidth={2.4}
+          strokeWidth={2.2}
         />
       )}
     </button>
   );
 }
 
-function FunField({
+function Field({
   icon,
   label,
   name,
@@ -108,12 +118,12 @@ function FunField({
   autoComplete?: string;
 }) {
   return (
-    <label className="group flex flex-col gap-1.5">
+    <label className="flex flex-col gap-1.5">
       <span
-        className="flex items-center gap-1.5 text-[12.5px] font-bold"
-        style={{ color: COLORS.text }}
+        className="flex items-center gap-1.5 text-[11px] font-semibold uppercase"
+        style={{ fontFamily: MONO, letterSpacing: "0.1em", color: QS.textSecondary }}
       >
-        <span style={{ color: COLORS.primary }}>{icon}</span>
+        <span style={{ color: QS.accent }}>{icon}</span>
         {label}
       </span>
       <input
@@ -123,11 +133,11 @@ function FunField({
         placeholder={placeholder}
         required={required}
         autoComplete={autoComplete}
-        className="h-12 rounded-xl border-2 px-4 text-[14px] outline-none transition focus:border-[#3F561F] focus:shadow-[0_0_0_4px_rgba(63,86,31,0.12)]"
+        className="h-12 rounded-lg border px-4 text-[14px] outline-none transition-colors placeholder:text-[#9A968C] focus:border-[#3F561F]"
         style={{
-          borderColor: COLORS.border,
-          background: "#FFFFFF",
-          color: COLORS.text,
+          borderColor: QS.borderStrong,
+          background: QS.surfaceInput,
+          color: QS.textPrimary,
         }}
       />
     </label>
