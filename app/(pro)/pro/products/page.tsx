@@ -38,8 +38,8 @@ export default async function ProProductsPage({
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
-      <header className="mb-6 flex items-end justify-between">
-        <div>
+      <header className="mb-6 lg:flex lg:items-end lg:justify-between">
+        <div className="min-w-0">
           <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
             <Link href="/pro/products" className="hover:underline">
               Catalogue pro
@@ -52,7 +52,7 @@ export default async function ProProductsPage({
             )}
           </nav>
           <h1
-            className="mt-2 text-[28px] font-extrabold tracking-tight"
+            className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
             {category ?? "Catalogue professionnel"}
@@ -63,13 +63,42 @@ export default async function ProProductsPage({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <CatalogSearchInput className="w-72" />
+        <div className="mt-4 lg:mt-0">
+          <CatalogSearchInput className="w-full lg:w-72" />
         </div>
       </header>
 
+      {/* Mobile category chips (horizontal scroll) */}
+      <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none md:hidden">
+        <Link
+          href={{ pathname: "/pro/products", query: q ? { q } : {} }}
+          className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+          style={
+            !category
+              ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }
+              : { background: "#FFFFFF", color: COLORS.text, borderColor: COLORS.border }
+          }
+        >
+          Tous les produits
+        </Link>
+        {orderedCategories.map((c) => (
+          <Link
+            key={c}
+            href={{ pathname: "/pro/products", query: { category: c, ...(q ? { q } : {}) } }}
+            className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+            style={
+              category === c
+                ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }
+                : { background: "#FFFFFF", color: COLORS.text, borderColor: COLORS.border }
+            }
+          >
+            {c}
+          </Link>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-        <aside className="md:col-span-3">
+        <aside className="hidden md:col-span-3 md:block">
           <div
             className="rounded-sm border bg-white p-4"
             style={{ borderColor: COLORS.border }}

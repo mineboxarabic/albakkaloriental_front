@@ -71,8 +71,8 @@ export default function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-12 gap-6">
-          <section className="col-span-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <section className="lg:col-span-8">
             <div
               className="overflow-hidden rounded-lg border bg-white"
               style={{ borderColor: COLORS.border }}
@@ -81,14 +81,14 @@ export default function CartPage() {
                 {items.map((it, idx) => (
                   <li
                     key={it.lineId}
-                    className="flex items-center gap-4 px-4 py-4"
+                    className="flex items-start gap-3 px-4 py-4 sm:items-center sm:gap-4"
                     style={{
                       borderTop: idx === 0 ? "none" : `1px solid ${COLORS.border}`,
                     }}
                   >
                     <Link
                       href={`/products/${it.productId}`}
-                      className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-md"
+                      className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-md sm:h-20 sm:w-20"
                       style={{ background: COLORS.beige }}
                     >
                       <Image
@@ -100,66 +100,70 @@ export default function CartPage() {
                       />
                     </Link>
 
-                    <div className="flex-1">
-                      <Link
-                        href={`/products/${it.productId}`}
-                        className="line-clamp-2 text-[14px] font-semibold leading-snug"
-                        style={{ color: COLORS.text }}
-                      >
-                        {it.name}
-                      </Link>
-                      <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                        {formatPriceEUR(it.unitPrice)} l&apos;unité
+                    <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/products/${it.productId}`}
+                          className="line-clamp-2 text-[14px] font-semibold leading-snug"
+                          style={{ color: COLORS.text }}
+                        >
+                          {it.name}
+                        </Link>
+                        <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
+                          {formatPriceEUR(it.unitPrice)} l&apos;unité
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div
+                          className="flex items-center overflow-hidden rounded-md border"
+                          style={{ borderColor: COLORS.border }}
+                        >
+                          <button
+                            type="button"
+                            aria-label="Diminuer la quantité"
+                            onClick={() => updateQty(it.lineId, it.quantity - 1)}
+                            className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
+                            style={{ color: COLORS.text }}
+                          >
+                            <Minus className="h-4 w-4" strokeWidth={2.2} />
+                          </button>
+                          <div
+                            className="grid h-9 w-10 place-items-center text-[14px] font-bold"
+                            style={{ color: COLORS.text }}
+                          >
+                            {it.quantity}
+                          </div>
+                          <button
+                            type="button"
+                            aria-label="Augmenter la quantité"
+                            onClick={() => updateQty(it.lineId, it.quantity + 1)}
+                            disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
+                            className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
+                            style={{ color: COLORS.text }}
+                          >
+                            <Plus className="h-4 w-4" strokeWidth={2.2} />
+                          </button>
+                        </div>
+
+                        <div
+                          className="ml-auto text-right text-[14px] font-extrabold sm:ml-0 sm:w-24"
+                          style={{ color: COLORS.text }}
+                        >
+                          {formatPriceEUR(it.unitPrice * it.quantity)}
+                        </div>
+
+                        <button
+                          type="button"
+                          aria-label={`Supprimer ${it.name} du panier`}
+                          onClick={() => removeItem(it.lineId)}
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-md transition hover:bg-[#FAF8F2]"
+                          style={{ color: COLORS.muted }}
+                        >
+                          <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                        </button>
                       </div>
                     </div>
-
-                    <div
-                      className="flex items-center overflow-hidden rounded-md border"
-                      style={{ borderColor: COLORS.border }}
-                    >
-                      <button
-                        type="button"
-                        aria-label="Diminuer la quantité"
-                        onClick={() => updateQty(it.lineId, it.quantity - 1)}
-                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
-                        style={{ color: COLORS.text }}
-                      >
-                        <Minus className="h-4 w-4" strokeWidth={2.2} />
-                      </button>
-                      <div
-                        className="grid h-9 w-10 place-items-center text-[14px] font-bold"
-                        style={{ color: COLORS.text }}
-                      >
-                        {it.quantity}
-                      </div>
-                      <button
-                        type="button"
-                        aria-label="Augmenter la quantité"
-                        onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                        disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
-                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
-                        style={{ color: COLORS.text }}
-                      >
-                        <Plus className="h-4 w-4" strokeWidth={2.2} />
-                      </button>
-                    </div>
-
-                    <div
-                      className="w-24 text-right text-[14px] font-extrabold"
-                      style={{ color: COLORS.text }}
-                    >
-                      {formatPriceEUR(it.unitPrice * it.quantity)}
-                    </div>
-
-                    <button
-                      type="button"
-                      aria-label={`Supprimer ${it.name} du panier`}
-                      onClick={() => removeItem(it.lineId)}
-                      className="grid h-9 w-9 place-items-center rounded-md transition hover:bg-[#FAF8F2]"
-                      style={{ color: COLORS.muted }}
-                    >
-                      <Trash2 className="h-4 w-4" strokeWidth={1.8} />
-                    </button>
                   </li>
                 ))}
               </ul>
@@ -184,7 +188,7 @@ export default function CartPage() {
             </div>
           </section>
 
-          <aside className="col-span-4">
+          <aside className="lg:col-span-4">
             <div
               className="rounded-lg border bg-white p-5"
               style={{ borderColor: COLORS.border }}

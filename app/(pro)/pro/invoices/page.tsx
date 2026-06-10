@@ -46,7 +46,7 @@ export default async function ProInvoicesPage() {
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <h1
-        className="text-[28px] font-extrabold tracking-tight"
+        className="text-[24px] font-extrabold tracking-tight sm:text-[28px]"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
         Mes factures
@@ -57,7 +57,7 @@ export default async function ProInvoicesPage() {
 
       {totalOutstanding > 0 && (
         <div
-          className="mt-5 flex items-center justify-between rounded-sm border-l-4 bg-white px-5 py-4"
+          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border-l-4 bg-white px-5 py-4"
           style={{ borderColor: "#7A5409", background: "#FFF8EA" }}
         >
           <div className="flex items-center gap-3">
@@ -109,56 +109,60 @@ export default async function ProInvoicesPage() {
             return (
               <li
                 key={inv.id}
-                className="flex items-center justify-between gap-4 px-5 py-4"
+                className="px-5 py-4"
                 style={{ borderColor: COLORS.border }}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
-                      {inv.invoiceNumber}
-                    </span>
-                    <span
-                      className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.05em]"
-                      style={{ background: meta.bg, color: meta.color }}
-                    >
-                      {meta.label.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                    Émise le {DATE_FMT.format(new Date(inv.invoiceDate))} · Échéance{" "}
-                    {DATE_FMT.format(new Date(inv.dueDate))}
-                    {inv.order && (
-                      <>
-                        {" · "}
-                        <Link href={`/pro/orders/${inv.order.id}`} className="underline">
-                          {inv.order.orderNumber}
-                        </Link>
-                      </>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
+                        {inv.invoiceNumber}
+                      </span>
+                      <span
+                        className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.05em]"
+                        style={{ background: meta.bg, color: meta.color }}
+                      >
+                        {meta.label.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
+                      Émise le {DATE_FMT.format(new Date(inv.invoiceDate))} · Échéance{" "}
+                      {DATE_FMT.format(new Date(inv.dueDate))}
+                      {inv.order && (
+                        <>
+                          {" · "}
+                          <Link href={`/pro/orders/${inv.order.id}`} className="underline">
+                            {inv.order.orderNumber}
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                    {outstanding > 0 && (
+                      <div className="mt-1 text-[11.5px] font-semibold" style={{ color: "#7A5409" }}>
+                        Reste à payer : {formatPrice(outstanding)}
+                      </div>
                     )}
                   </div>
-                  {outstanding > 0 && (
-                    <div className="mt-1 text-[11.5px] font-semibold" style={{ color: "#7A5409" }}>
-                      Reste à payer : {formatPrice(outstanding)}
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
+                    <div className="text-right">
+                      <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
+                        {formatPrice(inv.totalAmount)}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="text-right">
-                  <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
-                    {formatPrice(inv.totalAmount)}
+                    <Link
+                      href={`/pro/invoices/${inv.id}/pdf`}
+                      prefetch={false}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
+                      style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      PDF
+                    </Link>
+                    <ChevronRight className="hidden h-4 w-4 shrink-0 sm:block" style={{ color: COLORS.muted }} />
                   </div>
                 </div>
-                <Link
-                  href={`/pro/invoices/${inv.id}/pdf`}
-                  prefetch={false}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
-                  style={{ borderColor: COLORS.border, color: COLORS.text }}
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  PDF
-                </Link>
-                <ChevronRight className="h-4 w-4 shrink-0" style={{ color: COLORS.muted }} />
               </li>
             );
           })}

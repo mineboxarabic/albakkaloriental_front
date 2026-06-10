@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Truck, CheckCircle, Search, MessageSquare, XCircle, MapPin } from "lucide-react";
+import { Truck, CheckCircle, Search, MessageSquare, XCircle, MapPin, ChevronDown } from "lucide-react";
 import type { UpcomingDelivery } from "@/lib/catalog";
 
 /**
@@ -41,6 +41,7 @@ interface DeliveryCheckerProps {
 
 export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = useState(false);
 
   const today = new Date(serverDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -77,8 +78,14 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
       style={{ background: QS.surface, borderColor: QS.border, fontFamily: DISPLAY, color: QS.textPrimary }}
     >
       <div className="p-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 border-b pb-5 md:flex-row md:items-end md:justify-between" style={{ borderColor: QS.border }}>
+        {/* Header — accordion toggle on mobile, static on desktop */}
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-4 border-b pb-5 text-left md:items-end lg:cursor-default"
+          style={{ borderColor: QS.border }}
+        >
           <div>
             <div
               className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase"
@@ -86,23 +93,29 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
             >
               <span style={{ color: QS.textMuted }}>LOGISTIQUE</span>
             </div>
-            <h2 className="text-[24px] font-medium leading-[1.04] tracking-tight" style={{ color: QS.textPrimary }}>
+            <h2 className="text-[20px] font-medium leading-[1.04] tracking-tight sm:text-[24px]" style={{ color: QS.textPrimary }}>
               Planning de livraison hebdomadaire
             </h2>
             <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: QS.textSecondary }}>
               Indiquez votre ville pour connaître votre jour de livraison et commander à temps.
             </p>
           </div>
-          <div
-            className="flex items-center gap-2 self-start rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase md:self-auto"
-            style={{ fontFamily: MONO, letterSpacing: "0.12em", borderColor: QS.borderStrong, color: QS.textPrimary, background: QS.surfaceElevated }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: QS.accent }} />
-            Livraisons ouvertes
+          <div className="flex items-center gap-3">
+            <span
+              className="hidden items-center gap-2 self-start rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase md:flex md:self-auto"
+              style={{ fontFamily: MONO, letterSpacing: "0.12em", borderColor: QS.borderStrong, color: QS.textPrimary, background: QS.surfaceElevated }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: QS.accent }} />
+              Livraisons ouvertes
+            </span>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 transition-transform duration-200 lg:hidden ${open ? "rotate-180" : ""}`}
+              style={{ color: QS.accent }}
+            />
           </div>
-        </div>
+        </button>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className={`mt-6 grid-cols-1 gap-6 lg:grid-cols-12 lg:grid ${open ? "grid" : "hidden"}`}>
           {/* Week grid */}
           <div className="lg:col-span-8">
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-7">

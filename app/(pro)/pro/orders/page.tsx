@@ -77,7 +77,7 @@ export default async function ProOrdersPage() {
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
-      <header className="mb-6 flex items-end justify-between">
+      <header className="mb-6 lg:flex lg:items-end lg:justify-between">
         <div>
           <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
             <Link href="/pro/products" className="hover:underline">
@@ -87,7 +87,7 @@ export default async function ProOrdersPage() {
             <span style={{ color: COLORS.text }}>Mes commandes</span>
           </nav>
           <h1
-            className="mt-2 text-[28px] font-extrabold tracking-tight"
+            className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
             Mes commandes
@@ -100,7 +100,7 @@ export default async function ProOrdersPage() {
         </div>
 
         {orders.length > 0 && (
-          <div className="flex items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3 lg:mt-0">
             <StatPill label="Devis ouverts" value={pendingCount} accent="#7A5409" bg="#FFF1D6" />
             <StatPill label="Validées" value={confirmedCount} accent={COLORS.primary} bg="#E5F0D9" />
           </div>
@@ -141,7 +141,7 @@ export default async function ProOrdersPage() {
           style={{ borderColor: COLORS.border }}
         >
           <div
-            className="grid grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em]"
+            className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
             style={{ color: COLORS.muted, background: "#FAF8F2" }}
           >
             <div className="col-span-3">N° COMMANDE</div>
@@ -163,42 +163,81 @@ export default async function ProOrdersPage() {
                 >
                   <Link
                     href={`/pro/orders/${o.id}`}
-                    className="grid grid-cols-12 items-center gap-3 px-4 py-4 text-[13.5px] transition hover:bg-[#FAF8F2]"
+                    className="block px-4 py-4 text-[13.5px] transition hover:bg-[#FAF8F2]"
                   >
-                    <div className="col-span-3 flex items-center gap-2">
-                      <div
-                        className="grid h-8 w-8 place-items-center rounded-sm"
-                        style={{ background: COLORS.beige, color: COLORS.primary }}
-                      >
-                        <FileText className="h-4 w-4" strokeWidth={1.8} />
+                    {/* Mobile card */}
+                    <div className="flex flex-col gap-2.5 md:hidden">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="grid h-8 w-8 shrink-0 place-items-center rounded-sm"
+                            style={{ background: COLORS.beige, color: COLORS.primary }}
+                          >
+                            <FileText className="h-4 w-4" strokeWidth={1.8} />
+                          </div>
+                          <div>
+                            <div className="font-extrabold" style={{ color: COLORS.text }}>
+                              {o.orderNumber}
+                            </div>
+                            <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
+                              {DATE_FMT.format(new Date(o.createdAt))} · {o._count.items}{" "}
+                              {o._count.items > 1 ? "articles" : "article"}
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          className="text-[16px] font-extrabold"
+                          style={{ color: COLORS.text }}
+                        >
+                          {formatPriceEUR(o.totalAmount)}
+                        </span>
                       </div>
-                      <span className="font-extrabold" style={{ color: COLORS.text }}>
-                        {o.orderNumber}
-                      </span>
-                    </div>
-                    <div className="col-span-2" style={{ color: COLORS.muted }}>
-                      {DATE_FMT.format(new Date(o.createdAt))}
-                    </div>
-                    <div className="col-span-2 text-center" style={{ color: COLORS.text }}>
-                      {o._count.items}
-                    </div>
-                    <div className="col-span-3">
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
+                        className="inline-flex w-fit items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
                         style={{ background: meta.bg, color: meta.color }}
                       >
                         <Icon className="h-3 w-3" strokeWidth={2.2} />
                         {meta.label}
                       </span>
                     </div>
-                    <div className="col-span-2 flex items-center justify-end gap-2">
-                      <span
-                        className="text-[15px] font-extrabold"
-                        style={{ color: COLORS.text }}
-                      >
-                        {formatPriceEUR(o.totalAmount)}
-                      </span>
-                      <ChevronRight className="h-3.5 w-3.5" style={{ color: COLORS.muted }} />
+
+                    {/* Desktop row */}
+                    <div className="hidden grid-cols-12 items-center gap-3 md:grid">
+                      <div className="col-span-3 flex items-center gap-2">
+                        <div
+                          className="grid h-8 w-8 place-items-center rounded-sm"
+                          style={{ background: COLORS.beige, color: COLORS.primary }}
+                        >
+                          <FileText className="h-4 w-4" strokeWidth={1.8} />
+                        </div>
+                        <span className="font-extrabold" style={{ color: COLORS.text }}>
+                          {o.orderNumber}
+                        </span>
+                      </div>
+                      <div className="col-span-2" style={{ color: COLORS.muted }}>
+                        {DATE_FMT.format(new Date(o.createdAt))}
+                      </div>
+                      <div className="col-span-2 text-center" style={{ color: COLORS.text }}>
+                        {o._count.items}
+                      </div>
+                      <div className="col-span-3">
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
+                          style={{ background: meta.bg, color: meta.color }}
+                        >
+                          <Icon className="h-3 w-3" strokeWidth={2.2} />
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="col-span-2 flex items-center justify-end gap-2">
+                        <span
+                          className="text-[15px] font-extrabold"
+                          style={{ color: COLORS.text }}
+                        >
+                          {formatPriceEUR(o.totalAmount)}
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5" style={{ color: COLORS.muted }} />
+                      </div>
                     </div>
                   </Link>
                 </li>

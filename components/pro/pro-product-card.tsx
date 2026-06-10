@@ -72,8 +72,43 @@ export function ProProductCard({
             : buildWeightLabel(product)}
         </div>
 
+        {/* Mobile: simple label/value rows */}
         <div
-          className="mt-1 grid gap-px overflow-hidden rounded-sm border"
+          className="mt-1 flex flex-col gap-1.5 rounded-sm border px-3 py-2.5 sm:hidden"
+          style={{ borderColor: COLORS.border }}
+        >
+          <div className="flex items-baseline justify-between gap-2">
+            <span
+              className="text-[10px] font-bold tracking-[0.1em]"
+              style={{ color: COLORS.muted }}
+            >
+              CARTON
+            </span>
+            <span className="text-[15px] font-extrabold leading-none" style={{ color: COLORS.primary }}>
+              {formatPriceEUR(packPrice)}
+            </span>
+          </div>
+          {hasUnit && unitPrice != null && (
+            <div
+              className="flex items-baseline justify-between gap-2 border-t pt-1.5"
+              style={{ borderColor: COLORS.border }}
+            >
+              <span
+                className="text-[10px] font-bold tracking-[0.1em]"
+                style={{ color: COLORS.muted }}
+              >
+                UNITÉ
+              </span>
+              <span className="text-[14px] font-extrabold leading-none" style={{ color: COLORS.text }}>
+                {formatPriceEUR(unitPrice)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* sm+ : boxed tiles */}
+        <div
+          className="mt-1 hidden gap-px overflow-hidden rounded-sm border sm:grid"
           style={{
             borderColor: COLORS.border,
             background: COLORS.border,
