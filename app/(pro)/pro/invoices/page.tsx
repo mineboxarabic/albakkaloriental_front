@@ -150,6 +150,8 @@ export default async function ProInvoicesPage() {
                 <Link
                   href={`/pro/invoices/${inv.id}/pdf`}
                   prefetch={false}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
                   style={{ borderColor: COLORS.border, color: COLORS.text }}
                 >

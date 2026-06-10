@@ -145,8 +145,33 @@ export default async function QuoteDetailPage({
         </table>
       </div>
 
+      <div className="overflow-hidden rounded-lg border bg-white">
+        <div className="flex items-center justify-between border-b px-4 py-2">
+          <span className="flex items-center gap-2 text-sm font-medium">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            Devis (PDF)
+          </span>
+          <a
+            href={`/pro/quotes/${quote.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-emerald-700 underline"
+          >
+            Ouvrir dans un nouvel onglet
+          </a>
+        </div>
+        <iframe
+          src={`/pro/quotes/${quote.id}/pdf`}
+          title={`Devis ${quote.quoteNumber}`}
+          className="h-[600px] w-full"
+        />
+      </div>
+
       {canAccept && (
         <div className="rounded-lg border bg-white p-5">
+          <p className="mb-3 text-sm text-muted-foreground">
+            Veuillez consulter le devis ci-dessus avant de le signer.
+          </p>
           <AcceptButton quoteId={quote.id} />
         </div>
       )}
