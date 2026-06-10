@@ -15,6 +15,9 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
 
+// Match the "Planning de livraison hebdomadaire" typography (Inter + JetBrains Mono).
+const INTER = "var(--font-inter), 'Inter', system-ui, sans-serif";
+const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
 
 export const revalidate = 60;
 
@@ -71,33 +74,36 @@ export default async function Home() {
       <DeliveryChecker deliveries={deliveries} serverDate={serverDate} />
 
       <section
-        className="relative mt-5 overflow-hidden rounded-xl"
-        style={{ background: COLORS.beige }}
+        className="relative mt-5 overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
+        style={{ background: "#FFFFFF", borderColor: COLORS.border, fontFamily: INTER }}
       >
-        <div className="grid grid-cols-12 items-end gap-4 px-10 pt-12 pb-0">
-          <div className="col-span-5 flex flex-col justify-center pb-12">
-            <h1
-              className="text-[34px] font-extrabold leading-[1.1] tracking-tight"
-              style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+        <div className="grid grid-cols-12 items-end gap-4 px-8 pt-8 pb-0">
+          <div className="col-span-5 flex flex-col justify-center pb-10">
+            <div
+              className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase"
+              style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
             >
-              Vos produits orientaux
-              <br />
-              préférés,
-              <br />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
+              Épicerie orientale
+            </div>
+            <h1
+              className="text-[30px] font-medium leading-[1.04] tracking-tight"
+              style={{ color: COLORS.text }}
+            >
+              Vos produits orientaux préférés,{" "}
               <span style={{ color: COLORS.primary }}>livrés chez vous</span>
             </h1>
             <p
-              className="mt-4 max-w-[300px] text-[13.5px] leading-relaxed"
+              className="mt-2 max-w-[320px] text-[13px] leading-relaxed"
               style={{ color: COLORS.muted }}
             >
-              Faites vos courses en ligne et recevez-les
-              <br />
-              directement à domicile lors de nos tournées.
+              Faites vos courses en ligne et recevez-les directement à domicile
+              lors de nos tournées.
             </p>
             <Link
               href="/products"
-              className="mt-6 inline-flex w-fit items-center rounded-md px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm"
-              style={{ background: COLORS.primary }}
+              className="mt-5 inline-flex w-fit items-center gap-1.5 rounded-lg px-4 py-2.5 text-[11px] font-semibold uppercase transition-opacity hover:opacity-90"
+              style={{ fontFamily: MONO, letterSpacing: "0.08em", background: COLORS.primary, color: "#FAF8F2" }}
             >
               Voir nos produits
             </Link>

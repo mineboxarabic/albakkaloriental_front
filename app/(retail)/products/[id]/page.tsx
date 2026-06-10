@@ -1,11 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { XCircle } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
-import { COLORS, DISPLAY_FONT, buildWeightLabel, productImage } from "@/lib/ui";
+import { COLORS, buildWeightLabel, productImage } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { PriceTag } from "@/components/retail/price-tag";
 import { AddToCartButton } from "./add-to-cart-button";
+
+// Match the "Planning de livraison hebdomadaire" typography (Inter + JetBrains Mono).
+const INTER = "var(--font-inter), 'Inter', system-ui, sans-serif";
+const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
 
 export const revalidate = 60;
 
@@ -16,14 +21,23 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
   const product = await getProduct(id, "retail");
   if (!product) notFound();
 
-  // Suggestions: same category, exclude self.
+  // Suggestions: same category first, exclude self, then top up from the rest
+  // of the catalogue so the "Vous aimerez aussi" row is always well filled.
   const firstCategory = product.category.split(",")[0]?.trim();
   const { products: relatedRaw } = await getProducts({
     audience: "retail",
     category: firstCategory,
-    take: 8,
+    take: 13,
   });
-  const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
+  let related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 8);
+  if (related.length < 8) {
+    const { products: moreRaw } = await getProducts({ audience: "retail", take: 16 });
+    const seen = new Set([product.id, ...related.map((p) => p.id)]);
+    const fill = moreRaw
+      .filter((p) => !seen.has(p.id))
+      .slice(0, 8 - related.length);
+    related = [...related, ...fill];
+  }
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -51,7 +65,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-5">
           <div
-            className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl border"
+            className="grid aspect-square w-full place-items-center overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
             style={{ borderColor: COLORS.border, background: COLORS.beige }}
           >
             <Image
@@ -66,12 +80,16 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
         </div>
 
         <div className="col-span-7 flex flex-col">
-          <div className="text-[11.5px] uppercase tracking-wide" style={{ color: COLORS.muted }}>
+          <div
+            className="flex items-center gap-2 text-[11px] font-semibold uppercase"
+            style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
             {product.category}
           </div>
           <h1
-            className="mt-1 text-[26px] font-extrabold leading-tight tracking-tight"
-            style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+            className="mt-2.5 text-[28px] font-medium leading-[1.04] tracking-tight"
+            style={{ color: COLORS.text, fontFamily: INTER }}
           >
             {product.name}
           </h1>
@@ -90,15 +108,23 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
             {product.isOutOfStock ? (
               <div
                 role="alert"
-                className="rounded-md border-l-4 px-4 py-3 text-[13.5px]"
+                className="rounded-lg border p-4"
                 style={{
-                  background: "#FCE9E5",
-                  borderColor: "#D52B14",
-                  color: "#7A1709",
+                  borderColor: "rgba(213,43,20,0.4)",
+                  background: "rgba(213,43,20,0.07)",
+                  fontFamily: INTER,
                 }}
               >
-                <strong className="font-bold">Produit en rupture de stock.</strong>{" "}
-                Indisponible à la commande pour le moment.
+                <div
+                  className="flex items-center gap-1.5 text-[11px] font-semibold uppercase"
+                  style={{ fontFamily: MONO, letterSpacing: "0.1em", color: COLORS.red }}
+                >
+                  <XCircle className="h-4 w-4 shrink-0" />
+                  Rupture de stock
+                </div>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+                  Ce produit est indisponible à la commande pour le moment.
+                </p>
               </div>
             ) : (
               <AddToCartButton
@@ -113,11 +139,14 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </div>
 
           <div
-            className="mt-8 rounded-lg border bg-white px-5 py-4 text-[13px]"
-            style={{ borderColor: COLORS.border, color: COLORS.muted }}
+            className="mt-8 rounded-lg border bg-white px-5 py-4 text-[13px] leading-relaxed shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
+            style={{ borderColor: COLORS.border, color: COLORS.muted, fontFamily: INTER }}
           >
-            <div className="mb-2 text-[12px] font-bold" style={{ color: COLORS.text }}>
-              À PROPOS DU PRODUIT
+            <div
+              className="mb-2 text-[11px] font-semibold uppercase"
+              style={{ fontFamily: MONO, letterSpacing: "0.14em", color: COLORS.muted }}
+            >
+              À propos du produit
             </div>
             Produit sélectionné par notre équipe parmi des fournisseurs de
             confiance. Conservation, allergènes et informations nutritionnelles
@@ -129,9 +158,16 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
 
       {related.length > 0 && (
         <section className="mt-12">
+          <div
+            className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase"
+            style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
+            Suggestions
+          </div>
           <h2
-            className="text-[22px] font-extrabold tracking-tight"
-            style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+            className="text-[22px] font-medium leading-[1.04] tracking-tight"
+            style={{ color: COLORS.text, fontFamily: INTER }}
           >
             Vous aimerez aussi
           </h2>
@@ -142,6 +178,84 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </div>
         </section>
       )}
+
+      {/* SEO content */}
+      <section
+        className="mt-16 grid grid-cols-1 gap-8 border-t pt-10 md:grid-cols-2"
+        style={{ borderColor: COLORS.border }}
+      >
+        <article>
+          <h2
+            className="text-[19px] font-medium leading-[1.04] tracking-tight"
+            style={{ color: COLORS.text, fontFamily: INTER }}
+          >
+            {product.name} : authenticité et qualité
+          </h2>
+          <p className="mt-3 text-[13.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+            Découvrez <strong style={{ color: COLORS.text }}>{product.name}</strong>, un
+            produit de la catégorie{" "}
+            <Link
+              href={`/products?category=${encodeURIComponent(firstCategory ?? "")}`}
+              className="underline"
+              style={{ color: COLORS.primary }}
+            >
+              {firstCategory}
+            </Link>{" "}
+            soigneusement sélectionné par Le Bakkal Oriental. Nous travaillons
+            directement avec des fournisseurs de confiance pour vous proposer des
+            saveurs authentiques de la cuisine orientale et méditerranéenne, au
+            meilleur rapport qualité-prix.
+          </p>
+          <p className="mt-3 text-[13.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+            Idéal pour vos recettes du quotidien comme pour vos grandes occasions,
+            {" "}{product.name} se conserve facilement et se marie avec de nombreux
+            autres produits de notre épicerie. Retrouvez l&apos;ensemble de notre
+            sélection dans le rayon{" "}
+            <Link
+              href={`/products?category=${encodeURIComponent(firstCategory ?? "")}`}
+              className="underline"
+              style={{ color: COLORS.primary }}
+            >
+              {firstCategory}
+            </Link>.
+          </p>
+        </article>
+
+        <article>
+          <h2
+            className="text-[19px] font-medium leading-[1.04] tracking-tight"
+            style={{ color: COLORS.text, fontFamily: INTER }}
+          >
+            Pourquoi commander chez Le Bakkal Oriental ?
+          </h2>
+          <ul className="mt-3 space-y-2 text-[13.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+            <li>
+              <strong style={{ color: COLORS.text }}>Livraison à domicile</strong> dans
+              toute la France, directement chez vous.
+            </li>
+            <li>
+              <strong style={{ color: COLORS.text }}>Produits authentiques</strong> issus
+              d&apos;une sélection rigoureuse de fournisseurs spécialisés.
+            </li>
+            <li>
+              <strong style={{ color: COLORS.text }}>Prix justes</strong> sur toute
+              l&apos;épicerie orientale : épices, huiles, conserves, riz et pâtes,
+              confiseries et boissons.
+            </li>
+            <li>
+              <strong style={{ color: COLORS.text }}>Service client</strong> à votre
+              écoute pour toute question sur nos produits ou votre commande.
+            </li>
+          </ul>
+          <Link
+            href="/products"
+            className="mt-4 inline-block text-[13px] font-semibold underline"
+            style={{ color: COLORS.primary }}
+          >
+            Voir tous nos produits
+          </Link>
+        </article>
+      </section>
     </main>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Heart, ShoppingCart, Menu, Truck, User } from "lucide-react";
+import { Search, ShoppingCart, Menu, Truck, User, FileText, LogOut } from "lucide-react";
 import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { useCart } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
+import { logoutRetail } from "@/actions/retail-auth";
 
 const DEFAULT_NAV_ITEMS = ["CONFISERIES", "BOISSONS", "ÉPICES", "PRODUITS FRAIS", "HUILES", "CONSERVES", "RIZ ET PÂTES"];
 
@@ -41,9 +42,11 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
           </div>
           <div className="flex items-center gap-6">
             <span>Besoin d&apos;aide ? 09 70 70 70 70</span>
-            <Link className="hover:underline" href="/pro/login">
-              Espace pro
-            </Link>
+            {!isConnected && (
+              <Link className="hover:underline" href="/pro/login">
+                Espace pro
+              </Link>
+            )}
             {isConnected ? (
               <Link className="flex items-center gap-1.5 hover:underline" href="/account">
                 <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
@@ -114,18 +117,69 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             </div>
           </form>
 
-          <Link
-            href={isConnected ? "/account" : "/login"}
-            className="grid h-11 w-11 shrink-0 place-items-center"
-            style={{ color: COLORS.text }}
-            aria-label={isConnected ? "Mon compte" : "Se connecter"}
-          >
-            {isConnected ? (
+          {isConnected ? (
+            <div className="relative group/user shrink-0">
+              <Link
+                href="/account"
+                className="grid h-11 w-11 place-items-center"
+                style={{ color: COLORS.text }}
+                aria-label="Mon compte"
+              >
+                <User className="h-[22px] w-[22px]" strokeWidth={1.8} />
+              </Link>
+              <div className="absolute right-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/user:opacity-100 group-hover/user:visible group-hover/user:translate-y-0 transition-all duration-200 ease-out">
+                <div
+                  className="w-[220px] rounded-lg border bg-white p-2 shadow-xl"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  {fn && (
+                    <div
+                      className="px-3 py-2 text-[12px] font-semibold"
+                      style={{ color: COLORS.muted }}
+                    >
+                      Bonjour, {fn}
+                    </div>
+                  )}
+                  <Link
+                    href="/account"
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <User className="h-4 w-4" strokeWidth={2} />
+                    Mes infos
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <FileText className="h-4 w-4" strokeWidth={2} />
+                    Mes commandes
+                  </Link>
+                  <div className="my-1 border-t" style={{ borderColor: COLORS.border }} />
+                  <form action={logoutRetail}>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-[#FCE9E5]"
+                      style={{ color: COLORS.red }}
+                    >
+                      <LogOut className="h-4 w-4" strokeWidth={2} />
+                      Déconnexion
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="grid h-11 w-11 shrink-0 place-items-center"
+              style={{ color: COLORS.text }}
+              aria-label="Se connecter"
+            >
               <User className="h-[22px] w-[22px]" strokeWidth={1.8} />
-            ) : (
-              <Heart className="h-[22px] w-[22px]" strokeWidth={1.8} />
-            )}
-          </Link>
+            </Link>
+          )}
 
           <Link
             href="/cart"
