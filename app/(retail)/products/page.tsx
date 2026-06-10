@@ -60,8 +60,37 @@ export default async function ProductsPage({
         </div>
       </header>
 
+      {/* Mobile category chips (horizontal scroll) */}
+      <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none md:hidden">
+        <Link
+          href={{ pathname: "/products", query: q ? { q } : {} }}
+          className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+          style={
+            !category
+              ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }
+              : { background: "#FFFFFF", color: COLORS.text, borderColor: COLORS.border }
+          }
+        >
+          Toutes
+        </Link>
+        {orderedCategories.map((c) => (
+          <Link
+            key={c}
+            href={{ pathname: "/products", query: { category: c, ...(q ? { q } : {}) } }}
+            className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+            style={
+              category === c
+                ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }
+                : { background: "#FFFFFF", color: COLORS.text, borderColor: COLORS.border }
+            }
+          >
+            {c}
+          </Link>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-        <aside className="md:col-span-3">
+        <aside className="hidden md:col-span-3 md:block">
           <div
             className="rounded-lg border bg-white p-4"
             style={{ borderColor: COLORS.border }}

@@ -65,6 +65,9 @@ export type CartContextValue = {
   refresh: () => Promise<void>;
   total: number;
   itemCount: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -123,6 +126,9 @@ export function CartProvider({
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const session = useSession();
   const isConnected = audience === "pro" ? true : session.isConnected;
@@ -278,8 +284,11 @@ export function CartProvider({
       refresh,
       total,
       itemCount,
+      isCartOpen,
+      openCart,
+      closeCart,
     };
-  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh]);
+  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh, isCartOpen, openCart, closeCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

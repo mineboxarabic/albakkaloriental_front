@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Search, ShoppingCart, Menu, Truck, User, FileText, LogOut } from "lucide-react";
+import { Search, ShoppingCart, Menu, Truck, User, FileText, LogOut, X } from "lucide-react";
 import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { useCart } from "@/components/cart-context";
@@ -20,19 +21,49 @@ function firstName(full: string | null) {
   return p || null;
 }
 
+function SearchForm({ className = "" }: { className?: string }) {
+  return (
+    <form action="/products" method="get" className={className}>
+      <div
+        className="flex h-11 items-stretch overflow-hidden rounded-md border"
+        style={{ borderColor: COLORS.border, background: "#FFFFFF" }}
+      >
+        <input
+          name="q"
+          type="text"
+          placeholder="Rechercher un produit..."
+          className="w-full bg-transparent px-4 text-[13px] outline-none placeholder:text-[#9A968C]"
+          style={{ color: COLORS.text }}
+        />
+        <button
+          type="submit"
+          className="grid w-12 place-items-center text-white"
+          style={{ background: COLORS.primary }}
+          aria-label="Rechercher"
+        >
+          <Search className="h-4 w-4" strokeWidth={2.4} />
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function SiteHeader({ categories = [] }: { categories?: string[] }) {
-  const { itemCount, total } = useCart();
+  const { itemCount, total, openCart } = useCart();
   const { isConnected, name } = useSession();
   const fn = firstName(name);
   const uniqueCategories = getOrderedCategoryNames(categories.length > 0 ? categories : DEFAULT_NAV_ITEMS);
   const navItems = uniqueCategories.slice(0, 6);
   const extraItems = uniqueCategories.slice(6);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <>
-      {/* Top utility bar */}
+      {/* Top utility bar — desktop only */}
       <div
-        className="w-full text-[12px]"
+        className="hidden w-full text-[12px] md:block"
         style={{ background: COLORS.primary, color: "#FAF8F2" }}
       >
         <div className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-2">
@@ -66,7 +97,18 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
         className="sticky top-0 z-40 w-full border-b backdrop-blur"
         style={{ background: "rgba(255,255,255,0.96)", borderColor: "#EAE6D8" }}
       >
-        <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-6 py-5">
+        <div className="mx-auto flex max-w-[1180px] items-center gap-3 px-4 py-3 md:gap-4 md:px-6 md:py-5">
+          {/* Hamburger — mobile only */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="grid h-10 w-10 shrink-0 place-items-center lg:hidden"
+            style={{ color: COLORS.text }}
+            aria-label="Ouvrir le menu"
+          >
+            <Menu className="h-6 w-6" strokeWidth={2} />
+          </button>
+
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
               <path
@@ -80,13 +122,13 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             </svg>
             <div className="leading-tight">
               <div
-                className="text-[20px] font-extrabold tracking-tight"
+                className="text-[18px] font-extrabold tracking-tight md:text-[20px]"
                 style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
               >
                 LE BAKKAL
               </div>
               <div
-                className="text-[10px] tracking-[0.35em] font-medium"
+                className="text-[9px] tracking-[0.35em] font-medium md:text-[10px]"
                 style={{ color: COLORS.muted }}
               >
                 ORIENTAL
@@ -94,40 +136,37 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             </div>
           </Link>
 
-          <form action="/products" method="get" className="mx-4 flex-1">
-            <div
-              className="flex h-11 items-stretch overflow-hidden rounded-md border"
-              style={{ borderColor: COLORS.border, background: "#FFFFFF" }}
-            >
-              <input
-                name="q"
-                type="text"
-                placeholder="Rechercher un produit..."
-                className="w-full bg-transparent px-4 text-[13px] outline-none placeholder:text-[#9A968C]"
-                style={{ color: COLORS.text }}
-              />
-              <button
-                type="submit"
-                className="grid w-12 place-items-center text-white"
-                style={{ background: COLORS.primary }}
-                aria-label="Rechercher"
-              >
-                <Search className="h-4 w-4" strokeWidth={2.4} />
-              </button>
-            </div>
-          </form>
+          {/* Search — inline on desktop */}
+          <SearchForm className="mx-4 hidden flex-1 lg:block" />
+
+          {/* push the actions to the right on mobile (search is on its own row) */}
+          <div className="flex-1 lg:hidden" />
 
           {isConnected ? (
-            <div className="relative group/user shrink-0">
-              <Link
-                href="/account"
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((v) => !v)}
                 className="grid h-11 w-11 place-items-center"
                 style={{ color: COLORS.text }}
                 aria-label="Mon compte"
+                aria-expanded={userMenuOpen}
               >
                 <User className="h-[22px] w-[22px]" strokeWidth={1.8} />
-              </Link>
-              <div className="absolute right-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/user:opacity-100 group-hover/user:visible group-hover/user:translate-y-0 transition-all duration-200 ease-out">
+              </button>
+              {/* click-away backdrop */}
+              <div
+                className={`fixed inset-0 z-40 ${userMenuOpen ? "" : "hidden"}`}
+                onClick={() => setUserMenuOpen(false)}
+                aria-hidden
+              />
+              <div
+                className={`absolute right-0 top-full z-50 pt-2 transition-all duration-200 ease-out ${
+                  userMenuOpen
+                    ? "opacity-100 visible translate-y-0"
+                    : "pointer-events-none opacity-0 invisible translate-y-1"
+                }`}
+              >
                 <div
                   className="w-[220px] rounded-lg border bg-white p-2 shadow-xl"
                   style={{ borderColor: COLORS.border }}
@@ -142,6 +181,7 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                   )}
                   <Link
                     href="/account"
+                    onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[#FAF8F2]"
                     style={{ color: COLORS.text }}
                   >
@@ -150,6 +190,7 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                   </Link>
                   <Link
                     href="/orders"
+                    onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors hover:bg-[#FAF8F2]"
                     style={{ color: COLORS.text }}
                   >
@@ -181,11 +222,12 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             </Link>
           )}
 
-          <Link
-            href="/cart"
+          <button
+            type="button"
+            onClick={openCart}
             className="flex h-11 shrink-0 items-center gap-2.5"
             style={{ color: COLORS.text }}
-            aria-label="Panier"
+            aria-label="Ouvrir le panier"
           >
             <span className="relative grid place-items-center">
               <ShoppingCart
@@ -202,13 +244,19 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                 </span>
               )}
             </span>
-            <span className="text-[14px] font-semibold" style={{ color: COLORS.text }}>
+            <span className="hidden text-[14px] font-semibold sm:inline" style={{ color: COLORS.text }}>
               {formatEUR(total)}
             </span>
-          </Link>
+          </button>
         </div>
 
-        <nav className="border-t" style={{ borderColor: COLORS.border, background: "#FFFFFF" }}>
+        {/* Search — own row on mobile */}
+        <div className="border-t px-4 py-2.5 lg:hidden" style={{ borderColor: COLORS.border }}>
+          <SearchForm />
+        </div>
+
+        {/* Category nav — desktop only */}
+        <nav className="hidden border-t lg:block" style={{ borderColor: COLORS.border, background: "#FFFFFF" }}>
           <div className="mx-auto flex max-w-[1180px] items-center gap-7 px-6 text-[12px] font-semibold tracking-wide">
             {/* TOUS LES RAYONS Dropdown */}
             <div className="relative group/rayons py-3">
@@ -287,6 +335,132 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
           </div>
         </nav>
       </header>
+
+      {/* Mobile slide-in menu */}
+      <div
+        className={`fixed inset-0 z-[60] overflow-hidden lg:hidden ${menuOpen ? "" : "pointer-events-none"}`}
+        aria-hidden={!menuOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+            menuOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={closeMenu}
+          aria-hidden
+        />
+        <div
+          className={`absolute left-0 top-0 flex h-full w-[300px] max-w-[85%] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+            <div
+              className="flex items-center justify-between border-b px-4 py-3.5"
+              style={{ borderColor: COLORS.border }}
+            >
+              <span
+                className="text-[16px] font-extrabold tracking-tight"
+                style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+              >
+                MENU
+              </span>
+              <button
+                type="button"
+                onClick={closeMenu}
+                className="grid h-9 w-9 place-items-center rounded-md hover:bg-[#FAF8F2]"
+                style={{ color: COLORS.text }}
+                aria-label="Fermer le menu"
+              >
+                <X className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-3 py-4">
+              {/* Account */}
+              {isConnected ? (
+                <div className="grid gap-0.5">
+                  {fn && (
+                    <div className="px-3 pb-1 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                      Bonjour, {fn}
+                    </div>
+                  )}
+                  <Link
+                    href="/account"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-[14px] font-medium hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <User className="h-4 w-4" strokeWidth={2} /> Mes infos
+                  </Link>
+                  <Link
+                    href="/orders"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-[14px] font-medium hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <FileText className="h-4 w-4" strokeWidth={2} /> Mes commandes
+                  </Link>
+                  <form action={logoutRetail}>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-[14px] font-medium hover:bg-[#FCE9E5]"
+                      style={{ color: COLORS.red }}
+                    >
+                      <LogOut className="h-4 w-4" strokeWidth={2} /> Déconnexion
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <div className="grid gap-0.5">
+                  <Link
+                    href="/login"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-[14px] font-medium hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <User className="h-4 w-4" strokeWidth={2} /> Se connecter
+                  </Link>
+                  <Link
+                    href="/pro/login"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 rounded-md px-3 py-2.5 text-[14px] font-medium hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    Espace pro
+                  </Link>
+                </div>
+              )}
+
+              {/* Categories */}
+              <div
+                className="mt-4 mb-1 px-3 text-[11px] font-bold uppercase tracking-[0.14em]"
+                style={{ color: COLORS.muted }}
+              >
+                Rayons
+              </div>
+              <div className="grid gap-0.5">
+                <Link
+                  href="/products"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2 rounded-md px-3 py-2.5 text-[14px] font-semibold hover:bg-[#FAF8F2]"
+                  style={{ color: COLORS.red }}
+                >
+                  <Menu className="h-4 w-4" strokeWidth={2.4} /> TOUS LES RAYONS
+                </Link>
+                {uniqueCategories.map((item) => (
+                  <Link
+                    key={item}
+                    href={`/products?category=${encodeURIComponent(item)}`}
+                    onClick={closeMenu}
+                    className="rounded-md px-3 py-2.5 text-[13.5px] font-medium hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    {item.toUpperCase()}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
     </>
   );
 }

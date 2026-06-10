@@ -116,7 +116,8 @@ export default async function QuoteDetailPage({
       </div>
 
       <div className="rounded-lg border bg-white overflow-hidden">
-        <table className="w-full text-sm">
+        {/* Desktop table */}
+        <table className="hidden w-full text-sm md:table">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-2 text-left">Produit</th>
@@ -143,6 +144,28 @@ export default async function QuoteDetailPage({
             ))}
           </tbody>
         </table>
+
+        {/* Mobile cards */}
+        <ul className="divide-y md:hidden">
+          {quote.lines.map((line, idx) => (
+            <li key={idx} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium">{line.product.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {line.product.sku} · {line.product.category}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right text-sm font-semibold">
+                  {formatPrice(line.totalPrice)}
+                </div>
+              </div>
+              <div className="mt-1.5 text-xs text-muted-foreground">
+                {line.quantity} × {formatPrice(line.unitPrice)}
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-white">

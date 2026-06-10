@@ -77,8 +77,8 @@ export default async function Home() {
         className="relative mt-5 overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
         style={{ background: "#FFFFFF", borderColor: COLORS.border, fontFamily: INTER }}
       >
-        <div className="grid grid-cols-12 items-end gap-4 px-8 pt-8 pb-0">
-          <div className="col-span-5 flex flex-col justify-center pb-10">
+        <div className="grid grid-cols-1 items-end gap-4 px-6 pt-6 pb-0 lg:grid-cols-12 lg:px-8 lg:pt-8">
+          <div className="flex flex-col justify-center pb-6 lg:col-span-5 lg:pb-10">
             <div
               className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase"
               style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
@@ -87,7 +87,7 @@ export default async function Home() {
               Épicerie orientale
             </div>
             <h1
-              className="text-[30px] font-medium leading-[1.04] tracking-tight"
+              className="text-[26px] font-medium leading-[1.04] tracking-tight sm:text-[30px]"
               style={{ color: COLORS.text }}
             >
               Vos produits orientaux préférés,{" "}
@@ -108,7 +108,7 @@ export default async function Home() {
               Voir nos produits
             </Link>
           </div>
-          <div className="col-span-7 relative flex items-end justify-center">
+          <div className="relative -mx-6 flex items-end justify-center lg:col-span-7 lg:mx-0">
             <Image
               src="/Assets/img/banner.png"
               alt="Produits orientaux"
@@ -122,14 +122,14 @@ export default async function Home() {
               alt="Prix justes tous les jours"
               width={180}
               height={180}
-              className="absolute right-2 top-2 h-[150px] w-[150px] rotate-[8deg] drop-shadow-md"
+              className="absolute right-3 top-2 h-[68px] w-[68px] rotate-[8deg] drop-shadow-md sm:right-2 sm:h-[150px] sm:w-[150px]"
             />
           </div>
         </div>
       </section>
 
       <section
-        className="mt-5 flex flex-wrap items-center justify-around gap-6 rounded-xl border bg-white px-8 py-5"
+        className="mt-5 grid grid-cols-2 gap-4 rounded-xl border bg-white px-5 py-5 lg:flex lg:flex-wrap lg:items-center lg:justify-around lg:gap-6 lg:px-8"
         style={{ borderColor: COLORS.border }}
       >
         <Feature icon={<Truck className="h-6 w-6" strokeWidth={1.8} />} title="LIVRAISON RAPIDE" sub="Partout en France" />
@@ -154,7 +154,7 @@ export default async function Home() {
             Voir toutes les catégories <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-6 gap-3">
+        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {categoryDisplays.map((category) => (
             <Link
               key={category.name}
@@ -162,7 +162,7 @@ export default async function Home() {
               className="group flex flex-col items-center overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
               style={{ borderColor: COLORS.border }}
             >
-              <div className="relative h-[110px] w-full overflow-hidden" style={{ background: COLORS.beige }}>
+              <div className="relative h-[90px] w-full overflow-hidden sm:h-[110px]" style={{ background: COLORS.beige }}>
                 <Image
                   src={category.image}
                   alt=""
@@ -185,10 +185,10 @@ export default async function Home() {
       </section>
 
       <section
-        className="mt-8 grid grid-cols-12 items-center gap-6 overflow-hidden rounded-2xl px-10 py-10"
+        className="mt-8 grid grid-cols-1 items-center gap-6 overflow-hidden rounded-2xl px-6 py-8 lg:grid-cols-12 lg:px-10 lg:py-10"
         style={{ background: COLORS.beige }}
       >
-        <div className="col-span-3 flex items-center justify-center">
+        <div className="hidden items-center justify-center lg:col-span-3 lg:flex">
           <Image
             src="/Assets/img/stick1.png"
             alt="Les bons plans"
@@ -197,31 +197,27 @@ export default async function Home() {
             className="h-auto w-full max-w-[240px] object-contain"
           />
         </div>
-        <div className="col-span-3">
+        <div className="text-center lg:col-span-3 lg:text-left">
           <h3
-            className="text-[34px] font-extrabold leading-[1.1] tracking-tight"
+            className="text-[26px] font-extrabold leading-[1.1] tracking-tight sm:text-[34px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Épicerie orientale
-            <br />
-            livrée chez vous
+            Épicerie orientale livrée chez vous
           </h3>
-          <p className="mt-4 text-[15px] leading-relaxed" style={{ color: COLORS.muted }}>
-            Découvrez nos rayons
-            <br />
-            et commandez en quelques clics.
+          <p className="mt-3 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
+            Découvrez nos rayons et commandez en quelques clics.
           </p>
         </div>
-        <div className="col-span-3 flex justify-center">
+        <div className="flex justify-center lg:col-span-3">
           <Link
             href="/products"
-            className="inline-flex items-center rounded-md px-7 py-4 text-[14px] font-semibold text-white shadow-sm"
+            className="inline-flex items-center rounded-md px-7 py-3.5 text-[14px] font-semibold text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
             Voir le catalogue
           </Link>
         </div>
-        <div className="col-span-3 flex items-center justify-end">
+        <div className="hidden items-center justify-end lg:col-span-3 lg:flex">
           <Image
             src="/Assets/img/products.png"
             alt="Panier de courses"
@@ -317,7 +313,7 @@ function ProductSection({
           {emptyLabel}
         </div>
       ) : (
-        <div className="mt-4 grid grid-cols-6 gap-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {items.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

@@ -62,10 +62,10 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
         <span style={{ color: COLORS.text }}>{product.name}</span>
       </nav>
 
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
           <div
-            className="grid aspect-square w-full place-items-center overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
+            className="mx-auto grid aspect-square w-full max-w-[400px] place-items-center overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)] lg:max-w-none"
             style={{ borderColor: COLORS.border, background: COLORS.beige }}
           >
             <Image
@@ -79,7 +79,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           </div>
         </div>
 
-        <div className="col-span-7 flex flex-col">
+        <div className="flex flex-col lg:col-span-7">
           <div
             className="flex items-center gap-2 text-[11px] font-semibold uppercase"
             style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
@@ -171,7 +171,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
           >
             Vous aimerez aussi
           </h2>
-          <div className="mt-4 grid grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

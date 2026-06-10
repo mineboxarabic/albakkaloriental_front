@@ -55,7 +55,7 @@ export default function ProCartPage() {
         <span style={{ color: COLORS.text }}>Mon panier</span>
       </nav>
       <h1
-        className="mt-2 text-[28px] font-extrabold tracking-tight"
+        className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
         Mon panier professionnel
@@ -96,14 +96,14 @@ export default function ProCartPage() {
           </Link>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-12 gap-6">
-          <section className="col-span-8">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <section className="lg:col-span-8">
             <div
               className="overflow-hidden rounded-sm border bg-white"
               style={{ borderColor: COLORS.border }}
             >
               <div
-                className="grid grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em]"
+                className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
                 style={{ color: COLORS.muted, background: "#FAF8F2" }}
               >
                 <div className="col-span-6">PRODUIT</div>
@@ -116,13 +116,61 @@ export default function ProCartPage() {
                 {items.map((it) => {
                   const saleUnit = it.saleUnit ?? "PACK";
                   const lineTotal = it.unitPrice * it.quantity;
+                  const unitBadge = (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
+                      style={{
+                        background: saleUnit === "PACK" ? COLORS.beige : "#FFFFFF",
+                        border: `1px solid ${COLORS.border}`,
+                        color: COLORS.text,
+                      }}
+                    >
+                      {saleUnit === "PACK" ? (
+                        <Package className="h-3 w-3" strokeWidth={2} />
+                      ) : (
+                        <Box className="h-3 w-3" strokeWidth={2} />
+                      )}
+                      {saleUnit === "PACK" ? "Carton" : "Unité"}
+                    </span>
+                  );
+                  const stepper = (
+                    <div
+                      className="flex items-center overflow-hidden rounded-sm border"
+                      style={{ borderColor: COLORS.border }}
+                    >
+                      <button
+                        type="button"
+                        aria-label="Diminuer"
+                        onClick={() => updateQty(it.lineId, it.quantity - 1)}
+                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
+                        style={{ color: COLORS.text }}
+                      >
+                        <Minus className="h-3.5 w-3.5" strokeWidth={2.2} />
+                      </button>
+                      <div
+                        className="grid h-9 w-10 place-items-center text-[13.5px] font-bold"
+                        style={{ color: COLORS.text }}
+                      >
+                        {it.quantity}
+                      </div>
+                      <button
+                        type="button"
+                        aria-label="Augmenter"
+                        onClick={() => updateQty(it.lineId, it.quantity + 1)}
+                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
+                        style={{ color: COLORS.text }}
+                      >
+                        <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
+                      </button>
+                    </div>
+                  );
                   return (
                     <li
                       key={it.lineId}
-                      className="grid grid-cols-12 items-center gap-3 border-t px-4 py-4"
+                      className="border-t px-4 py-4 md:grid md:grid-cols-12 md:items-center md:gap-3"
                       style={{ borderColor: COLORS.border }}
                     >
-                      <div className="col-span-6 flex items-center gap-3">
+                      <div className="flex items-start gap-3 md:col-span-6 md:items-center">
                         <Link
                           href={`/pro/products/${it.productId}`}
                           className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-sm"
@@ -136,7 +184,7 @@ export default function ProCartPage() {
                             className="h-full w-full object-cover"
                           />
                         </Link>
-                        <div className="leading-tight">
+                        <div className="min-w-0 flex-1 leading-tight">
                           <Link
                             href={`/pro/products/${it.productId}`}
                             className="line-clamp-2 text-[13.5px] font-semibold"
@@ -147,60 +195,32 @@ export default function ProCartPage() {
                           <div className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
                             {formatPriceEUR(it.unitPrice)} HT / {saleUnit === "PACK" ? "carton" : "unité"}
                           </div>
+                          <div className="mt-1.5 md:hidden">{unitBadge}</div>
                         </div>
-                      </div>
-
-                      <div className="col-span-2 flex justify-center">
-                        <span
-                          className="inline-flex items-center gap-1 rounded-sm px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
-                          style={{
-                            background: saleUnit === "PACK" ? COLORS.beige : "#FFFFFF",
-                            border: `1px solid ${COLORS.border}`,
-                            color: COLORS.text,
-                          }}
-                        >
-                          {saleUnit === "PACK" ? (
-                            <Package className="h-3 w-3" strokeWidth={2} />
-                          ) : (
-                            <Box className="h-3 w-3" strokeWidth={2} />
-                          )}
-                          {saleUnit === "PACK" ? "Carton" : "Unité"}
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 flex justify-center">
-                        <div
-                          className="flex items-center overflow-hidden rounded-sm border"
-                          style={{ borderColor: COLORS.border }}
-                        >
+                        {/* Mobile line total + remove */}
+                        <div className="flex flex-col items-end gap-2 md:hidden">
+                          <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
+                            {formatPriceEUR(lineTotal)}
+                          </span>
                           <button
                             type="button"
-                            aria-label="Diminuer"
-                            onClick={() => updateQty(it.lineId, it.quantity - 1)}
-                            className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
-                            style={{ color: COLORS.text }}
+                            aria-label={`Supprimer ${it.name}`}
+                            onClick={() => removeItem(it.lineId)}
+                            className="grid h-8 w-8 place-items-center rounded-sm transition hover:bg-[#FAF8F2]"
+                            style={{ color: COLORS.muted }}
                           >
-                            <Minus className="h-3.5 w-3.5" strokeWidth={2.2} />
-                          </button>
-                          <div
-                            className="grid h-9 w-10 place-items-center text-[13.5px] font-bold"
-                            style={{ color: COLORS.text }}
-                          >
-                            {it.quantity}
-                          </div>
-                          <button
-                            type="button"
-                            aria-label="Augmenter"
-                            onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                            className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
-                            style={{ color: COLORS.text }}
-                          >
-                            <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
                           </button>
                         </div>
                       </div>
 
-                      <div className="col-span-2 flex items-center justify-end gap-2">
+                      {/* Mobile stepper row */}
+                      <div className="mt-3 md:hidden">{stepper}</div>
+
+                      {/* Desktop columns */}
+                      <div className="hidden justify-center md:col-span-2 md:flex">{unitBadge}</div>
+                      <div className="hidden justify-center md:col-span-2 md:flex">{stepper}</div>
+                      <div className="hidden items-center justify-end gap-2 md:col-span-2 md:flex">
                         <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
                           {formatPriceEUR(lineTotal)}
                         </span>
@@ -257,9 +277,9 @@ export default function ProCartPage() {
             </div>
           </section>
 
-          <aside className="col-span-4">
+          <aside className="lg:col-span-4">
             <div
-              className="rounded-sm border bg-white p-5"
+              className="rounded-sm border bg-white p-5 lg:sticky lg:top-24"
               style={{ borderColor: COLORS.border }}
             >
               <div
