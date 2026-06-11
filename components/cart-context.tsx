@@ -118,9 +118,13 @@ function getActions(audience: CartAudience) {
 
 export function CartProvider({
   audience,
+  isAuthenticated,
   children,
 }: {
   audience: CartAudience;
+  /** Pro audience only: whether a B2B session exists. Pro pages are now public,
+   *  so the cart must not call the auth-required endpoint for guests. */
+  isAuthenticated?: boolean;
   children: ReactNode;
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -131,7 +135,8 @@ export function CartProvider({
   const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const session = useSession();
-  const isConnected = audience === "pro" ? true : session.isConnected;
+  const isConnected =
+    audience === "pro" ? Boolean(isAuthenticated) : session.isConnected;
   const pathname = usePathname();
   const isLoginPage = pathname === "/login" || pathname === "/pro/login" || pathname?.startsWith("/pro/login/");
 

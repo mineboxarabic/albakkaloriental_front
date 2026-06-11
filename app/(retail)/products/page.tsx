@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getProducts, getCategories } from "@/lib/catalog";
+import { getProducts, getCategories, getMarques } from "@/lib/catalog";
 import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
@@ -9,6 +9,7 @@ export const revalidate = 60;
 
 type Params = Promise<{
   category?: string;
+  marque?: string;
   q?: string;
 }>;
 
@@ -17,12 +18,14 @@ export default async function ProductsPage({
 }: {
   searchParams: Params;
 }) {
-  const { category, q } = await searchParams;
-  const [{ products }, categories] = await Promise.all([
-    getProducts({ audience: "retail", category }),
+  const { category, marque, q } = await searchParams;
+  const [{ products }, categories, marques] = await Promise.all([
+    getProducts({ audience: "retail", category, marque }),
     getCategories("retail"),
+    getMarques(),
   ]);
   const orderedCategories = getOrderedCategoryNames(categories);
+  const activeLabel = category ?? marque ?? null;
 
   const filteredProducts = q
     ? products.filter(
@@ -39,16 +42,24 @@ export default async function ProductsPage({
           <Link href="/" className="hover:underline">
             Accueil
           </Link>{" "}
+          {marque && (
+            <>
+              <span className="mx-1">›</span>
+              <Link href="/marques" className="hover:underline">
+                Marques
+              </Link>{" "}
+            </>
+          )}
           <span className="mx-1">›</span>
           <span style={{ color: COLORS.text }}>
-            {category ?? q ? `Résultats pour « ${category ?? q} »` : "Nos produits"}
+            {activeLabel ?? (q ? `Résultats pour « ${q} »` : "Nos produits")}
           </span>
         </nav>
         <h1
           className="mt-2 text-[28px] font-extrabold tracking-tight"
           style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
         >
-          {category ? category : "Nos produits"}
+          {activeLabel ?? "Nos produits"}
         </h1>
         <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
           {filteredProducts.length}{" "}
@@ -107,8 +118,8 @@ export default async function ProductsPage({
                   href={{ pathname: "/products", query: q ? { q } : {} }}
                   className="block rounded px-2 py-1.5 transition hover:bg-[#FAF8F2]"
                   style={{
-                    color: !category ? COLORS.primary : COLORS.text,
-                    fontWeight: !category ? 700 : 400,
+                    color: !category && !marque ? COLORS.primary : COLORS.text,
+                    fontWeight: !category && !marque ? 700 : 400,
                   }}
                 >
                   Toutes les catégories
@@ -132,6 +143,46 @@ export default async function ProductsPage({
                 </li>
               ))}
             </ul>
+
+            {marques.length > 0 && (
+              <>
+                <div className="my-3 border-t" style={{ borderColor: COLORS.border }} />
+                <div className="mb-3 flex items-center justify-between">
+                  <span
+                    className="text-[12px] font-bold tracking-wide"
+                    style={{ color: COLORS.text }}
+                  >
+                    MARQUES
+                  </span>
+                  <Link
+                    href="/marques"
+                    className="text-[11px] font-semibold hover:underline"
+                    style={{ color: COLORS.primary }}
+                  >
+                    Voir tout
+                  </Link>
+                </div>
+                <ul className="space-y-1.5 text-[13px]">
+                  {marques.map((m) => (
+                    <li key={m.id}>
+                      <Link
+                        href={{
+                          pathname: "/products",
+                          query: { marque: m.name, ...(q ? { q } : {}) },
+                        }}
+                        className="block rounded px-2 py-1.5 transition hover:bg-[#FAF8F2]"
+                        style={{
+                          color: marque === m.name ? COLORS.primary : COLORS.text,
+                          fontWeight: marque === m.name ? 700 : 400,
+                        }}
+                      >
+                        {m.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </aside>
 

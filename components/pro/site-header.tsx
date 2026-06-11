@@ -5,12 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Package,
+  LayoutGrid,
+  Tag,
+  ChevronDown,
   FileText,
   FileSignature,
   Receipt,
   ShoppingCart,
   User,
   LogOut,
+  LogIn,
   Shield,
   Menu,
   X,
@@ -26,7 +30,18 @@ const NAV = [
   { label: "Factures", href: "/pro/invoices", icon: Receipt },
 ];
 
-export function ProSiteHeader() {
+// Sub-items of the "Catalogue" dropdown.
+const CATALOGUE_SUBMENU = [
+  { label: "Tous les produits", href: "/pro/products", icon: Package },
+  { label: "Catégories", href: "/pro/categories", icon: LayoutGrid },
+  { label: "Marques", href: "/pro/marques", icon: Tag },
+];
+
+export function ProSiteHeader({
+  authenticated = true,
+}: {
+  authenticated?: boolean;
+}) {
   const pathname = usePathname();
   const { itemCount } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -86,7 +101,49 @@ export function ProSiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {NAV.map(({ label, href, icon: Icon }) => {
+          {/* Catalogue — dropdown (Tous les produits / Catégories / Marques) */}
+          <div className="relative group/cat">
+            <Link
+              href="/pro/products"
+              className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-[12px] font-semibold tracking-wide transition"
+              style={{
+                background:
+                  isActive("/pro/products") ||
+                  isActive("/pro/categories") ||
+                  isActive("/pro/marques")
+                    ? "rgba(255,255,255,0.1)"
+                    : "transparent",
+                color: "rgba(255,255,255,0.9)",
+              }}
+            >
+              <Package className="h-3.5 w-3.5" strokeWidth={2} />
+              CATALOGUE
+              <ChevronDown
+                className="h-3 w-3 transition-transform duration-200 group-hover/cat:rotate-180"
+                strokeWidth={2.4}
+              />
+            </Link>
+            <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 transition-all duration-200 ease-out group-hover/cat:opacity-100 group-hover/cat:visible group-hover/cat:translate-y-0">
+              <div
+                className="w-[210px] rounded-sm border bg-white p-1.5 shadow-xl"
+                style={{ borderColor: COLORS.border }}
+              >
+                {CATALOGUE_SUBMENU.map(({ label, href, icon: Icon }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-2.5 rounded-sm px-3 py-2 text-[12.5px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                    style={{ color: COLORS.text }}
+                  >
+                    <Icon className="h-4 w-4" strokeWidth={2} />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {NAV.slice(1).map(({ label, href, icon: Icon }) => {
             const active = isActive(href);
             return (
               <Link
@@ -123,25 +180,38 @@ export function ProSiteHeader() {
             )}
           </Link>
 
-          <Link
-            href="/pro/account"
-            aria-label="Mon compte"
-            className="hidden h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10 lg:grid"
-            style={{ color: "rgba(255,255,255,0.9)" }}
-          >
-            <User className="h-4 w-4" strokeWidth={2} />
-          </Link>
+          {authenticated ? (
+            <>
+              <Link
+                href="/pro/account"
+                aria-label="Mon compte"
+                className="hidden h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10 lg:grid"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                <User className="h-4 w-4" strokeWidth={2} />
+              </Link>
 
-          <form action={logoutPro} className="hidden lg:block">
-            <button
-              type="submit"
-              aria-label="Se déconnecter"
-              className="grid h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10"
+              <form action={logoutPro} className="hidden lg:block">
+                <button
+                  type="submit"
+                  aria-label="Se déconnecter"
+                  className="grid h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10"
+                  style={{ color: "rgba(255,255,255,0.9)" }}
+                >
+                  <LogOut className="h-4 w-4" strokeWidth={2} />
+                </button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/pro/login"
+              className="hidden h-10 items-center gap-2 rounded-sm px-3 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 lg:flex"
               style={{ color: "rgba(255,255,255,0.9)" }}
             >
-              <LogOut className="h-4 w-4" strokeWidth={2} />
-            </button>
-          </form>
+              <LogIn className="h-4 w-4" strokeWidth={2} />
+              SE CONNECTER
+            </Link>
+          )}
         </div>
       </div>
     </header>
@@ -189,7 +259,46 @@ export function ProSiteHeader() {
 
           <nav className="flex-1 overflow-y-auto px-3 py-4">
             <div className="grid gap-0.5">
-              {NAV.map(({ label, href, icon: Icon }) => {
+              {/* Catalogue + sub-links */}
+              <Link
+                href="/pro/products"
+                onClick={closeMenu}
+                className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide transition"
+                style={{
+                  background: isActive("/pro/products")
+                    ? "rgba(255,255,255,0.12)"
+                    : "transparent",
+                  color: isActive("/pro/products") ? "#FFFFFF" : "rgba(255,255,255,0.8)",
+                }}
+              >
+                <Package className="h-4 w-4" strokeWidth={2} />
+                CATALOGUE
+              </Link>
+              <div
+                className="ml-4 grid gap-0.5 border-l pl-2"
+                style={{ borderColor: "rgba(255,255,255,0.15)" }}
+              >
+                {CATALOGUE_SUBMENU.slice(1).map(({ label, href, icon: Icon }) => {
+                  const active = isActive(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={closeMenu}
+                      className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13px] font-medium tracking-wide transition"
+                      style={{
+                        background: active ? "rgba(255,255,255,0.12)" : "transparent",
+                        color: active ? "#FFFFFF" : "rgba(255,255,255,0.7)",
+                      }}
+                    >
+                      <Icon className="h-4 w-4" strokeWidth={2} />
+                      {label.toUpperCase()}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {NAV.slice(1).map(({ label, href, icon: Icon }) => {
                 const active = isActive(href);
                 return (
                   <Link
@@ -215,21 +324,33 @@ export function ProSiteHeader() {
             />
 
             <div className="grid gap-0.5">
-              <Link
-                href="/pro/account"
-                onClick={closeMenu}
-                className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
-              >
-                <User className="h-4 w-4" strokeWidth={2} /> MON COMPTE
-              </Link>
-              <form action={logoutPro}>
-                <button
-                  type="submit"
-                  className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-left text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
+              {authenticated ? (
+                <>
+                  <Link
+                    href="/pro/account"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
+                  >
+                    <User className="h-4 w-4" strokeWidth={2} /> MON COMPTE
+                  </Link>
+                  <form action={logoutPro}>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-left text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
+                    >
+                      <LogOut className="h-4 w-4" strokeWidth={2} /> DÉCONNEXION
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Link
+                  href="/pro/login"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
                 >
-                  <LogOut className="h-4 w-4" strokeWidth={2} /> DÉCONNEXION
-                </button>
-              </form>
+                  <LogIn className="h-4 w-4" strokeWidth={2} /> SE CONNECTER
+                </Link>
+              )}
             </div>
           </nav>
         </div>

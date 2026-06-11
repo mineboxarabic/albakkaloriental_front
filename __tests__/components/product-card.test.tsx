@@ -17,6 +17,7 @@ const baseProduct: ProductCardData = {
   name: "Test Product",
   sku: "TP-1",
   category: "epicerie",
+  marques: [],
   imageUrl: null,
   unitsPerPack: 1,
   baseUnit: "PIECE",

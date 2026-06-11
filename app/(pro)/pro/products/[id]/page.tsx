@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Package } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
@@ -17,10 +17,11 @@ export default async function ProProductDetailPage({
 }: {
   params: Params;
 }) {
-  const meRes = await getProMe(); if (!meRes.ok) { return null; } const session = { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel };
-  if (!session) {
-    redirect("/pro/login");
-  }
+  const meRes = await getProMe();
+  const session = meRes.ok
+    ? { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel }
+    : null;
+  const authenticated = Boolean(session);
   const { id } = await params;
   const product = await getProduct(id, "pro");
   if (!product) notFound();
@@ -108,7 +109,8 @@ export default async function ProProductDetailPage({
               name={product.name}
               imageUrl={product.imageUrl}
               unitsPerPack={product.unitsPerPack}
-              pricingLevel={session.pricingLevel}
+              pricingLevel={session?.pricingLevel ?? null}
+              authenticated={authenticated}
               isOutOfStock={product.isOutOfStock}
               pricing={{
                 sellingPrice: product.sellingPrice,
@@ -138,7 +140,8 @@ export default async function ProProductDetailPage({
               <ProProductCard
                 key={p.id}
                 product={p}
-                pricingLevel={session.pricingLevel}
+                pricingLevel={session?.pricingLevel ?? null}
+                authenticated={authenticated}
               />
             ))}
           </div>

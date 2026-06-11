@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getProducts, getCategories } from "@/lib/catalog";
+import { getProducts, getCategories, getMarques } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
 import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
@@ -9,24 +8,27 @@ import { CatalogSearchInput } from "@/components/catalog-search-input";
 
 export const dynamic = "force-dynamic";
 
-type Params = Promise<{ category?: string; q?: string }>;
+type Params = Promise<{ category?: string; marque?: string; q?: string }>;
 
 export default async function ProProductsPage({
   searchParams,
 }: {
   searchParams: Params;
 }) {
-  const meRes = await getProMe(); if (!meRes.ok) { return null; } const session = { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel };
-  if (!session) {
-    redirect("/pro/login?next=/pro/products");
-  }
+  const meRes = await getProMe();
+  const session = meRes.ok
+    ? { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel }
+    : null;
+  const authenticated = Boolean(session);
 
-  const { category, q } = await searchParams;
-  const [{ products }, categories] = await Promise.all([
-    getProducts({ audience: "pro", category }),
+  const { category, marque, q } = await searchParams;
+  const [{ products }, categories, marques] = await Promise.all([
+    getProducts({ audience: "pro", category, marque }),
     getCategories("pro"),
+    getMarques(),
   ]);
   const orderedCategories = getOrderedCategoryNames(categories);
+  const activeLabel = category ?? marque ?? "Catalogue professionnel";
 
   const filtered = q
     ? products.filter(
@@ -44,10 +46,18 @@ export default async function ProProductsPage({
             <Link href="/pro/products" className="hover:underline">
               Catalogue pro
             </Link>{" "}
-            {category && (
+            {marque && (
               <>
                 <span className="mx-1">›</span>
-                <span style={{ color: COLORS.text }}>{category}</span>
+                <Link href="/pro/marques" className="hover:underline">
+                  Marques
+                </Link>{" "}
+              </>
+            )}
+            {(category || marque) && (
+              <>
+                <span className="mx-1">›</span>
+                <span style={{ color: COLORS.text }}>{category ?? marque}</span>
               </>
             )}
           </nav>
@@ -55,11 +65,11 @@ export default async function ProProductsPage({
             className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            {category ?? "Catalogue professionnel"}
+            {activeLabel}
           </h1>
           <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
-            {filtered.length} {filtered.length > 1 ? "produits" : "produit"} ·{" "}
-            {session.companyName}
+            {filtered.length} {filtered.length > 1 ? "produits" : "produit"}
+            {session ? ` · ${session.companyName}` : ""}
           </p>
         </div>
 
@@ -115,8 +125,8 @@ export default async function ProProductsPage({
                   href={{ pathname: "/pro/products", query: q ? { q } : {} }}
                   className="block rounded-sm px-2 py-1.5 transition hover:bg-[#FAF8F2]"
                   style={{
-                    color: !category ? COLORS.primary : COLORS.text,
-                    fontWeight: !category ? 700 : 400,
+                    color: !category && !marque ? COLORS.primary : COLORS.text,
+                    fontWeight: !category && !marque ? 700 : 400,
                   }}
                 >
                   Tous les produits
@@ -140,6 +150,46 @@ export default async function ProProductsPage({
                 </li>
               ))}
             </ul>
+
+            {marques.length > 0 && (
+              <>
+                <div className="my-3 border-t" style={{ borderColor: COLORS.border }} />
+                <div className="mb-3 flex items-center justify-between">
+                  <span
+                    className="text-[11px] font-bold tracking-[0.14em]"
+                    style={{ color: COLORS.muted }}
+                  >
+                    MARQUES
+                  </span>
+                  <Link
+                    href="/pro/marques"
+                    className="text-[11px] font-semibold hover:underline"
+                    style={{ color: COLORS.primary }}
+                  >
+                    Voir tout
+                  </Link>
+                </div>
+                <ul className="space-y-1 text-[13px]">
+                  {marques.map((m) => (
+                    <li key={m.id}>
+                      <Link
+                        href={{
+                          pathname: "/pro/products",
+                          query: { marque: m.name, ...(q ? { q } : {}) },
+                        }}
+                        className="block rounded-sm px-2 py-1.5 transition hover:bg-[#FAF8F2]"
+                        style={{
+                          color: marque === m.name ? COLORS.primary : COLORS.text,
+                          fontWeight: marque === m.name ? 700 : 400,
+                        }}
+                      >
+                        {m.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </aside>
 
@@ -149,7 +199,7 @@ export default async function ProProductsPage({
               className="rounded-sm border bg-white px-6 py-10 text-center text-[14px]"
               style={{ borderColor: COLORS.border, color: COLORS.muted }}
             >
-              Aucun produit dans cette catégorie.
+              Aucun produit pour cette sélection.
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -157,7 +207,8 @@ export default async function ProProductsPage({
                 <ProProductCard
                   key={p.id}
                   product={p}
-                  pricingLevel={session.pricingLevel}
+                  pricingLevel={session?.pricingLevel ?? null}
+                  authenticated={authenticated}
                 />
               ))}
             </div>

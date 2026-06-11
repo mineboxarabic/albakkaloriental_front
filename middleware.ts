@@ -20,10 +20,22 @@ async function isPro(token: string): Promise<boolean> {
   }
 }
 
+// Public pro routes: browsing the wholesale catalog needs no login.
+// Prices are stripped server-side for anonymous visitors; everything else
+// under /pro/* (cart, orders, quotes, invoices, account, proforma) stays gated.
+function isPublicProPath(pathname: string): boolean {
+  if (pathname === "/pro/login" || pathname.startsWith("/pro/login/")) return true;
+  if (pathname === "/pro" || pathname === "/pro/products") return true;
+  if (pathname.startsWith("/pro/products/")) return true;
+  if (pathname === "/pro/marques" || pathname.startsWith("/pro/marques/")) return true;
+  if (pathname === "/pro/categories" || pathname.startsWith("/pro/categories/")) return true;
+  return false;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/pro/login" || pathname.startsWith("/pro/login/")) {
+  if (isPublicProPath(pathname)) {
     return NextResponse.next();
   }
 

@@ -10,6 +10,7 @@ export type ProductCard = {
   name: string;
   sku: string;
   category: string;
+  marques: string[];
   imageUrl: string | null;
   unitsPerPack: number;
   baseUnit: string;
@@ -32,6 +33,7 @@ type BackendCatalogProduct = {
   name: string;
   sku: string;
   category: string;
+  marques?: string[];
   imageUrl: string | null;
   unitsPerPack: number;
   baseUnit: string;
@@ -64,6 +66,7 @@ function toProductCard(p: BackendCatalogProduct, audience: CatalogAudience): Pro
     name: p.name,
     sku: p.sku,
     category: p.category,
+    marques: p.marques ?? [],
     imageUrl: p.imageUrl,
     unitsPerPack: p.unitsPerPack,
     baseUnit: p.baseUnit,
@@ -110,36 +113,33 @@ async function fetchCatalog(
 ): Promise<{ products: BackendCatalogProduct[]; backendDown: boolean }> {
   const path =
     audience === "retail" ? "/api/v1/retail/catalog" : "/api/v1/b2b/catalog";
-  if (audience === "retail") {
-    try {
-      const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
-        auth: "optional",
-      });
-      return { products: data.products, backendDown: false };
-    } catch (err) {
-      // 401 = no session cookie yet; not a server failure, just unauthenticated
-      if (err instanceof ApiClientError && err.status === 401) {
-        return { products: [], backendDown: false };
-      }
-      return { products: [], backendDown: true };
+  // Both audiences browse with optional auth: the back-end returns prices when a
+  // valid session is present and a price-stripped catalog otherwise (B2B guests).
+  try {
+    const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
+      auth: "optional",
+    });
+    return { products: data.products, backendDown: false };
+  } catch (err) {
+    // 401 = no/expired session; not a server failure, just unauthenticated
+    if (err instanceof ApiClientError && err.status === 401) {
+      return { products: [], backendDown: false };
     }
+    return { products: [], backendDown: true };
   }
-  const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
-    auth: "required",
-  });
-  return { products: data.products, backendDown: false };
 }
 
 export async function getProducts(opts: {
   audience: CatalogAudience;
   category?: string;
+  marque?: string;
   take?: number;
   skip?: number;
 }): Promise<{ products: ProductCard[]; backendDown: boolean }> {
   const { products: all, backendDown } = await fetchCatalog(opts.audience);
   const visible = all.filter((p) => !isHidden(p, opts.audience));
   const categoryFilter = opts.category?.trim().toLowerCase();
-  const filtered = categoryFilter
+  const byCategory = categoryFilter
     ? visible.filter((p) => {
         const productCategories = p.category
           ? p.category.split(",").map((c) => c.trim().toLowerCase())
@@ -147,6 +147,12 @@ export async function getProducts(opts: {
         return productCategories.includes(categoryFilter);
       })
     : visible;
+  const marqueFilter = opts.marque?.trim().toLowerCase();
+  const filtered = marqueFilter
+    ? byCategory.filter((p) =>
+        (p.marques ?? []).some((m) => m.trim().toLowerCase() === marqueFilter),
+      )
+    : byCategory;
   const skip = opts.skip ?? 0;
   const take = opts.take ?? filtered.length;
   return {
@@ -163,6 +169,27 @@ export async function getProduct(
   const found = all.find((p) => p.id === id);
   if (!found || isHidden(found, audience)) return null;
   return toProductCard(found, audience);
+}
+
+export type MarqueItem = {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  productCount: number;
+};
+
+/** Public brand list (id, name, logo, product count). Shared by retail + pro. */
+export async function getMarques(): Promise<MarqueItem[]> {
+  try {
+    const data = await backendFetch<{ marques: MarqueItem[] }>(
+      "/api/v1/public/marques",
+      { auth: "none" },
+    );
+    return data.marques;
+  } catch (err) {
+    console.error("Failed to fetch marques:", err);
+    return [];
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

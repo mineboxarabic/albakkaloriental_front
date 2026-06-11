@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Minus, Plus, ShoppingCart, Check, Package, Box } from "lucide-react";
+import Link from "next/link";
+import { Minus, Plus, ShoppingCart, Check, Package, Box, Lock } from "lucide-react";
 type PricingLevel = "C" | "D" | "E" | "F";
 import { useCart, type CartSaleUnit } from "@/components/cart-context";
 import {
@@ -20,6 +21,7 @@ type Props = {
   pricing: ProPriceInput;
   pricingLevel: PricingLevel | null;
   isOutOfStock?: boolean;
+  authenticated?: boolean;
 };
 
 export function AddToProCartButton({
@@ -30,6 +32,7 @@ export function AddToProCartButton({
   pricing,
   pricingLevel,
   isOutOfStock = false,
+  authenticated = true,
 }: Props) {
   const allowsUnit = supportsUnitSale(pricing);
   const [saleUnit, setSaleUnit] = useState<CartSaleUnit>("PACK");
@@ -43,6 +46,30 @@ export function AddToProCartButton({
     [pricing, saleUnit, pricingLevel],
   );
   const lineTotal = unitPrice * qty;
+
+  if (!authenticated) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div
+          className="flex items-center gap-3 rounded-sm border px-4 py-3"
+          style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
+        >
+          <Lock className="h-5 w-5 shrink-0" strokeWidth={2} style={{ color: COLORS.primary }} />
+          <p className="text-[13px] font-medium" style={{ color: COLORS.text }}>
+            Connectez-vous à votre compte professionnel pour voir les prix et
+            commander.
+          </p>
+        </div>
+        <Link
+          href={`/pro/login?next=/pro/products/${productId}`}
+          className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
+          style={{ background: COLORS.primary }}
+        >
+          Se connecter
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

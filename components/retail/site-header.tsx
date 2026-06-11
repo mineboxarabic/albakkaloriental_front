@@ -289,6 +289,21 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
               </div>
             </div>
 
+            <Link
+              href="/categories"
+              className="py-3 hover:opacity-70 transition-opacity"
+              style={{ color: COLORS.text }}
+            >
+              CATÉGORIES
+            </Link>
+            <Link
+              href="/marques"
+              className="py-3 hover:opacity-70 transition-opacity"
+              style={{ color: COLORS.text }}
+            >
+              MARQUES
+            </Link>
+
             {/* Direct Categories */}
             {navItems.map((item) => (
               <Link
@@ -445,6 +460,22 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                   style={{ color: COLORS.red }}
                 >
                   <Menu className="h-4 w-4" strokeWidth={2.4} /> TOUS LES RAYONS
+                </Link>
+                <Link
+                  href="/categories"
+                  onClick={closeMenu}
+                  className="rounded-md px-3 py-2.5 text-[13.5px] font-medium hover:bg-[#FAF8F2]"
+                  style={{ color: COLORS.text }}
+                >
+                  CATÉGORIES
+                </Link>
+                <Link
+                  href="/marques"
+                  onClick={closeMenu}
+                  className="rounded-md px-3 py-2.5 text-[13.5px] font-medium hover:bg-[#FAF8F2]"
+                  style={{ color: COLORS.text }}
+                >
+                  MARQUES
                 </Link>
                 {uniqueCategories.map((item) => (
                   <Link
