@@ -4,12 +4,15 @@ import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
+import { CatalogSortSelect } from "@/components/catalog-sort-select";
+import { parseSortKey, sortProducts } from "@/lib/catalog-sort";
 
 export const revalidate = 60;
 
 type Params = Promise<{
   category?: string;
   q?: string;
+  sort?: string;
 }>;
 
 export default async function ProductsPage({
@@ -17,20 +20,21 @@ export default async function ProductsPage({
 }: {
   searchParams: Params;
 }) {
-  const { category, q } = await searchParams;
+  const { category, q, sort } = await searchParams;
   const [{ products }, categories] = await Promise.all([
     getProducts({ audience: "retail", category }),
     getCategories("retail"),
   ]);
   const orderedCategories = getOrderedCategoryNames(categories);
 
-  const filteredProducts = q
+  const searched = q
     ? products.filter(
         (p) =>
           p.name.toLowerCase().includes(q.toLowerCase()) ||
           p.sku.toLowerCase().includes(q.toLowerCase()),
       )
     : products;
+  const filteredProducts = sortProducts(searched, parseSortKey(sort));
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -55,8 +59,11 @@ export default async function ProductsPage({
           {filteredProducts.length > 1 ? "produits" : "produit"}
           {q ? ` pour « ${q} »` : ""}
         </p>
-        <div className="mt-4 max-w-md">
-          <CatalogSearchInput />
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="w-full max-w-md">
+            <CatalogSearchInput />
+          </div>
+          <CatalogSortSelect className="w-full sm:w-56" />
         </div>
       </header>
 
