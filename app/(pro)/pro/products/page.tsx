@@ -6,10 +6,12 @@ import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
+import { CatalogSortSelect } from "@/components/catalog-sort-select";
+import { parseSortKey, sortProducts } from "@/lib/catalog-sort";
 
 export const dynamic = "force-dynamic";
 
-type Params = Promise<{ category?: string; q?: string }>;
+type Params = Promise<{ category?: string; q?: string; sort?: string }>;
 
 export default async function ProProductsPage({
   searchParams,
@@ -21,20 +23,21 @@ export default async function ProProductsPage({
     redirect("/pro/login?next=/pro/products");
   }
 
-  const { category, q } = await searchParams;
+  const { category, q, sort } = await searchParams;
   const [{ products }, categories] = await Promise.all([
     getProducts({ audience: "pro", category }),
     getCategories("pro"),
   ]);
   const orderedCategories = getOrderedCategoryNames(categories);
 
-  const filtered = q
+  const searched = q
     ? products.filter(
         (p) =>
           p.name.toLowerCase().includes(q.toLowerCase()) ||
           p.sku.toLowerCase().includes(q.toLowerCase()),
       )
     : products;
+  const filtered = sortProducts(searched, parseSortKey(sort));
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -63,8 +66,9 @@ export default async function ProProductsPage({
           </p>
         </div>
 
-        <div className="mt-4 lg:mt-0">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center lg:mt-0">
           <CatalogSearchInput className="w-full lg:w-72" />
+          <CatalogSortSelect className="w-full sm:w-56" />
         </div>
       </header>
 
