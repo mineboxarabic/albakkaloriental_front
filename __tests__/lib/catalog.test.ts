@@ -152,12 +152,12 @@ describe("catalog (pro)", () => {
     vi.restoreAllMocks();
   });
 
-  it("getProducts({audience:pro}) calls /api/v1/b2b/catalog", async () => {
+  it("getProducts({audience:pro}) calls /api/v1/b2b/catalog with optional auth", async () => {
     backendFetchMock.mockResolvedValueOnce({ products: [] });
     await getProducts({ audience: "pro" });
     expect(backendFetchMock).toHaveBeenCalledWith(
       "/api/v1/b2b/catalog",
-      expect.objectContaining({ auth: "required" }),
+      expect.objectContaining({ auth: "optional" }),
     );
   });
 
