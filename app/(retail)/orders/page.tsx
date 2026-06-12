@@ -88,7 +88,7 @@ export default async function RetailOrdersPage({
       </p>
 
       <section
-        className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-4"
+        className="mt-6 flex flex-col gap-4 rounded-xl border bg-white p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 sm:px-5 sm:py-4"
         style={{ borderColor: COLORS.border }}
       >
         <div className="flex items-center gap-2 text-[11.5px] font-bold tracking-[0.1em]" style={{ color: COLORS.muted }}>
@@ -212,14 +212,18 @@ function FilterGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
       <span
         className="text-[11.5px] font-semibold"
         style={{ color: COLORS.muted }}
       >
         {label}:
       </span>
-      <div className="flex flex-wrap gap-1.5" data-active={current} data-param={param}>
+      <div
+        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0"
+        data-active={current}
+        data-param={param}
+      >
         {children}
       </div>
     </div>
@@ -238,7 +242,7 @@ function FilterChip({
   return (
     <Link
       href={href}
-      className="rounded-full border px-3 py-1 text-[11.5px] font-semibold"
+      className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-3.5 py-2 text-[12.5px] font-semibold"
       style={{
         background: active ? COLORS.primary : "#FFFFFF",
         color: active ? "#FFFFFF" : COLORS.text,

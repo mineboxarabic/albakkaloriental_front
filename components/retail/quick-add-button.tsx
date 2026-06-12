@@ -39,7 +39,7 @@ export function QuickAddButton({ item }: { item: AddCartItem }) {
         setAdded(true);
         window.setTimeout(() => setAdded(false), 900);
       }}
-      className="grid h-7 w-7 place-items-center rounded-full text-white shadow-sm transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-40"
+      className="grid h-9 w-9 place-items-center rounded-full text-white shadow-sm transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-40"
       style={{ background: added ? "#2E3F17" : COLORS.primary }}
     >
       {!isConnected ? (

@@ -206,7 +206,7 @@ export default function ProCartPage() {
                             type="button"
                             aria-label={`Supprimer ${it.name}`}
                             onClick={() => removeItem(it.lineId)}
-                            className="grid h-8 w-8 place-items-center rounded-sm transition hover:bg-[#FAF8F2]"
+                            className="grid h-9 w-9 place-items-center rounded-sm transition hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.muted }}
                           >
                             <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />

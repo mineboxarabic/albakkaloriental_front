@@ -154,7 +154,7 @@ export default async function Home() {
             Voir toutes les catégories <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {categoryDisplays.map((category) => (
             <Link
               key={category.name}

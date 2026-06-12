@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             <button
               type="button"
               disabled
-              className="grid h-8 w-8 place-items-center rounded-md text-[11px] font-bold"
+              className="grid h-9 w-9 place-items-center rounded-md text-[11px] font-bold"
               style={{ background: "#F0F0F0", color: "#999", cursor: "not-allowed" }}
               aria-label="Indisponible"
               title="Indisponible"

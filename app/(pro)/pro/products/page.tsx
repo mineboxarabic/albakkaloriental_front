@@ -86,7 +86,7 @@ export default async function ProProductsPage({
       <div className="mb-5 flex gap-2 overflow-x-auto pb-1 scrollbar-none md:hidden">
         <Link
           href={{ pathname: "/pro/products", query: q ? { q } : {} }}
-          className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+          className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-[12.5px] font-semibold"
           style={
             !category
               ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }
@@ -99,7 +99,7 @@ export default async function ProProductsPage({
           <Link
             key={c}
             href={{ pathname: "/pro/products", query: { category: c, ...(q ? { q } : {}) } }}
-            className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold"
+            className="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-[12.5px] font-semibold"
             style={
               category === c
                 ? { background: COLORS.primary, color: "#FFFFFF", borderColor: COLORS.primary }

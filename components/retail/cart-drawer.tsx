@@ -124,13 +124,13 @@ export function CartDrawer() {
                             type="button"
                             aria-label="Diminuer la quantité"
                             onClick={() => updateQty(it.lineId, it.quantity - 1)}
-                            className="grid h-8 w-8 place-items-center hover:bg-[#FAF8F2]"
+                            className="grid h-9 w-9 place-items-center hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.text }}
                           >
                             <Minus className="h-3.5 w-3.5" strokeWidth={2.2} />
                           </button>
                           <div
-                            className="grid h-8 w-9 place-items-center text-[13px] font-bold"
+                            className="grid h-9 w-9 place-items-center text-[13px] font-bold"
                             style={{ color: COLORS.text }}
                           >
                             {it.quantity}
@@ -140,7 +140,7 @@ export function CartDrawer() {
                             aria-label="Augmenter la quantité"
                             onClick={() => updateQty(it.lineId, it.quantity + 1)}
                             disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
-                            className="grid h-8 w-8 place-items-center hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
+                            className="grid h-9 w-9 place-items-center hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
                             style={{ color: COLORS.text }}
                           >
                             <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -150,7 +150,7 @@ export function CartDrawer() {
                           type="button"
                           aria-label={`Supprimer ${it.name}`}
                           onClick={() => removeItem(it.lineId)}
-                          className="grid h-8 w-8 shrink-0 place-items-center rounded-md hover:bg-[#FAF8F2]"
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-md hover:bg-[#FAF8F2]"
                           style={{ color: COLORS.muted }}
                         >
                           <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
