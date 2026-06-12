@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, ShoppingCart, Menu, Truck, User, FileText, LogOut, X } from "lucide-react";
 import { getOrderedCategoryNames } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
@@ -109,31 +110,19 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             <Menu className="h-6 w-6" strokeWidth={2} />
           </button>
 
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
-              <path
-                d="M17 4c-3 6-7 9-12 10 1 8 6 14 12 16 6-2 11-8 12-16-5-1-9-4-12-10z"
-                fill={COLORS.primary}
-              />
-              <path
-                d="M17 10c-1 3-4 5-7 6 1 4 4 8 7 9 3-1 6-5 7-9-3-1-6-3-7-6z"
-                fill="#FAF8F2"
-              />
-            </svg>
-            <div className="leading-tight">
-              <div
-                className="text-[18px] font-extrabold tracking-tight md:text-[20px]"
-                style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-              >
-                LE BAKKAL
-              </div>
-              <div
-                className="text-[9px] tracking-[0.35em] font-medium md:text-[10px]"
-                style={{ color: COLORS.muted }}
-              >
-                ORIENTAL
-              </div>
-            </div>
+          <Link
+            href="/"
+            className="flex items-center shrink-0"
+            aria-label="Le Bakkal Oriental — accueil"
+          >
+            <Image
+              src="/Assets/img/logo.png"
+              alt="Le Bakkal Oriental"
+              width={96}
+              height={96}
+              priority
+              className="h-16 w-auto md:h-20"
+            />
           </Link>
 
           {/* Search — inline on desktop */}
@@ -288,21 +277,6 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                 </div>
               </div>
             </div>
-
-            <Link
-              href="/categories"
-              className="py-3 hover:opacity-70 transition-opacity"
-              style={{ color: COLORS.text }}
-            >
-              CATÉGORIES
-            </Link>
-            <Link
-              href="/marques"
-              className="py-3 hover:opacity-70 transition-opacity"
-              style={{ color: COLORS.text }}
-            >
-              MARQUES
-            </Link>
 
             {/* Direct Categories */}
             {navItems.map((item) => (
@@ -460,22 +434,6 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
                   style={{ color: COLORS.red }}
                 >
                   <Menu className="h-4 w-4" strokeWidth={2.4} /> TOUS LES RAYONS
-                </Link>
-                <Link
-                  href="/categories"
-                  onClick={closeMenu}
-                  className="rounded-md px-3 py-2.5 text-[13.5px] font-medium hover:bg-[#FAF8F2]"
-                  style={{ color: COLORS.text }}
-                >
-                  CATÉGORIES
-                </Link>
-                <Link
-                  href="/marques"
-                  onClick={closeMenu}
-                  className="rounded-md px-3 py-2.5 text-[13.5px] font-medium hover:bg-[#FAF8F2]"
-                  style={{ color: COLORS.text }}
-                >
-                  MARQUES
                 </Link>
                 {uniqueCategories.map((item) => (
                   <Link
