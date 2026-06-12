@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Shield, ArrowLeft } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProLoginForm } from "./pro-login-form";
@@ -32,30 +33,25 @@ export default async function ProLoginPage({
         <header className="flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2.5"
             style={{ color: "rgba(255,255,255,0.85)" }}
+            aria-label="Le Bakkal Oriental — accueil"
           >
-            <svg width="28" height="28" viewBox="0 0 34 34" fill="none" aria-hidden>
-              <path
-                d="M17 4c-3 6-7 9-12 10 1 8 6 14 12 16 6-2 11-8 12-16-5-1-9-4-12-10z"
-                fill="#FAF8F2"
-              />
-              <path
-                d="M17 10c-1 3-4 5-7 6 1 4 4 8 7 9 3-1 6-5 7-9-3-1-6-3-7-6z"
-                fill={COLORS.primary}
-              />
-            </svg>
-            <div className="leading-tight">
-              <div
-                className="text-[15px] font-extrabold tracking-tight text-white"
-                style={{ fontFamily: DISPLAY_FONT }}
-              >
-                LE BAKKAL
-              </div>
-              <div className="text-[8.5px] tracking-[0.35em] text-white/70">
-                ORIENTAL · PRO
-              </div>
-            </div>
+            <Image
+              src="/Assets/img/logo.png"
+              alt="Le Bakkal Oriental"
+              width={96}
+              height={96}
+              priority
+              className="h-16 w-auto sm:h-20"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+            <span
+              className="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[9px] font-bold tracking-[0.2em] text-white/85"
+              style={{ borderColor: "rgba(255,255,255,0.3)" }}
+            >
+              <Shield className="h-2.5 w-2.5" strokeWidth={2.4} /> PRO
+            </span>
           </Link>
 
           <Link
