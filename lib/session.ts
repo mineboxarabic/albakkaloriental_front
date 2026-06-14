@@ -31,9 +31,9 @@ export type CatalogSession = RetailSession | ProSession;
 
 function getSharedSecret(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
-  if (!secret) {
+  if (!secret || secret.length < 32) {
     throw new Error(
-      "AUTH_SECRET must be set (same value as AlimExpressApp).",
+      "AUTH_SECRET must be set and at least 32 characters (same value as AlimExpressApp).",
     );
   }
   return new TextEncoder().encode(secret);
@@ -71,7 +71,7 @@ export async function verifySessionToken(
   token: string,
 ): Promise<CatalogSession | null> {
   try {
-    const { payload } = await jwtVerify(token, getSharedSecret());
+    const { payload } = await jwtVerify(token, getSharedSecret(), { algorithms: ["HS256"] });
     return payloadToSession(payload);
   } catch {
     return null;
@@ -91,7 +91,7 @@ export async function storeBackendToken(token: string): Promise<void> {
     name: SESSION_COOKIE,
     value: token,
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: SESSION_MAX_AGE,

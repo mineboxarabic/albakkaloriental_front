@@ -104,7 +104,7 @@ Points clés :
 | `/pro/products` | Catalogue B2B avec prix C/D/E/F |
 | `/pro/products/[id]` | Détail produit professionnel |
 | `/pro/cart` | Panier professionnel |
-| `/pro/proforma/[id]` | Consultation et validation du proforma |
+| `/pro/quotes/[id]` | Consultation et validation du devis / proforma |
 | `/pro/orders` | Historique des commandes professionnelles |
 | `/pro/invoices` | Liste et téléchargement des factures |
 
@@ -154,33 +154,32 @@ Les routes `/pro/*` doivent être protégées par middleware Next.js. Toute requ
 ## Stack technique
 
 - Next.js 15 App Router
+- React 19
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
-- Prisma Client
-- PostgreSQL partagé avec `AlimExpressApp`
+- shadcn/ui (`@base-ui/react`)
 - Zod
-- jose pour les JWT cookies
-- bcryptjs
+- jose pour la vérification des JWT cookies
 - date-fns
 - Vitest
 - Playwright
 
-## Base de données et Prisma
+> **Pas de Prisma, pas de PostgreSQL, pas de bcryptjs dans ce repo.** Ce front-end est un **pur client REST** du back-end `AlimExpressApp`.
 
-Ce projet utilise la même base PostgreSQL que `AlimExpressApp`.
+## Accès aux données : client REST de l'API v1
 
-Règle importante :
+Ce projet ne possède **aucune base de données**. Toutes les données transitent par l'API REST du back-end `AlimExpressApp` (`/api/v1/*`).
+
+- Tous les appels serveur passent par `backendFetch` (`lib/api-client.ts`), qui lit le JWT du cookie `catalog_session` et le relaie en `Authorization: Bearer <token>`.
+- Les server actions de `actions/` sont le point d'appel privilégié (éviter les fetch côté client).
+- L'authentification (login, inscription, hachage des mots de passe) est gérée par le back-end. Ce repo se contente de stocker et vérifier le JWT.
+
+Configuration (cf. `.env.example`) :
 
 ```bash
-# Autorisé dans ce projet
-npx prisma generate
-
-# Interdit dans ce projet
-npx prisma migrate
+BACKEND_URL="http://localhost:3000"   # base URL du back-end (server-only)
+AUTH_SECRET="..."                      # secret JWT partagé, identique au back-end
 ```
-
-Les migrations sont exclusivement gérées par `AlimExpressApp`. `AlimExpressCatalog` doit utiliser son propre Prisma Client avec un schéma limité aux modèles nécessaires au catalogue.
 
 ## Installation
 
@@ -209,9 +208,8 @@ npm run build
 
 ## Prochaines étapes
 
-- créer le sous-ensemble Prisma adapté au catalogue ;
 - brancher l'authentification retail et professionnelle ;
 - construire les routes publiques ;
 - construire les routes `/pro/*` protégées ;
-- connecter les produits, prix, commandes, proformas et factures à la base partagée ;
+- connecter les produits, prix, commandes, devis et factures via l'API v1 du back-end ;
 - ajouter les tests Vitest et Playwright sur les parcours critiques.

@@ -5,7 +5,7 @@ const SESSION_COOKIE = "catalog_session";
 
 function secret(): Uint8Array | null {
   const raw = process.env.AUTH_SECRET;
-  if (!raw || raw.length < 8) return null;
+  if (!raw || raw.length < 32) return null;
   return new TextEncoder().encode(raw);
 }
 
@@ -13,7 +13,7 @@ async function isPro(token: string): Promise<boolean> {
   const key = secret();
   if (!key) return false;
   try {
-    const { payload } = await jwtVerify(token, key);
+    const { payload } = await jwtVerify(token, key, { algorithms: ["HS256"] });
     return payload.role === "B2B_CLIENT" || payload.role === "ADMIN";
   } catch {
     return false;
