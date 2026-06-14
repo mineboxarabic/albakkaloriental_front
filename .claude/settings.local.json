@@ -13,7 +13,8 @@
       "Bash(curl -s http://localhost:3000/_next/static/css/app/layout.css)",
       "Bash(netstat -ano)",
       "Bash(wmic process *)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(wsl -- bash -c \"npm view @img/sharp-linux-x64 dependencies 2>/dev/null\")"
     ]
   }
 }

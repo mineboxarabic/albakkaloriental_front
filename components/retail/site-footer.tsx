@@ -4,8 +4,8 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 export function SiteFooter() {
   return (
     <footer className="mt-8" style={{ background: COLORS.primary, color: "#FAF8F2" }}>
-      <div className="mx-auto grid max-w-[1180px] grid-cols-12 gap-8 px-6 py-12">
-        <div className="col-span-4">
+      <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-x-6 gap-y-9 px-6 py-10 md:grid-cols-12 md:gap-8 md:py-12">
+        <div className="col-span-2 md:col-span-4">
           <div className="flex items-center gap-2">
             <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden>
               <path
@@ -81,7 +81,7 @@ export function SiteFooter() {
           ]}
         />
 
-        <div className="col-span-2">
+        <div className="col-span-1 md:col-span-2">
           <div className="text-[12px] font-bold tracking-wide opacity-90">CONTACT</div>
           <ul className="mt-4 space-y-3 text-[12.5px] opacity-90">
             <li className="flex items-start gap-2">
@@ -142,7 +142,7 @@ function SocialLink({
 
 function FooterCol({ title, links }: { title: string; links: string[] }) {
   return (
-    <div className="col-span-2">
+    <div className="col-span-1 md:col-span-2">
       <div className="text-[12px] font-bold tracking-wide opacity-90">
         {title.toUpperCase()}
       </div>

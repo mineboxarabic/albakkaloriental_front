@@ -65,6 +65,9 @@ export type CartContextValue = {
   refresh: () => Promise<void>;
   total: number;
   itemCount: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -115,17 +118,25 @@ function getActions(audience: CartAudience) {
 
 export function CartProvider({
   audience,
+  isAuthenticated,
   children,
 }: {
   audience: CartAudience;
+  /** Pro audience only: whether a B2B session exists. Pro pages are now public,
+   *  so the cart must not call the auth-required endpoint for guests. */
+  isAuthenticated?: boolean;
   children: ReactNode;
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
 
   const session = useSession();
-  const isConnected = audience === "pro" ? true : session.isConnected;
+  const isConnected =
+    audience === "pro" ? Boolean(isAuthenticated) : session.isConnected;
   const pathname = usePathname();
   const isLoginPage = pathname === "/login" || pathname === "/pro/login" || pathname?.startsWith("/pro/login/");
 
@@ -278,8 +289,11 @@ export function CartProvider({
       refresh,
       total,
       itemCount,
+      isCartOpen,
+      openCart,
+      closeCart,
     };
-  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh]);
+  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh, isCartOpen, openCart, closeCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

@@ -13,9 +13,11 @@ import { COLORS, buildWeightLabel, productImage } from "@/lib/ui";
 export function ProProductCard({
   product,
   pricingLevel,
+  authenticated = true,
 }: {
   product: ProductCardData;
   pricingLevel: PricingLevel | null;
+  authenticated?: boolean;
 }) {
   const packPrice = resolveProPrice(product, "PACK", pricingLevel);
   const hasUnit = supportsUnitSale(product);
@@ -72,8 +74,45 @@ export function ProProductCard({
             : buildWeightLabel(product)}
         </div>
 
+        {authenticated && (
+          <>
+        {/* Mobile: simple label/value rows */}
         <div
-          className="mt-1 grid gap-px overflow-hidden rounded-sm border"
+          className="mt-1 flex flex-col gap-1.5 rounded-sm border px-3 py-2.5 sm:hidden"
+          style={{ borderColor: COLORS.border }}
+        >
+          <div className="flex items-baseline justify-between gap-2">
+            <span
+              className="text-[10px] font-bold tracking-[0.1em]"
+              style={{ color: COLORS.muted }}
+            >
+              CARTON
+            </span>
+            <span className="text-[15px] font-extrabold leading-none" style={{ color: COLORS.primary }}>
+              {formatPriceEUR(packPrice)}
+            </span>
+          </div>
+          {hasUnit && unitPrice != null && (
+            <div
+              className="flex items-baseline justify-between gap-2 border-t pt-1.5"
+              style={{ borderColor: COLORS.border }}
+            >
+              <span
+                className="text-[10px] font-bold tracking-[0.1em]"
+                style={{ color: COLORS.muted }}
+              >
+                UNITÉ
+              </span>
+              <span className="text-[14px] font-extrabold leading-none" style={{ color: COLORS.text }}>
+                {formatPriceEUR(unitPrice)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* sm+ : boxed tiles */}
+        <div
+          className="mt-1 hidden gap-px overflow-hidden rounded-sm border sm:grid"
           style={{
             borderColor: COLORS.border,
             background: COLORS.border,
@@ -94,8 +133,35 @@ export function ProProductCard({
             />
           )}
         </div>
+          </>
+        )}
 
-        {isOutOfStock ? (
+        {!authenticated && (
+          <div
+            className="mt-1 rounded-sm border px-3 py-2.5 text-center text-[11.5px] font-semibold"
+            style={{
+              borderColor: COLORS.border,
+              background: COLORS.beige,
+              color: COLORS.muted,
+            }}
+          >
+            Connectez-vous pour voir le prix
+          </div>
+        )}
+
+        {!authenticated ? (
+          <Link
+            href="/pro/login"
+            className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em]"
+            style={{
+              background: "#FFFFFF",
+              color: COLORS.primary,
+              border: `1px solid ${COLORS.primary}`,
+            }}
+          >
+            Se connecter
+          </Link>
+        ) : isOutOfStock ? (
           <button
             type="button"
             disabled

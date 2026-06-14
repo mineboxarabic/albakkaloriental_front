@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter } from "lucide-react";
+import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter, Download } from "lucide-react";
 import { listQuotes } from "@/actions/pro-quote";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
@@ -67,7 +67,7 @@ export default async function ProQuotesPage({
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <h1
-        className="text-[28px] font-extrabold tracking-tight"
+        className="text-[24px] font-extrabold tracking-tight sm:text-[28px]"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
         Mes devis
@@ -128,46 +128,64 @@ export default async function ProQuotesPage({
             const meta = STATE_META[s];
             const Icon = meta.icon;
             return (
-              <li key={q.id} style={{ borderColor: COLORS.border }}>
-                <Link
-                  href={`/pro/quotes/${q.id}`}
-                  className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-[#FAF8F2]"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
-                        {q.quoteNumber}
-                      </span>
-                      <span
-                        className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.06em]"
-                        style={{ background: meta.bg, color: meta.color }}
-                      >
-                        <Icon className="h-3 w-3" />
-                        {meta.label.toUpperCase()}
-                      </span>
+              <li
+                key={q.id}
+                className="px-5 py-4 hover:bg-[#FAF8F2]"
+                style={{ borderColor: COLORS.border }}
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
+                  <Link
+                    href={`/pro/quotes/${q.id}`}
+                    className="flex min-w-0 flex-1 items-start justify-between gap-4 sm:items-center"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
+                          {q.quoteNumber}
+                        </span>
+                        <span
+                          className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.06em]"
+                          style={{ background: meta.bg, color: meta.color }}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {meta.label.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
+                        Commande {q.order.orderNumber} ·{" "}
+                        {DATE_FMT.format(new Date(q.createdAt))}
+                        {s === "pending" && (
+                          <>
+                            {" · "}Valable jusqu&apos;au {DATE_FMT.format(new Date(q.validUntil))}
+                          </>
+                        )}
+                        {s === "signed" && q.acceptedAt && (
+                          <>
+                            {" · "}Signé le {DATE_FMT.format(new Date(q.acceptedAt))}
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                      Commande {q.order.orderNumber} ·{" "}
-                      {DATE_FMT.format(new Date(q.createdAt))}
-                      {s === "pending" && (
-                        <>
-                          {" · "}Valable jusqu&apos;au {DATE_FMT.format(new Date(q.validUntil))}
-                        </>
-                      )}
-                      {s === "signed" && q.acceptedAt && (
-                        <>
-                          {" · "}Signé le {DATE_FMT.format(new Date(q.acceptedAt))}
-                        </>
-                      )}
+                    <div className="shrink-0 text-right">
+                      <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
+                        {formatPrice(q.total)}
+                      </div>
                     </div>
+                  </Link>
+                  <div className="flex items-center gap-2 sm:shrink-0">
+                    <a
+                      href={`/pro/quotes/${q.id}/pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.06em] sm:flex-none sm:py-1.5"
+                      style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      PDF
+                    </a>
+                    <ChevronRight className="hidden h-4 w-4 shrink-0 sm:block" style={{ color: COLORS.muted }} />
                   </div>
-                  <div className="text-right">
-                    <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
-                      {formatPrice(q.total)}
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: COLORS.muted }} />
-                </Link>
+                </div>
               </li>
             );
           })}

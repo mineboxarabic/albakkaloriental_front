@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Package } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
@@ -17,10 +17,11 @@ export default async function ProProductDetailPage({
 }: {
   params: Params;
 }) {
-  const meRes = await getProMe(); if (!meRes.ok) { return null; } const session = { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel };
-  if (!session) {
-    redirect("/pro/login");
-  }
+  const meRes = await getProMe();
+  const session = meRes.ok
+    ? { companyName: meRes.customer.companyName, pricingLevel: meRes.customer.pricingLevel }
+    : null;
+  const authenticated = Boolean(session);
   const { id } = await params;
   const product = await getProduct(id, "pro");
   if (!product) notFound();
@@ -29,9 +30,17 @@ export default async function ProProductDetailPage({
   const { products: relatedRaw } = await getProducts({
     audience: "pro",
     category: firstCategory,
-    take: 8,
+    take: 13,
   });
-  const related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 4);
+  let related = relatedRaw.filter((p) => p.id !== product.id).slice(0, 8);
+  if (related.length < 8) {
+    const { products: moreRaw } = await getProducts({ audience: "pro", take: 16 });
+    const seen = new Set([product.id, ...related.map((p) => p.id)]);
+    const fill = moreRaw
+      .filter((p) => !seen.has(p.id))
+      .slice(0, 8 - related.length);
+    related = [...related, ...fill];
+  }
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -56,10 +65,10 @@ export default async function ProProductDetailPage({
         <span style={{ color: COLORS.text }}>{product.name}</span>
       </nav>
 
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
           <div
-            className="grid aspect-square w-full place-items-center overflow-hidden rounded-sm border"
+            className="mx-auto grid aspect-square w-full max-w-[380px] place-items-center overflow-hidden rounded-sm border lg:max-w-none"
             style={{ borderColor: COLORS.border, background: COLORS.beige }}
           >
             <Image
@@ -73,12 +82,12 @@ export default async function ProProductDetailPage({
           </div>
         </div>
 
-        <div className="col-span-7 flex flex-col">
+        <div className="flex flex-col lg:col-span-7">
           <div className="flex items-center gap-2 text-[11.5px] uppercase tracking-[0.12em]" style={{ color: COLORS.muted }}>
             <span>{product.category}</span>
           </div>
           <h1
-            className="mt-1 text-[26px] font-extrabold leading-tight tracking-tight"
+            className="mt-1 text-[22px] font-extrabold leading-tight tracking-tight sm:text-[26px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
             {product.name}
@@ -100,7 +109,8 @@ export default async function ProProductDetailPage({
               name={product.name}
               imageUrl={product.imageUrl}
               unitsPerPack={product.unitsPerPack}
-              pricingLevel={session.pricingLevel}
+              pricingLevel={session?.pricingLevel ?? null}
+              authenticated={authenticated}
               isOutOfStock={product.isOutOfStock}
               pricing={{
                 sellingPrice: product.sellingPrice,
@@ -125,12 +135,13 @@ export default async function ProProductDetailPage({
           >
             Produits associés
           </h2>
-          <div className="mt-4 grid grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {related.map((p) => (
               <ProProductCard
                 key={p.id}
                 product={p}
-                pricingLevel={session.pricingLevel}
+                pricingLevel={session?.pricingLevel ?? null}
+                authenticated={authenticated}
               />
             ))}
           </div>

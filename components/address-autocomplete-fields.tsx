@@ -220,7 +220,7 @@ export function AddressAutocompleteFields({
                   });
                   setOpen(false);
                 }}
-                className="flex w-full items-start gap-2 px-3 py-2 text-left text-[13px] hover:bg-[#FAF8F2]"
+                className="flex w-full items-start gap-2 px-3 py-3 text-left text-[13px] hover:bg-[#FAF8F2]"
               >
                 <MapPin
                   className="mt-0.5 h-4 w-4 shrink-0"

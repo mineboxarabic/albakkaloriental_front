@@ -4,6 +4,7 @@ import { SessionProvider, type ClientSession } from "@/components/session-provid
 import { AuthModalProvider } from "@/components/auth-modal";
 import { SiteHeader } from "@/components/retail/site-header";
 import { SiteFooter } from "@/components/retail/site-footer";
+import { CartDrawer } from "@/components/retail/cart-drawer";
 import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getSession } from "@/lib/session";
@@ -26,8 +27,9 @@ export default async function RetailLayout({ children }: { children: ReactNode }
     <SessionProvider value={sessionValue}>
       <CartProvider audience="retail">
         <AuthModalProvider>
-          <div className="flex min-h-screen flex-col" style={{ background: COLORS.bg }}>
+          <div className="flex min-h-screen flex-col overflow-x-clip" style={{ background: COLORS.bg }}>
             <SiteHeader categories={categories} />
+            <CartDrawer />
             <PendingCartIntentConsumer />
             <div className="flex-1">{children}</div>
             <SiteFooter />

@@ -9,9 +9,10 @@ import {
   Truck,
   XCircle,
   CheckCircle2,
+  Download,
 } from "lucide-react";
 import Image from "next/image";
-import { getProOrderById } from "@/actions/pro-me";
+import { getProOrderById, listProInvoices } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 
@@ -94,6 +95,11 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const order = result.order;
   const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
+  // Find the invoice attached to this order (if any) to expose its PDF.
+  const invoicesRes = await listProInvoices();
+  const invoice = invoicesRes.ok
+    ? invoicesRes.invoices.find((i) => i.order?.id === order.id) ?? null
+    : null;
   // order.totalAmount is the authoritative amount owed (same figure the admin
   // tracks payments against). TVA is informational; payments are recorded
   // against totalAmount, so paid + remaining always reconcile to it.
@@ -130,7 +136,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
       <header className="mt-3 flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1
-            className="text-[28px] font-extrabold tracking-tight"
+            className="text-[22px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
             Commande {order.orderNumber}
@@ -141,13 +147,27 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           </p>
         </div>
 
-        <span
-          className="inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-[11.5px] font-bold tracking-[0.1em]"
-          style={{ background: meta.bg, color: meta.color }}
-        >
-          <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
-          {meta.label.toUpperCase()}
-        </span>
+        <div className="flex items-center gap-3">
+          {invoice && (
+            <a
+              href={`/pro/invoices/${invoice.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
+              style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Facture
+            </a>
+          )}
+          <span
+            className="inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-[11.5px] font-bold tracking-[0.1em]"
+            style={{ background: meta.bg, color: meta.color }}
+          >
+            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+            {meta.label.toUpperCase()}
+          </span>
+        </div>
       </header>
 
       <section
@@ -158,26 +178,40 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           {meta.description}
         </p>
         {order.quote && (
-          <div className="mt-3 flex items-center gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px]">
-            <FileText className="h-4 w-4" style={{ color: COLORS.primary }} />
-            <div className="flex-1">
-              <div className="font-semibold" style={{ color: COLORS.text }}>
-                Devis associé
-              </div>
-              <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                {order.quote.acceptedAt
-                  ? `Signé le ${DATE_FMT.format(new Date(order.quote.acceptedAt))}`
-                  : `Valable jusqu'au ${DATE_FMT.format(new Date(order.quote.validUntil))}`}
+          <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
+              <div className="flex-1">
+                <div className="font-semibold" style={{ color: COLORS.text }}>
+                  Devis associé
+                </div>
+                <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
+                  {order.quote.acceptedAt
+                    ? `Signé le ${DATE_FMT.format(new Date(order.quote.acceptedAt))}`
+                    : `Valable jusqu'au ${DATE_FMT.format(new Date(order.quote.validUntil))}`}
+                </div>
               </div>
             </div>
-            <Link
-              href={`/pro/quotes/${order.quote.id}`}
-              className="inline-flex items-center gap-1 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.1em]"
-              style={{ borderColor: COLORS.border, color: COLORS.text }}
-            >
-              <CheckCircle2 className="h-3 w-3" />
-              Consulter le devis
-            </Link>
+            <div className="flex gap-2 sm:ml-auto">
+              <a
+                href={`/pro/quotes/${order.quote.id}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] sm:flex-none sm:py-1.5"
+                style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+              >
+                <Download className="h-3 w-3" />
+                Devis PDF
+              </a>
+              <Link
+                href={`/pro/quotes/${order.quote.id}`}
+                className="inline-flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] sm:flex-none sm:py-1.5"
+                style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+              >
+                <CheckCircle2 className="h-3 w-3" />
+                Consulter le devis
+              </Link>
+            </div>
           </div>
         )}
       </section>
@@ -188,7 +222,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           style={{ borderColor: COLORS.border }}
         >
           <div
-            className="grid grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em]"
+            className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
             style={{ color: COLORS.muted, background: "#FAF8F2" }}
           >
             <div className="col-span-6">PRODUIT</div>
@@ -201,10 +235,10 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             {order.items.map((it) => (
               <li
                 key={it.id}
-                className="grid grid-cols-12 items-center gap-3 border-t px-4 py-3 text-[13px]"
+                className="border-t px-4 py-3 text-[13px] md:grid md:grid-cols-12 md:items-center md:gap-3"
                 style={{ borderColor: COLORS.border }}
               >
-                <div className="col-span-6 flex items-center gap-3">
+                <div className="flex items-center gap-3 md:col-span-6">
                   <div
                     className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-sm"
                     style={{ background: COLORS.beige }}
@@ -217,7 +251,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <div className="leading-tight">
+                  <div className="min-w-0 flex-1 leading-tight">
                     <div className="font-semibold" style={{ color: COLORS.text }}>
                       {it.product.name}
                     </div>
@@ -225,14 +259,30 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                       Réf {it.product.sku}
                     </div>
                   </div>
+                  {/* Mobile line total */}
+                  <div className="text-right font-bold md:hidden" style={{ color: COLORS.text }}>
+                    {formatPriceEUR(it.totalPrice)}
+                  </div>
                 </div>
-                <div className="col-span-2 text-center font-semibold" style={{ color: COLORS.text }}>
+
+                {/* Mobile qty × unit price line */}
+                <div
+                  className="mt-2 flex items-center gap-1.5 text-[12px] md:hidden"
+                  style={{ color: COLORS.muted }}
+                >
+                  <span className="font-semibold" style={{ color: COLORS.text }}>
+                    {it.quantity}
+                  </span>
+                  × {formatPriceEUR(it.unitPrice)} HT
+                </div>
+
+                <div className="hidden text-center font-semibold md:col-span-2 md:block" style={{ color: COLORS.text }}>
                   {it.quantity}
                 </div>
-                <div className="col-span-2 text-right" style={{ color: COLORS.muted }}>
+                <div className="hidden text-right md:col-span-2 md:block" style={{ color: COLORS.muted }}>
                   {formatPriceEUR(it.unitPrice)}
                 </div>
-                <div className="col-span-2 text-right font-bold" style={{ color: COLORS.text }}>
+                <div className="hidden text-right font-bold md:col-span-2 md:block" style={{ color: COLORS.text }}>
                   {formatPriceEUR(it.totalPrice)}
                 </div>
               </li>
