@@ -89,7 +89,7 @@ export async function getQuote(quoteId: string): Promise<GetQuoteResult> {
 }
 
 export type AcceptQuoteResult =
-  | { ok: true; orderId: string; deliveryCityId: string }
+  | { ok: true; orderId: string; deliveryCityId: string | null }
   | { ok: false; error: string; isUnauthorized?: boolean };
 
 export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
@@ -106,7 +106,7 @@ export async function acceptQuote(quoteId: string): Promise<AcceptQuoteResult> {
     const data = await backendFetch<{
       quoteId: string;
       orderId: string;
-      deliveryCityId: string;
+      deliveryCityId: string | null;
     }>(`/api/v1/b2b/quotes/${quoteId}/accept`, {
       method: "POST",
       auth: "required",
