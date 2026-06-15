@@ -10,6 +10,7 @@ import { CookieBanner } from "@/components/cookie-banner";
 import { getSession } from "@/lib/session";
 import { getCategories } from "@/lib/catalog";
 import { COLORS } from "@/lib/ui";
+import { company } from "@/lib/company";
 
 export default async function RetailLayout({ children }: { children: ReactNode }) {
   const [session, categories] = await Promise.all([
@@ -28,7 +29,7 @@ export default async function RetailLayout({ children }: { children: ReactNode }
       <CartProvider audience="retail">
         <AuthModalProvider>
           <div className="flex min-h-screen flex-col overflow-x-clip" style={{ background: COLORS.bg }}>
-            <SiteHeader categories={categories} />
+            <SiteHeader categories={categories} phone={company.phone} />
             <CartDrawer />
             <PendingCartIntentConsumer />
             <div className="flex-1">{children}</div>

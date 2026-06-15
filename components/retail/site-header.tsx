@@ -49,7 +49,7 @@ function SearchForm({ className = "" }: { className?: string }) {
   );
 }
 
-export function SiteHeader({ categories = [] }: { categories?: string[] }) {
+export function SiteHeader({ categories = [], phone = "" }: { categories?: string[]; phone?: string }) {
   const { itemCount, total, openCart } = useCart();
   const { isConnected, name } = useSession();
   const fn = firstName(name);
@@ -73,7 +73,7 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
             <span>Livraison à domicile dans toute la France</span>
           </div>
           <div className="flex items-center gap-6">
-            <span>Besoin d&apos;aide ? 09 70 70 70 70</span>
+            {phone && <span>Besoin d&apos;aide ? {phone}</span>}
             {!isConnected && (
               <Link className="hover:underline" href="/pro/login">
                 Espace pro
