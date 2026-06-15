@@ -1,7 +1,32 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { company } from "@/lib/company";
 
 export function SiteFooter() {
+  const socialLinks = [
+    {
+      label: "Facebook",
+      href: company.socials.facebook,
+      path: "M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.6-1.5H16.5V4.4C16.2 4.4 15.2 4.3 14.1 4.3c-2.3 0-3.9 1.4-3.9 4v2.2H7.5v3h2.7V21h3.3z",
+    },
+    {
+      label: "Instagram",
+      href: company.socials.instagram,
+      path: null,
+      isInstagram: true,
+    },
+    {
+      label: "X",
+      href: company.socials.x,
+      path: "M17.5 4h2.6l-5.7 6.5L21 20h-5.3l-4.1-5.4L6.7 20H4l6.1-7L3.5 4h5.4l3.7 4.9L17.5 4zm-.9 14.4h1.4L7.5 5.5H6L16.6 18.4z",
+    },
+    {
+      label: "YouTube",
+      href: company.socials.youtube,
+      path: "M21.6 8.3a2.5 2.5 0 0 0-1.8-1.8C18.2 6 12 6 12 6s-6.2 0-7.8.5A2.5 2.5 0 0 0 2.4 8.3 26 26 0 0 0 2 12a26 26 0 0 0 .4 3.7 2.5 2.5 0 0 0 1.8 1.8c1.6.5 7.8.5 7.8.5s6.2 0 7.8-.5a2.5 2.5 0 0 0 1.8-1.8 26 26 0 0 0 .4-3.7 26 26 0 0 0-.4-3.7zM10 15V9l5.2 3L10 15z",
+    },
+  ].filter((s) => s.href);
+
   return (
     <footer className="mt-8" style={{ background: COLORS.primary, color: "#FAF8F2" }}>
       <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-x-6 gap-y-9 px-6 py-10 md:grid-cols-12 md:gap-8 md:py-12">
@@ -31,22 +56,23 @@ export function SiteFooter() {
             Votre épicerie orientale de confiance. Des produits authentiques,
             soigneusement sélectionnés, livrés partout en France.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            <SocialLink label="Facebook">
-              <path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.6-1.5H16.5V4.4C16.2 4.4 15.2 4.3 14.1 4.3c-2.3 0-3.9 1.4-3.9 4v2.2H7.5v3h2.7V21h3.3z" />
-            </SocialLink>
-            <SocialLink label="Instagram">
-              <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="17" cy="7" r="1" fill="currentColor" />
-            </SocialLink>
-            <SocialLink label="X">
-              <path d="M17.5 4h2.6l-5.7 6.5L21 20h-5.3l-4.1-5.4L6.7 20H4l6.1-7L3.5 4h5.4l3.7 4.9L17.5 4zm-.9 14.4h1.4L7.5 5.5H6L16.6 18.4z" />
-            </SocialLink>
-            <SocialLink label="YouTube">
-              <path d="M21.6 8.3a2.5 2.5 0 0 0-1.8-1.8C18.2 6 12 6 12 6s-6.2 0-7.8.5A2.5 2.5 0 0 0 2.4 8.3 26 26 0 0 0 2 12a26 26 0 0 0 .4 3.7 2.5 2.5 0 0 0 1.8 1.8c1.6.5 7.8.5 7.8.5s6.2 0 7.8-.5a2.5 2.5 0 0 0 1.8-1.8 26 26 0 0 0 .4-3.7 26 26 0 0 0-.4-3.7zM10 15V9l5.2 3L10 15z" />
-            </SocialLink>
-          </div>
+          {socialLinks.length > 0 && (
+            <div className="mt-5 flex items-center gap-3">
+              {socialLinks.map((s) => (
+                <SocialLink key={s.label} label={s.label} href={s.href!}>
+                  {s.isInstagram ? (
+                    <>
+                      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                      <circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                      <circle cx="17" cy="7" r="1" fill="currentColor" />
+                    </>
+                  ) : (
+                    <path d={s.path!} />
+                  )}
+                </SocialLink>
+              ))}
+            </div>
+          )}
         </div>
 
         <FooterCol
@@ -84,22 +110,28 @@ export function SiteFooter() {
         <div className="col-span-1 md:col-span-2">
           <div className="text-[12px] font-bold tracking-wide opacity-90">CONTACT</div>
           <ul className="mt-4 space-y-3 text-[12.5px] opacity-90">
-            <li className="flex items-start gap-2">
-              <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              09 70 70 70 70
-            </li>
-            <li className="flex items-start gap-2">
-              <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              contact@alimexpress.fr
-            </li>
-            <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>
-                13 Rue des Endronnes
-                <br />
-                83300 Draguignan
-              </span>
-            </li>
+            {company.phone && (
+              <li className="flex items-start gap-2">
+                <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                {company.phone}
+              </li>
+            )}
+            {company.email && (
+              <li className="flex items-start gap-2">
+                <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                {company.email}
+              </li>
+            )}
+            {company.address && (
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>
+                  {company.address}
+                  <br />
+                  {company.city}
+                </span>
+              </li>
+            )}
           </ul>
         </div>
       </div>
@@ -107,7 +139,7 @@ export function SiteFooter() {
       <div className="border-t border-white/15">
         <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-2 px-6 py-4 text-[11.5px] opacity-80 md:flex-row">
           <span>
-            © {new Date().getFullYear()} Le Bakkal Oriental. Tous droits réservés.
+            © {new Date().getFullYear()} {company.name}. Tous droits réservés.
           </span>
           <span className="flex items-center gap-4">
             <a href="/cgv" className="hover:underline">CGV</a>
@@ -122,14 +154,18 @@ export function SiteFooter() {
 
 function SocialLink({
   label,
+  href,
   children,
 }: {
   label: string;
+  href: string;
   children: React.ReactNode;
 }) {
   return (
     <a
-      href="#"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       aria-label={label}
       className="grid h-8 w-8 place-items-center rounded-full border border-white/30 hover:bg-white/10"
     >
