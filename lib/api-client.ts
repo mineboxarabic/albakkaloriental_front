@@ -1,9 +1,10 @@
 /**
  * REST client for the AlimExpress admin back-end (/api/v1/*).
- * Reads the JWT (B2B or retail) from the catalog_session cookie and forwards
+ * Reads the JWT from the matching portal cookie (b2b_session / b2c_session) and forwards
  * it as Authorization: Bearer <token> for authenticated calls.
  */
 import { cookies } from "next/headers";
+import { RETAIL_COOKIE, PRO_COOKIE } from "@/lib/session";
 
 export type ApiSuccess<T> = { success: true; data: T };
 export type ApiError = { success: false; error: string };
@@ -28,11 +29,17 @@ function getBackendUrl(): string {
   return url.replace(/\/$/, "");
 }
 
-export const SESSION_COOKIE = "catalog_session";
+// Pick the portal cookie by endpoint: /api/v1/b2b/* uses the b2b session,
+// everything else (retail) uses the b2c session. The token carries no portal
+// field — the cookie it lives in is the portal.
+function isProPath(path: string): boolean {
+  return path.startsWith("/api/v1/b2b");
+}
 
-async function readAuthCookie(): Promise<string | null> {
+async function readAuthCookie(path: string): Promise<string | null> {
   const store = await cookies();
-  return store.get(SESSION_COOKIE)?.value ?? null;
+  const name = isProPath(path) ? PRO_COOKIE : RETAIL_COOKIE;
+  return store.get(name)?.value ?? null;
 }
 
 type FetchOptions = {
@@ -59,7 +66,7 @@ export async function backendFetch<T>(
   if (options.bearer) {
     headers.Authorization = `Bearer ${options.bearer}`;
   } else if (options.auth === "required" || options.auth === "optional") {
-    const token = await readAuthCookie();
+    const token = await readAuthCookie(path);
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     } else if (options.auth === "required") {
@@ -89,8 +96,9 @@ export async function backendFetch<T>(
 
     if (response.status === 401) {
       try {
-        const { clearSessionCookie } = await import("@/lib/session");
-        await clearSessionCookie();
+        const { clearRetailSession, clearProSession } = await import("@/lib/session");
+        if (isProPath(path)) await clearProSession();
+        else await clearRetailSession();
       } catch {}
     }
 
@@ -114,10 +122,7 @@ export async function handleActionError(
 ): Promise<{ ok: false; error: string; isUnauthorized?: boolean }> {
   if (error instanceof ApiClientError) {
     if (error.status === 401) {
-      try {
-        const { clearSessionCookie } = await import("@/lib/session");
-        await clearSessionCookie();
-      } catch {}
+      // The failing portal cookie was already cleared in backendFetch.
       return {
         ok: false,
         error: "Votre session a expiré. Veuillez vous reconnecter.",

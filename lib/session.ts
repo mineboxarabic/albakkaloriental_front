@@ -2,13 +2,16 @@ import { cookies } from "next/headers";
 import { jwtVerify, type JWTPayload } from "jose";
 
 /**
- * Cookie holding the JWT (Bearer) issued by AlimExpressApp under
- * /api/v1/<scope>/auth/login. The token's payload tells us whether the
- * session is retail (B2C) or pro (B2B). No server-side signing happens
- * here anymore: this front is just a client of the back-end and stores
- * its tokens.
+ * Two separate session cookies, one per portal. The cookie NAME identifies the
+ * portal — the JWT itself carries no portal/role field. A user can hold both at
+ * once (logged into B2C and B2B simultaneously). Tokens are issued by
+ * AlimExpressApp under /api/v1/<scope>/auth/login and only stored here.
+ *
+ * Retail token shape: { sub, name, phone, userId? }.
+ * Pro token shape:    { sub, name, email, customerId }.
  */
-export const SESSION_COOKIE = "catalog_session";
+export const RETAIL_COOKIE = "b2c_session";
+export const PRO_COOKIE = "b2b_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days (matches back-end JWT expiry)
 
 export type RetailSession = {
@@ -27,86 +30,78 @@ export type ProSession = {
   name: string;
 };
 
-export type CatalogSession = RetailSession | ProSession;
-
 function getSharedSecret(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
   if (!secret) {
-    throw new Error(
-      "AUTH_SECRET must be set (same value as AlimExpressApp).",
-    );
+    throw new Error("AUTH_SECRET must be set (same value as AlimExpressApp).");
   }
   return new TextEncoder().encode(secret);
 }
 
-function payloadToSession(payload: JWTPayload): CatalogSession | null {
+function toRetailSession(payload: JWTPayload): RetailSession | null {
   const sub = typeof payload.sub === "string" ? payload.sub : null;
-  if (!sub) return null;
-
-  if (payload.role === "B2C_CLIENT") {
-    return {
-      type: "retail",
-      customerId: sub,
-      userId: typeof payload.userId === "string" ? payload.userId : undefined,
-      name: typeof payload.name === "string" ? payload.name : "",
-      phone: typeof payload.phone === "string" ? payload.phone : "",
-    };
-  }
-
-  if (payload.role === "B2B_CLIENT" || payload.role === "ADMIN") {
-    return {
-      type: "pro",
-      userId: sub,
-      customerId:
-        typeof payload.customerId === "string" ? payload.customerId : null,
-      email: typeof payload.email === "string" ? payload.email : "",
-      name: typeof payload.name === "string" ? payload.name : "",
-    };
-  }
-
-  return null;
+  if (!sub || typeof payload.phone !== "string") return null;
+  return {
+    type: "retail",
+    customerId: sub,
+    userId: typeof payload.userId === "string" ? payload.userId : undefined,
+    name: typeof payload.name === "string" ? payload.name : "",
+    phone: payload.phone,
+  };
 }
 
-export async function verifySessionToken(
+function toProSession(payload: JWTPayload): ProSession | null {
+  const sub = typeof payload.sub === "string" ? payload.sub : null;
+  if (!sub || typeof payload.email !== "string") return null;
+  return {
+    type: "pro",
+    userId: sub,
+    customerId: typeof payload.customerId === "string" ? payload.customerId : null,
+    email: payload.email,
+    name: typeof payload.name === "string" ? payload.name : "",
+  };
+}
+
+async function verify<T>(
   token: string,
-): Promise<CatalogSession | null> {
+  toSession: (p: JWTPayload) => T | null,
+): Promise<T | null> {
   try {
     const { payload } = await jwtVerify(token, getSharedSecret());
-    return payloadToSession(payload);
+    return toSession(payload);
   } catch {
     return null;
   }
 }
 
-export async function getSession(): Promise<CatalogSession | null> {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
+async function readSession<T>(
+  cookieName: string,
+  toSession: (p: JWTPayload) => T | null,
+): Promise<T | null> {
+  const token = (await cookies()).get(cookieName)?.value;
   if (!token) return null;
-  return verifySessionToken(token);
+  return verify(token, toSession);
 }
 
-export async function storeBackendToken(token: string): Promise<void> {
-  const store = await cookies();
-  store.set({
-    name: SESSION_COOKIE,
-    value: token,
+async function writeCookie(name: string, value: string, maxAge: number): Promise<void> {
+  (await cookies()).set({
+    name,
+    value,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_MAX_AGE,
+    maxAge,
   });
 }
 
-export async function clearSessionCookie(): Promise<void> {
-  const store = await cookies();
-  store.set({
-    name: SESSION_COOKIE,
-    value: "",
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 0,
-  });
-}
+export const getRetailSession = () => readSession(RETAIL_COOKIE, toRetailSession);
+export const getProSession = () => readSession(PRO_COOKIE, toProSession);
+
+export const storeRetailToken = (token: string) =>
+  writeCookie(RETAIL_COOKIE, token, SESSION_MAX_AGE);
+export const storeProToken = (token: string) =>
+  writeCookie(PRO_COOKIE, token, SESSION_MAX_AGE);
+
+export const clearRetailSession = () => writeCookie(RETAIL_COOKIE, "", 0);
+export const clearProSession = () => writeCookie(PRO_COOKIE, "", 0);

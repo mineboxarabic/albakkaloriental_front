@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const SESSION_COOKIE = "catalog_session";
+const PRO_COOKIE = "b2b_session";
 
 function secret(): Uint8Array | null {
   const raw = process.env.AUTH_SECRET;
@@ -9,12 +9,15 @@ function secret(): Uint8Array | null {
   return new TextEncoder().encode(raw);
 }
 
+// A valid pro session is simply a signature-valid b2b token in the b2b_session
+// cookie. The portal is the cookie itself; the token carries no role. We sanity
+// check the b2b shape (sub + email) to reject a retail token placed in this cookie.
 async function isPro(token: string): Promise<boolean> {
   const key = secret();
   if (!key) return false;
   try {
     const { payload } = await jwtVerify(token, key);
-    return payload.role === "B2B_CLIENT" || payload.role === "ADMIN";
+    return typeof payload.sub === "string" && typeof payload.email === "string";
   } catch {
     return false;
   }
@@ -39,7 +42,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
+  const token = req.cookies.get(PRO_COOKIE)?.value;
   const allowed = token ? await isPro(token) : false;
 
   if (!allowed) {

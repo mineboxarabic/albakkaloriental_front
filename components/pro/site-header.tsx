@@ -13,6 +13,7 @@ import {
   FileSignature,
   Receipt,
   ShoppingCart,
+  Store,
   User,
   LogOut,
   LogIn,
@@ -160,6 +161,15 @@ export function ProSiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/"
+            className="hidden h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3 lg:flex"
+            style={{ color: "rgba(255,255,255,0.9)" }}
+          >
+            <Store className="h-4 w-4" strokeWidth={2} />
+            BOUTIQUE
+          </Link>
+
           <Link
             href="/pro/cart"
             className="relative flex h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3"

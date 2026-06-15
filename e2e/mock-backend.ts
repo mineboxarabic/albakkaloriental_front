@@ -119,7 +119,6 @@ export class MockBackend {
             const token = await createSignedToken({
               sub: "cust-1",
               userId: "u-1",
-              role: "B2C_CLIENT",
               name: "John Doe",
               phone: "12345678"
             });
@@ -134,7 +133,6 @@ export class MockBackend {
             const token = await createSignedToken({
               sub: "u-pro-1",
               customerId: "cust-pro-1",
-              role: "B2B_CLIENT",
               email: "pro@example.com",
               name: "Pro User"
             });

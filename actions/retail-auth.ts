@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
-import { clearSessionCookie, storeBackendToken } from "@/lib/session";
+import { clearRetailSession, storeRetailToken } from "@/lib/session";
 
 const phoneSchema = z
   .string()
@@ -153,7 +153,7 @@ export async function loginRetail(
       },
     });
 
-    await storeBackendToken(result.token);
+    await storeRetailToken(result.token);
   } catch (error) {
     return {
       ok: false,
@@ -174,6 +174,6 @@ function mapLoginError(error: unknown): string {
 }
 
 export async function logoutRetail() {
-  await clearSessionCookie();
+  await clearRetailSession();
   redirect("/");
 }
