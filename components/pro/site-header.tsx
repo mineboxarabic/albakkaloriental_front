@@ -78,7 +78,7 @@ export function ProSiteHeader({
         <Link
           href="/pro/products"
           className="flex items-center gap-2.5 shrink-0"
-          aria-label="Le Bakkal Oriental — espace pro"
+          aria-label="Le Bakkal Oriental: espace pro"
         >
           <Image
             src="/Assets/img/logo.png"

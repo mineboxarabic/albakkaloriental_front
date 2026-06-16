@@ -10,7 +10,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "Le Bakkal Oriental — Épicerie orientale livrée chez vous",
+    default: "Le Bakkal Oriental: Épicerie orientale livrée chez vous",
     template: "%s · Le Bakkal Oriental",
   },
   description:

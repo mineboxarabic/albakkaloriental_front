@@ -113,7 +113,7 @@ export function SiteHeader({ categories = [] }: { categories?: string[] }) {
           <Link
             href="/"
             className="flex items-center shrink-0"
-            aria-label="Le Bakkal Oriental — accueil"
+            aria-label="Le Bakkal Oriental: accueil"
           >
             <Image
               src="/Assets/img/logo.png"

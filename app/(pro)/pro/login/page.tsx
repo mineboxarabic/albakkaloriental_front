@@ -35,7 +35,7 @@ export default async function ProLoginPage({
             href="/"
             className="flex items-center gap-2.5"
             style={{ color: "rgba(255,255,255,0.85)" }}
-            aria-label="Le Bakkal Oriental — accueil"
+            aria-label="Le Bakkal Oriental: accueil"
           >
             <Image
               src="/Assets/img/logo.png"
@@ -156,7 +156,7 @@ export default async function ProLoginPage({
           className="mt-auto flex flex-col items-center justify-between gap-3 border-t pt-6 text-center text-[11.5px] sm:flex-row sm:text-left"
           style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.55)" }}
         >
-          <span>© {new Date().getFullYear()} Le Bakkal Oriental — Espace B2B</span>
+          <span>© {new Date().getFullYear()} Le Bakkal Oriental : Espace B2B</span>
           <span className="flex items-center gap-4">
             <a href="#" className="hover:text-white">Mentions légales</a>
             <a href="#" className="hover:text-white">CGV professionnelles</a>

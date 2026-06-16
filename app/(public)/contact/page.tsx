@@ -45,7 +45,7 @@ export default function ContactPage() {
             <div className="flex-1 text-sm">
               <div className="font-semibold">Adresse</div>
               <div className="text-muted-foreground">
-                Le Bakkal Oriental — 83300 Draguignan, France
+                Le Bakkal Oriental: 83300 Draguignan, France
               </div>
             </div>
           </div>
