@@ -8,9 +8,9 @@ import {
   ChevronRight,
   WifiOff,
 } from "lucide-react";
-import { getCategories, getProducts, getUpcomingDeliveries } from "@/lib/catalog";
+import { getCategories, getFeaturedCategories, getProducts, getUpcomingDeliveries } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
-import { getDisplayCategories } from "@/lib/category-display";
+import { getCategoryDisplay, getDisplayCategories } from "@/lib/category-display";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
@@ -33,10 +33,11 @@ const FALLBACK_CATEGORIES = [
 
 
 export default async function Home() {
-  const [{ products: retailProducts, backendDown }, deliveries, categories] = await Promise.all([
+  const [{ products: retailProducts, backendDown }, deliveries, categories, featuredCategories] = await Promise.all([
     getProducts({ audience: "retail", take: 12 }),
     getUpcomingDeliveries(4),
     getCategories("retail"),
+    getFeaturedCategories(),
   ]);
 
   const bestSellers = retailProducts.slice(0, 6);
@@ -49,13 +50,20 @@ export default async function Home() {
       )
     )
   );
-  const categoryDisplays = getDisplayCategories(
-    categories.length > 0
-      ? categories
-      : productCategories.length > 0
-        ? productCategories
-        : FALLBACK_CATEGORIES,
-  ).slice(0, 6);
+  // Admin-curated featured categories take priority on the homepage, using their
+  // real logo/image. When none are featured, fall back to the previous behavior.
+  const categoryDisplays =
+    featuredCategories.length > 0
+      ? featuredCategories
+          .map((c) => ({ name: c.name, image: c.imageUrl || getCategoryDisplay(c.name).image }))
+          .slice(0, 6)
+      : getDisplayCategories(
+          categories.length > 0
+            ? categories
+            : productCategories.length > 0
+              ? productCategories
+              : FALLBACK_CATEGORIES,
+        ).slice(0, 6);
 
   const serverDate = new Date().toISOString();
 

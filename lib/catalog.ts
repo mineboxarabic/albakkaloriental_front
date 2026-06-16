@@ -192,6 +192,13 @@ export async function getMarques(): Promise<MarqueItem[]> {
   }
 }
 
+export type CategoryItem = {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  isFeatured: boolean;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function getCategories(audience: CatalogAudience): Promise<string[]> {
   try {
@@ -202,6 +209,24 @@ export async function getCategories(audience: CatalogAudience): Promise<string[]
     return data.categories.map((c) => c.name);
   } catch (err) {
     console.error("Failed to fetch categories:", err);
+    return [];
+  }
+}
+
+/**
+ * Featured categories (admin-curated via the dashboard) for the homepage.
+ * Returns only categories flagged isFeatured, with their logo/image.
+ * Silently degrades to [] if the back-end is unreachable.
+ */
+export async function getFeaturedCategories(): Promise<CategoryItem[]> {
+  try {
+    const data = await backendFetch<{ categories: CategoryItem[] }>(
+      "/api/v1/public/categories",
+      { auth: "none" },
+    );
+    return data.categories.filter((c) => c.isFeatured);
+  } catch (err) {
+    console.error("Failed to fetch featured categories:", err);
     return [];
   }
 }
