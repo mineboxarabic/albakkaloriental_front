@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Mail, MessageCircle, MapPin } from "lucide-react";
+import { Mail, MessageCircle, MapPin, Phone } from "lucide-react";
+import { company } from "@/lib/company";
 
 export const metadata = {
   title: "Contact",
@@ -17,38 +18,56 @@ export default function ContactPage() {
 
         <div className="space-y-3">
           <a
-            href="mailto:support@bakkaloriental.fr"
+            href={`mailto:${company.email}`}
             className="flex items-start gap-3 rounded-md border bg-[#FAF8F2] px-4 py-3 transition hover:bg-[#F0EBDD]"
           >
             <Mail className="mt-0.5 h-5 w-5 text-[#3F561F]" />
             <div className="flex-1 text-sm">
               <div className="font-semibold">Email</div>
-              <div className="text-muted-foreground">support@bakkaloriental.fr</div>
+              <div className="text-muted-foreground">{company.email}</div>
             </div>
           </a>
 
-          <a
-            href="https://wa.me/33970707070"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-start gap-3 rounded-md border bg-[#E5F0D9] px-4 py-3 transition hover:bg-[#D9E5C0]"
-          >
-            <MessageCircle className="mt-0.5 h-5 w-5 text-[#3F561F]" />
-            <div className="flex-1 text-sm">
-              <div className="font-semibold">WhatsApp (commercial pro)</div>
-              <div className="text-muted-foreground">+33 9 70 70 70 70</div>
-            </div>
-          </a>
+          {company.phone && (
+            <a
+              href={`tel:${company.phone}`}
+              className="flex items-start gap-3 rounded-md border bg-[#FAF8F2] px-4 py-3 transition hover:bg-[#F0EBDD]"
+            >
+              <Phone className="mt-0.5 h-5 w-5 text-[#3F561F]" />
+              <div className="flex-1 text-sm">
+                <div className="font-semibold">Téléphone</div>
+                <div className="text-muted-foreground">{company.phone}</div>
+              </div>
+            </a>
+          )}
 
-          <div className="flex items-start gap-3 rounded-md border px-4 py-3">
-            <MapPin className="mt-0.5 h-5 w-5 text-[#3F561F]" />
-            <div className="flex-1 text-sm">
-              <div className="font-semibold">Adresse</div>
-              <div className="text-muted-foreground">
-                Le Bakkal Oriental: 83300 Draguignan, France
+          {company.whatsappUrl && (
+            <a
+              href={company.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 rounded-md border bg-[#E5F0D9] px-4 py-3 transition hover:bg-[#D9E5C0]"
+            >
+              <MessageCircle className="mt-0.5 h-5 w-5 text-[#3F561F]" />
+              <div className="flex-1 text-sm">
+                <div className="font-semibold">WhatsApp (commercial pro)</div>
+                <div className="text-muted-foreground">{company.phone}</div>
+              </div>
+            </a>
+          )}
+
+          {company.address && (
+            <div className="flex items-start gap-3 rounded-md border px-4 py-3">
+              <MapPin className="mt-0.5 h-5 w-5 text-[#3F561F]" />
+              <div className="flex-1 text-sm">
+                <div className="font-semibold">Adresse</div>
+                <div className="text-muted-foreground">
+                  {company.name} — {company.address}, {company.city},{" "}
+                  {company.country}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="mt-6">
