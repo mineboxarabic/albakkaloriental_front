@@ -7,6 +7,11 @@ import {
   Headphones,
   ChevronRight,
   WifiOff,
+  ShieldCheck,
+  ChefHat,
+  Wheat,
+  ShoppingBag,
+  Check,
 } from "lucide-react";
 import { getCategories, getFeaturedCategories, getProducts, getUpcomingDeliveries } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
@@ -236,113 +241,133 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mt-12 max-w-[820px]">
-        <h2
-          className="text-[22px] font-extrabold leading-tight tracking-tight sm:text-[26px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Votre Épicerie Orientale et Halal en Ligne
-        </h2>
-        <p className="mt-3 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          Bienvenue chez Le Bakkal Oriental, votre référence en matière d&apos;épicerie orientale et de
-          produits authentiques du bassin méditerranéen. Nous sélectionnons avec soin une large gamme de
-          produits orientaux halal, d&apos;épices, de conserves, de boissons, de douceurs traditionnelles
-          et d&apos;ingrédients indispensables à la préparation de recettes familiales riches en saveurs.
-          Notre mission est de permettre à chacun de retrouver facilement les goûts authentiques de
-          l&apos;Orient grâce à une plateforme de courses halal en ligne simple, rapide et accessible
-          partout en France.
-        </p>
+      <section className="mt-12">
+        {/* Section header */}
+        <div className="text-center">
+          <div
+            className="mb-2.5 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase"
+            style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
+            Épicerie orientale &amp; halal
+          </div>
+          <h2
+            className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[28px]"
+            style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+          >
+            Votre Épicerie Orientale et Halal en Ligne
+          </h2>
+          <p
+            className="mx-auto mt-3 max-w-[720px] text-[14px] leading-relaxed sm:text-[15px]"
+            style={{ color: COLORS.muted }}
+          >
+            Bienvenue chez Le Bakkal Oriental, votre référence en matière d&apos;épicerie orientale et de
+            produits authentiques du bassin méditerranéen. Nous sélectionnons avec soin une large gamme de
+            produits orientaux halal, d&apos;épices, de conserves, de boissons, de douceurs traditionnelles
+            et d&apos;ingrédients indispensables à la préparation de recettes familiales riches en saveurs.
+            Notre mission est de permettre à chacun de retrouver facilement les goûts authentiques de
+            l&apos;Orient grâce à une plateforme de courses halal en ligne simple, rapide et accessible
+            partout en France.
+          </p>
+        </div>
 
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Des Produits Orientaux Halal Sélectionnés avec Soin
-        </h3>
-        <p className="mt-2.5 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          Chez Le Bakkal Oriental, nous accordons une importance particulière à la qualité et à
-          l&apos;authenticité de notre catalogue. Notre sélection de produits orientaux halal répond aux
-          attentes des familles à la recherche de produits fiables, savoureux et respectueux de leurs
-          habitudes alimentaires.
-        </p>
-
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Retrouvez Tous Vos Ingrédients Traditionnels Préférés
-        </h3>
-        <p className="mt-2.5 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          Les grandes recettes orientales reposent sur des produits de qualité. C&apos;est pourquoi nous
-          mettons à votre disposition un vaste choix d&apos;ingrédients traditionnels permettant de préparer
-          des plats emblématiques tels que les tajines, couscous, pâtisseries orientales, soupes, grillades
-          et autres spécialités familiales.
-        </p>
-
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Une Large Sélection de Produits Méditerranéens
-        </h3>
-        <p className="mt-2.5 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          La gastronomie méditerranéenne est reconnue dans le monde entier pour sa diversité et son
-          authenticité. Le Bakkal Oriental vous propose une sélection de produits méditerranéens
-          soigneusement choisis pour répondre aux attentes des amateurs de cuisine traditionnelle.
-        </p>
-
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Faites Vos Courses Halal En Ligne En Toute Simplicité
-        </h3>
-        <p className="mt-2.5 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          Grâce à notre service de courses halal en ligne, commander vos produits préférés n&apos;a jamais
-          été aussi simple. Depuis chez vous, accédez à une large gamme de produits orientaux et
-          méditerranéens et recevez vos commandes directement à votre domicile.
-        </p>
-
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
-        >
-          Pourquoi Choisir Le Bakkal Oriental ?
-        </h3>
-        <ul className="mt-3 space-y-2">
+        {/* Themed cards */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[
-            "Large choix de produits orientaux halal",
-            "Produits authentiques et soigneusement sélectionnés",
-            "Nombreux ingrédients traditionnels pour vos recettes",
-            "Gamme variée de produits méditerranéens",
-            "Service de courses halal en ligne pratique et sécurisé",
-            "Livraison rapide partout en France",
-          ].map((item) => (
-            <li
-              key={item}
-              className="flex items-start gap-2.5 text-[14px] leading-relaxed sm:text-[15px]"
-              style={{ color: COLORS.muted }}
+            {
+              icon: <ShieldCheck className="h-6 w-6" strokeWidth={1.8} />,
+              title: "Des Produits Orientaux Halal Sélectionnés avec Soin",
+              text: "Chez Le Bakkal Oriental, nous accordons une importance particulière à la qualité et à l'authenticité de notre catalogue. Notre sélection de produits orientaux halal répond aux attentes des familles à la recherche de produits fiables, savoureux et respectueux de leurs habitudes alimentaires.",
+            },
+            {
+              icon: <ChefHat className="h-6 w-6" strokeWidth={1.8} />,
+              title: "Retrouvez Tous Vos Ingrédients Traditionnels Préférés",
+              text: "Les grandes recettes orientales reposent sur des produits de qualité. C'est pourquoi nous mettons à votre disposition un vaste choix d'ingrédients traditionnels permettant de préparer des plats emblématiques tels que les tajines, couscous, pâtisseries orientales, soupes, grillades et autres spécialités familiales.",
+            },
+            {
+              icon: <Wheat className="h-6 w-6" strokeWidth={1.8} />,
+              title: "Une Large Sélection de Produits Méditerranéens",
+              text: "La gastronomie méditerranéenne est reconnue dans le monde entier pour sa diversité et son authenticité. Le Bakkal Oriental vous propose une sélection de produits méditerranéens soigneusement choisis pour répondre aux attentes des amateurs de cuisine traditionnelle.",
+            },
+            {
+              icon: <ShoppingBag className="h-6 w-6" strokeWidth={1.8} />,
+              title: "Faites Vos Courses Halal En Ligne En Toute Simplicité",
+              text: "Grâce à notre service de courses halal en ligne, commander vos produits préférés n'a jamais été aussi simple. Depuis chez vous, accédez à une large gamme de produits orientaux et méditerranéens et recevez vos commandes directement à votre domicile.",
+            },
+          ].map((card) => (
+            <div
+              key={card.title}
+              className="rounded-xl border bg-white p-5"
+              style={{ borderColor: COLORS.border }}
             >
-              <span
-                className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ background: COLORS.primary }}
-              />
-              {item}
-            </li>
+              <div
+                className="grid h-10 w-10 place-items-center rounded-md"
+                style={{ background: COLORS.bg, color: COLORS.primary }}
+              >
+                {card.icon}
+              </div>
+              <h3
+                className="mt-3.5 text-[16px] font-bold leading-snug tracking-tight"
+                style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+              >
+                {card.title}
+              </h3>
+              <p className="mt-2 text-[13.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+                {card.text}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
 
-        <h3
-          className="mt-8 text-[17px] font-bold leading-snug tracking-tight sm:text-[19px]"
-          style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+        {/* Why choose us band */}
+        <div
+          className="mt-8 rounded-2xl px-6 py-8 lg:px-10"
+          style={{ background: COLORS.beige }}
         >
-          Découvrez Les Saveurs Authentiques De L&apos;Orient
-        </h3>
-        <p className="mt-2.5 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-          Le Bakkal Oriental met à l&apos;honneur la richesse de la gastronomie orientale et méditerranéenne
-          à travers une sélection de produits de qualité destinée aux particuliers comme aux passionnés de
-          cuisine traditionnelle.
-        </p>
+          <h3
+            className="text-[20px] font-extrabold tracking-tight sm:text-[24px]"
+            style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+          >
+            Pourquoi Choisir Le Bakkal Oriental ?
+          </h3>
+          <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+            {[
+              "Large choix de produits orientaux halal",
+              "Produits authentiques et soigneusement sélectionnés",
+              "Nombreux ingrédients traditionnels pour vos recettes",
+              "Gamme variée de produits méditerranéens",
+              "Service de courses halal en ligne pratique et sécurisé",
+              "Livraison rapide partout en France",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-2.5 text-[14px] leading-relaxed sm:text-[15px]"
+                style={{ color: COLORS.text }}
+              >
+                <Check className="mt-0.5 h-4.5 w-4.5 shrink-0" strokeWidth={2.4} style={{ color: COLORS.primary }} />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Closing line */}
+        <div className="mt-9 text-center">
+          <h3
+            className="text-[20px] font-extrabold tracking-tight sm:text-[24px]"
+            style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
+          >
+            Découvrez Les Saveurs Authentiques De L&apos;Orient
+          </h3>
+          <p
+            className="mx-auto mt-3 max-w-[720px] text-[14px] leading-relaxed sm:text-[15px]"
+            style={{ color: COLORS.muted }}
+          >
+            Le Bakkal Oriental met à l&apos;honneur la richesse de la gastronomie orientale et
+            méditerranéenne à travers une sélection de produits de qualité destinée aux particuliers comme
+            aux passionnés de cuisine traditionnelle.
+          </p>
+        </div>
       </section>
 
       <ProductSection
