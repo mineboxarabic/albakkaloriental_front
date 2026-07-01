@@ -30,17 +30,15 @@ export async function GET(
     });
   }
 
-  const payload = (await upstream.json()) as
-    | { success: true; data: { url: string } }
-    | { url?: string };
-  const url =
-    (payload as { success?: boolean; data?: { url?: string } }).data?.url ??
-    (payload as { url?: string }).url;
-
-  if (!url) {
-    return new Response("PDF du devis indisponible", { status: 502 });
-  }
-
-  // Redirect the browser straight to the S3-hosted PDF.
-  return Response.redirect(url, 302);
+  // Stream the PDF bytes through; the backend serves a private document, so we
+  // never expose the underlying S3 URL to the browser.
+  return new Response(upstream.body, {
+    status: 200,
+    headers: {
+      "content-type": "application/pdf",
+      "content-disposition":
+        upstream.headers.get("content-disposition") ?? "inline",
+      "cache-control": "private, no-store",
+    },
+  });
 }

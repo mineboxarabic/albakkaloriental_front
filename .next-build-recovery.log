@@ -1,0 +1,181 @@
+
+> alimexpress-catalog@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.18
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 29.9s
+   Linting and checking validity of types ...
+
+./app/(pro)/pro/account/page.tsx
+14:10  Warning: 'COLORS' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/15) ...
+Failed to fetch categories: Error: Dynamic server usage: Route /register/particulier couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register/particulier. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /register/particulier couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register/particulier. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route /register/entreprise couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register/entreprise. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /register/entreprise couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register/entreprise. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route /products couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /products. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+   Generating static pages (3/15) 
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /products couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /products. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route /register couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /register couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /register. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route / couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route / couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route / couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route / couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route /cart couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /cart. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /cart couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /cart. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Failed to fetch categories: Error: Dynamic server usage: Route /login couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /login. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at r (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:28303)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:1:11709)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4619)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459)
+    at i.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39425)
+    at e.startActiveSpan (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:39959)
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:15:4147)
+    at e.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:30212)
+    at i.with (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\chunks\4996.js:22:24459) {
+  description: "Route /login couldn't be rendered statically because it used no-store fetch http://localhost:3000/api/v1/public/categories /login. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (7/15) 
+   Generating static pages (11/15) 
+ ✓ Generating static pages (15/15)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ƒ /                                     4.2 kB         121 kB
+├ ○ /_not-found                            995 B         103 kB
+├ ƒ /account                             2.61 kB         111 kB
+├ ƒ /cart                                2.06 kB         117 kB
+├ ○ /cgv                                   172 B         106 kB
+├ ƒ /checkout                            4.47 kB         110 kB
+├ ○ /confidentialite                       172 B         106 kB
+├ ○ /contact                               847 B         107 kB
+├ ƒ /forgot-password                     2.42 kB         108 kB
+├ ƒ /login                               2.03 kB         114 kB
+├ ƒ /orders                                847 B         107 kB
+├ ƒ /orders/[id]                           847 B         107 kB
+├ ƒ /pro/account                         3.31 kB         109 kB
+├ ○ /pro/cart                            2.96 kB         118 kB
+├ ƒ /pro/invoices                          847 B         107 kB
+├ ƒ /pro/invoices/[id]/pdf                 147 B         103 kB
+├ ƒ /pro/login                           2.07 kB         108 kB
+├ ƒ /pro/orders                            847 B         107 kB
+├ ƒ /pro/orders/[id]                       185 B         112 kB
+├ ƒ /pro/products                        1.62 kB         113 kB
+├ ƒ /pro/products/[id]                   4.58 kB         116 kB
+├ ƒ /pro/quotes                            847 B         107 kB
+├ ƒ /pro/quotes/[id]                     2.16 kB         108 kB
+├ ƒ /pro/quotes/[id]/pdf                   147 B         103 kB
+├ ƒ /products                            2.09 kB         119 kB
+├ ƒ /products/[id]                       2.18 kB         119 kB
+├ ƒ /register                              847 B         107 kB
+├ ƒ /register/entreprise                 2.55 kB         108 kB
+├ ƒ /register/particulier                1.58 kB         110 kB
+├ ƒ /reset-password                      2.53 kB         108 kB
+├ ƒ /set-password                        1.07 kB         107 kB
+├ ƒ /verify-email                          172 B         106 kB
+└ ƒ /verify-pending                        847 B         107 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/1255-b28ea36bf0cdbd65.js      46.2 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js  54.2 kB
+  └ other shared chunks (total)             2 kB
+
+
+ƒ Middleware                               40 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

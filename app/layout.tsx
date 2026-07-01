@@ -10,11 +10,11 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "Le Bakkal Oriental: Épicerie orientale livrée chez vous",
+    default: "Le Bakkal Oriental | Épicerie Orientale & Halal en Ligne en France",
     template: "%s · Le Bakkal Oriental",
   },
   description:
-    "Épicerie, produits frais, boissons, surgelés et hygiène. Livraison à domicile dans le Var et alentours.",
+    "Découvrez Le Bakkal Oriental, votre épicerie orientale et halal en ligne. Produits orientaux halal, ingrédients traditionnels et produits méditerranéens livrés partout en France.",
 };
 
 export default function RootLayout({

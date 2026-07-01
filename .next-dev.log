@@ -1,0 +1,651 @@
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3001
+   - Network:      http://172.20.80.1:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 9.6s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.9s (1063 modules)
+ GET / 200 in 4434ms
+ GET / 200 in 240ms
+ GET / 200 in 231ms
+ ○ Compiling /cart ...
+ ✓ Compiled /cart in 1434ms (1082 modules)
+ GET /cart 200 in 2150ms
+ POST /cart 200 in 170ms
+ ✓ Compiled /favicon.ico in 492ms (784 modules)
+ GET /favicon.ico 200 in 864ms
+ GET /cart 200 in 171ms
+ ✓ Compiled in 885ms (1042 modules)
+ GET /cart 200 in 328ms
+ ✓ Compiled in 179ms (315 modules)
+ GET /cart 200 in 306ms
+ ✓ Compiled in 578ms (1042 modules)
+ GET /cart 200 in 170ms
+ ✓ Compiled in 140ms (315 modules)
+ GET /cart 200 in 367ms
+ ✓ Compiled in 682ms (1042 modules)
+ GET /cart 200 in 151ms
+ GET /cart 200 in 283ms
+ ○ Compiling /account ...
+ ✓ Compiled /account in 1456ms (1157 modules)
+ GET /account 200 in 2217ms
+ ✓ Compiled / in 397ms (882 modules)
+ GET / 200 in 862ms
+ ✓ Compiled in 284ms (327 modules)
+ ✓ Compiled in 759ms (1209 modules)
+ GET / 200 in 735ms
+ GET / 200 in 186ms
+ ✓ Compiled in 182ms (327 modules)
+ ✓ Compiled in 133ms (327 modules)
+ ✓ Compiled in 334ms (1209 modules)
+ GET / 200 in 517ms
+ GET / 200 in 185ms
+ GET / 200 in 84ms
+ GET / 200 in 680ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 672ms (899 modules)
+ GET /favicon.ico 200 in 1186ms
+ POST / 200 in 1112ms
+ ✓ Compiled in 181ms (327 modules)
+ ✓ Compiled in 906ms (1226 modules)
+ GET / 200 in 922ms
+ GET / 200 in 323ms
+ ✓ Compiled in 199ms (327 modules)
+ ✓ Compiled in 857ms (1226 modules)
+ GET / 200 in 873ms
+ GET / 200 in 230ms
+ ✓ Compiled in 160ms (327 modules)
+ ✓ Compiled in 832ms (1226 modules)
+ GET / 200 in 843ms
+ GET / 200 in 216ms
+ ✓ Compiled in 288ms (327 modules)
+ ✓ Compiled in 708ms (1226 modules)
+ GET / 200 in 919ms
+ GET / 200 in 131ms
+ ✓ Compiled in 248ms (327 modules)
+ ✓ Compiled in 300ms (327 modules)
+ ✓ Compiled in 871ms (1226 modules)
+ GET / 200 in 1185ms
+ GET / 200 in 261ms
+ GET / 200 in 148ms
+ ✓ Compiled in 159ms (327 modules)
+ ✓ Compiled in 231ms (327 modules)
+ ✓ Compiled in 718ms (1209 modules)
+ GET / 200 in 961ms
+ GET / 200 in 406ms
+ GET / 200 in 137ms
+ GET / 200 in 573ms
+ POST / 200 in 167ms
+ POST / 200 in 53ms
+ ✓ Compiled in 274ms (327 modules)
+ ✓ Compiled in 740ms (1209 modules)
+ GET / 200 in 889ms
+ GET / 200 in 71ms
+ GET / 200 in 307ms
+ GET / 200 in 128ms
+ GET / 200 in 129ms
+ GET / 200 in 544ms
+ ✓ Compiled /favicon.ico in 386ms (899 modules)
+ GET /favicon.ico 200 in 1008ms
+ POST / 200 in 971ms
+ ✓ Compiled in 267ms (327 modules)
+ ✓ Compiled in 937ms (1209 modules)
+ GET / 200 in 1133ms
+ GET / 200 in 98ms
+ ✓ Compiled in 142ms (327 modules)
+ ✓ Compiled in 146ms (327 modules)
+ ✓ Compiled in 350ms (1209 modules)
+ GET / 200 in 491ms
+ GET / 200 in 143ms
+ GET / 200 in 121ms
+ ✓ Compiled in 109ms (327 modules)
+ GET / 200 in 352ms
+ ✓ Compiled in 882ms (1211 modules)
+ GET / 200 in 151ms
+ ✓ Compiled in 123ms (328 modules)
+ ✓ Compiled in 169ms (328 modules)
+ ✓ Compiled in 473ms (1211 modules)
+ GET / 200 in 641ms
+ GET / 200 in 165ms
+ GET / 200 in 92ms
+ GET / 200 in 345ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 1194ms (1226 modules)
+ GET /products?category=Boissons 200 in 1537ms
+ GET /products?category=Boissons 200 in 151ms
+ GET /products?category=Boissons 200 in 238ms
+ GET /products 200 in 110ms
+ ✓ Compiled in 193ms (332 modules)
+ ✓ Compiled in 820ms (1226 modules)
+ GET /products 200 in 808ms
+ GET /products 200 in 127ms
+ GET /products 200 in 333ms
+ GET /products?category=Conserves 200 in 100ms
+ GET /products?category=Produits+Frais 200 in 105ms
+ GET /products 200 in 113ms
+ ○ Compiling /products/[id] ...
+ ✓ Compiled /products/[id] in 1638ms (1238 modules)
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 2784ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 196ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 572ms (920 modules)
+ GET /favicon.ico 200 in 812ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 1021ms
+ ✓ Compiled in 205ms (335 modules)
+ ✓ Compiled in 959ms (1238 modules)
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 1226ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 117ms
+ ✓ Compiled in 120ms (335 modules)
+ ✓ Compiled in 598ms (1238 modules)
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 623ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 173ms
+ ✓ Compiled in 122ms (335 modules)
+ ✓ Compiled in 178ms (335 modules)
+ ✓ Compiled in 493ms (1238 modules)
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 715ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 196ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 97ms
+ GET /products 200 in 353ms
+ GET /products/cmq6g4luw001pmv3wjtcfl44p 200 in 272ms
+ GET /products/cmq6g4lqb000hmv3wd9zv7rti 200 in 162ms
+ POST /products/cmq6g4lqb000hmv3wd9zv7rti 200 in 186ms
+ POST /products/cmq6g4lqb000hmv3wd9zv7rti 200 in 45ms
+ POST /products/cmq6g4lqb000hmv3wd9zv7rti 200 in 66ms
+ POST /products/cmq6g4lqb000hmv3wd9zv7rti 200 in 55ms
+ GET /cart 200 in 69ms
+ GET / 200 in 161ms
+ GET /products?category=Huiles 200 in 118ms
+ GET /products/cmq6g4lpg0009mv3wtz4es0cv 200 in 124ms
+ POST /products/cmq6g4lpg0009mv3wtz4es0cv 200 in 80ms
+ POST /products/cmq6g4lpg0009mv3wtz4es0cv 200 in 53ms
+ GET /cart 200 in 41ms
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 1499ms (1251 modules)
+ GET /checkout 200 in 1847ms
+ GET /checkout 200 in 117ms
+ GET /cart 200 in 70ms
+ ✓ Compiled in 239ms (338 modules)
+ GET /cart 200 in 443ms
+ ✓ Compiled in 1271ms (1227 modules)
+ GET /cart 200 in 233ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /cart 200 in 334ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 537ms (906 modules)
+ GET /favicon.ico 200 in 1019ms
+ POST /cart 200 in 808ms
+ ✓ Compiled in 129ms (338 modules)
+ GET /cart 200 in 270ms
+ ✓ Compiled in 665ms (1244 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /cart 200 in 154ms
+ GET /cart 200 in 300ms
+ GET /favicon.ico 200 in 35ms
+ POST /cart 200 in 83ms
+ ✓ Compiled in 148ms (338 modules)
+ GET /cart 200 in 323ms
+ ✓ Compiled in 629ms (1244 modules)
+ GET /cart 200 in 118ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /cart 200 in 438ms
+ GET /favicon.ico 200 in 14ms
+ POST /cart 200 in 54ms
+ ✓ Compiled in 1112ms (338 modules)
+ ✓ Compiled in 245ms (338 modules)
+ GET /cart 200 in 304ms
+ GET /cart 200 in 65ms
+ ✓ Compiled in 132ms (338 modules)
+ ✓ Compiled in 186ms (338 modules)
+ GET /cart 200 in 376ms
+ ✓ Compiled in 1036ms (1227 modules)
+ GET /cart 200 in 1031ms
+ GET /cart 200 in 56ms
+ ✓ Compiled in 140ms (338 modules)
+ GET /cart 200 in 299ms
+ ✓ Compiled in 1079ms (1232 modules)
+ GET /cart 200 in 154ms
+ ✓ Compiled in 133ms (340 modules)
+ GET /cart 200 in 386ms
+ ✓ Compiled in 634ms (1232 modules)
+ GET /cart 200 in 160ms
+ ✓ Compiled in 144ms (340 modules)
+ ✓ Compiled in 169ms (340 modules)
+ GET /cart 200 in 320ms
+ ✓ Compiled in 577ms (1232 modules)
+ GET /cart 200 in 494ms
+ GET /cart 200 in 53ms
+ GET / 200 in 375ms
+ ✓ Compiled in 249ms (340 modules)
+ ✓ Compiled in 1404ms (1232 modules)
+ GET /cart 200 in 1539ms
+ GET /cart 200 in 71ms
+ GET / 200 in 343ms
+ GET / 200 in 127ms
+ GET / 200 in 556ms
+ POST / 200 in 214ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 681ms (909 modules)
+ GET /favicon.ico 200 in 924ms
+ ○ Compiling /account ...
+ ✓ Compiled /account in 871ms (933 modules)
+ GET /account 200 in 1283ms
+ GET /account 200 in 174ms
+ ✓ Compiled in 224ms (340 modules)
+ GET /account 200 in 459ms
+ ✓ Compiled in 962ms (1238 modules)
+ GET /account 200 in 318ms
+ GET /account 200 in 572ms
+ ✓ Compiled /favicon.ico in 485ms (915 modules)
+ GET /favicon.ico 200 in 1151ms
+ POST /account 200 in 1225ms
+ ✓ Compiled in 237ms (340 modules)
+ GET /account 200 in 749ms
+ ✓ Compiled in 1678ms (1255 modules)
+ GET /account 200 in 420ms
+ GET /account 200 in 557ms
+ GET /favicon.ico 200 in 68ms
+ POST /account 200 in 145ms
+ GET /account 307 in 265ms
+ ○ Compiling / ...
+ ✓ Compiled / in 949ms (933 modules)
+ GET / 200 in 1727ms
+ GET /account 200 in 433ms
+ GET /favicon.ico 200 in 63ms
+ POST /account 200 in 114ms
+ GET /checkout 200 in 88ms
+ GET / 200 in 177ms
+ GET / 200 in 136ms
+ GET / 200 in 463ms
+ GET /favicon.ico 200 in 41ms
+ POST / 200 in 126ms
+ ✓ Compiled in 263ms (340 modules)
+ GET / 200 in 728ms
+ ✓ Compiled in 1363ms (1249 modules)
+ GET / 200 in 353ms
+ GET / 200 in 368ms
+ GET /checkout 200 in 137ms
+ ○ Compiling /orders ...
+ ✓ Compiled /orders in 1187ms (1258 modules)
+ GET /orders 200 in 1572ms
+ GET /orders 200 in 187ms
+ ○ Compiling /orders/[id] ...
+ ✓ Compiled /orders/[id] in 778ms (1262 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 1650ms
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 159ms
+ ✓ Compiled in 321ms (341 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 602ms
+ ⨯ Failed to generate static paths for /orders/[id]:
+TypeError: __webpack_require__.C is not a function
+    at <unknown> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\app\(retail)\orders\[id]\page.js:725:21)
+    at Object.<anonymous> (C:\Users\anasl\Documents\AlimExpressCatalog\.next\server\app\(retail)\orders\[id]\page.js:730:3) {
+  type: 'TypeError'
+}
+ ✓ Compiled in 1190ms (1243 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 954ms
+ ✓ Compiled in 195ms (341 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 535ms
+ ✓ Compiled in 585ms (1243 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 166ms
+ ✓ Compiled in 172ms (341 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 532ms
+ ✓ Compiled in 596ms (1243 modules)
+ GET /orders/cmq80b59q000ymvn0ubd0od4n 200 in 140ms
+ GET / 200 in 179ms
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 652ms (911 modules)
+ GET /checkout 200 in 936ms
+ GET /checkout 200 in 102ms
+ GET / 200 in 424ms
+ ○ Compiling /products/[id] ...
+ ✓ Compiled /products/[id] in 1189ms (915 modules)
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 1517ms
+ GET /products/cmq6g4lpu000dmv3whw2of6ps 200 in 244ms
+ ✓ Compiled /cart in 433ms (897 modules)
+ GET /cart 200 in 591ms
+ GET /checkout 200 in 115ms
+ POST /checkout 200 in 203ms
+ GET /orders/cmq845s81001mmvn08d12vydr 200 in 123ms
+ POST /orders/cmq845s81001mmvn08d12vydr 200 in 69ms
+ POST /orders/cmq845s81001mmvn08d12vydr 200 in 70ms
+ GET /orders/cmq845s81001mmvn08d12vydr 200 in 139ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 573ms (904 modules)
+ GET /products 200 in 937ms
+ GET /products 200 in 205ms
+ GET /products?category=Conserves 200 in 94ms
+ GET /products?category=Huiles 200 in 88ms
+ GET /products?category=Produits+Frais 200 in 78ms
+ GET /products?category=%C3%89pices 200 in 90ms
+ GET / 200 in 257ms
+ POST /products?category=%C3%89pices 303 in 418ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1666ms (1243 modules)
+ GET /login 200 in 1853ms
+ ○ Compiling /register ...
+ ✓ Compiled /register in 1159ms (1262 modules)
+ GET /register 200 in 1343ms
+ GET /register 200 in 143ms
+ ○ Compiling /register/entreprise ...
+ ✓ Compiled /register/entreprise in 1037ms (1269 modules)
+ GET /register/entreprise 200 in 1334ms
+ GET /register/entreprise 200 in 140ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1442ms (169 modules)
+ ○ Compiling /pro/login ...
+ ✓ Compiled /pro/login in 2.2s (1301 modules)
+ GET /pro/login 200 in 2529ms
+ GET /pro/login 200 in 1199ms
+ ✓ Compiled in 216ms (358 modules)
+ ✓ Compiled in 242ms (358 modules)
+ ✓ Compiled in 965ms (1164 modules)
+ GET /pro/login 200 in 1344ms
+ GET /pro/login 200 in 63ms
+ GET /pro/login 200 in 48ms
+ ✓ Compiled in 178ms (358 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 968ms (1169 modules)
+ GET /pro/login 404 in 1036ms
+ GET /pro/login 200 in 102ms
+ GET /pro/login 200 in 237ms
+ ✓ Compiled in 152ms (362 modules)
+ ✓ Compiled in 869ms (1169 modules)
+ GET /pro/login 200 in 772ms
+ GET /pro/login 200 in 49ms
+ ✓ Compiled in 215ms (362 modules)
+ ✓ Compiled in 734ms (1169 modules)
+ GET /pro/login 200 in 769ms
+ GET /pro/login 200 in 48ms
+ ✓ Compiled in 158ms (362 modules)
+ ✓ Compiled in 704ms (1169 modules)
+ GET /pro/login 200 in 662ms
+ GET /pro/login 200 in 40ms
+ ✓ Compiled in 139ms (362 modules)
+ ✓ Compiled in 1192ms (1169 modules)
+ GET /pro/login 200 in 1188ms
+ GET /pro/login 200 in 73ms
+ ✓ Compiled in 252ms (362 modules)
+ GET /pro/login 200 in 485ms
+ ✓ Compiled in 685ms (1169 modules)
+ GET /pro/login 200 in 145ms
+ ○ Compiling /pro/account ...
+ ✓ Compiled /pro/account in 3.3s (1279 modules)
+ GET /pro/account 200 in 4028ms
+ POST /pro/login 303 in 4385ms
+ GET /pro/account 200 in 142ms
+ POST /pro/account 200 in 125ms
+ ✓ Compiled in 264ms (362 modules)
+ ✓ Compiled in 1156ms (1259 modules)
+ GET /pro/account 200 in 1241ms
+ GET /pro/account 200 in 65ms
+ ✓ Compiled in 901ms (1259 modules)
+ GET /pro/account 200 in 213ms
+ ✓ Compiled in 177ms (362 modules)
+ ✓ Compiled in 736ms (1259 modules)
+ GET /pro/account 200 in 749ms
+ GET /pro/account 200 in 60ms
+ ✓ Compiled in 306ms (362 modules)
+ ✓ Compiled in 1471ms (1259 modules)
+ GET /pro/account 200 in 1619ms
+ GET /pro/account 200 in 119ms
+ ⨯ ./components/pro/site-header.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:238:1]
+ 235 |       </div>
+ 236 |     </header>
+ 237 |   );
+ 238 | }
+     : ^
+     `----
+  x Unexpected eof
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:238:4]
+ 236 |     </header>
+ 237 |   );
+ 238 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/pro/site-header.tsx
+./app/(pro)/layout.tsx
+ ○ Compiling /_error ...
+ ⨯ ./components/pro/site-header.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:238:1]
+ 235 |       </div>
+ 236 |     </header>
+ 237 |   );
+ 238 | }
+     : ^
+     `----
+  x Unexpected eof
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:238:4]
+ 236 |     </header>
+ 237 |   );
+ 238 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/pro/site-header.tsx
+./app/(pro)/layout.tsx
+ ⨯ ./components/pro/site-header.tsx
+Error:   x Expected '>', got 'header'
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:237:1]
+ 234 |           </nav>
+ 235 |         </div>
+ 236 |       </div>
+ 237 |     </header>
+     :       ^^^^^^
+ 238 |   );
+ 239 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/pro/site-header.tsx
+./app/(pro)/layout.tsx
+ GET /pro/account 500 in 3417ms
+ GET /pro/account 500 in 9577ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./components/pro/site-header.tsx
+Error:   x Expected '>', got 'header'
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:237:1]
+ 234 |           </nav>
+ 235 |         </div>
+ 236 |       </div>
+ 237 |     </header>
+     :       ^^^^^^
+ 238 |   );
+ 239 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/pro/site-header.tsx
+./app/(pro)/layout.tsx
+ ⨯ ./components/pro/site-header.tsx
+Error:   x Expected '>', got 'header'
+     ,-[C:\Users\anasl\Documents\AlimExpressCatalog\components\pro\site-header.tsx:237:1]
+ 234 |           </nav>
+ 235 |         </div>
+ 236 |       </div>
+ 237 |     </header>
+     :       ^^^^^^
+ 238 |   );
+ 239 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/pro/site-header.tsx
+./app/(pro)/layout.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /pro/account 500 in 1476ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /pro/account 500 in 418ms
+ ✓ Compiled /_not-found in 4.6s (1628 modules)
+ GET /pro/account 200 in 3170ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled (1614 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /pro/account 200 in 219ms
+ GET /pro/account 200 in 354ms
+ POST /pro/account 200 in 145ms
+ ○ Compiling /pro/products ...
+ ✓ Compiled /pro/products in 2.7s (1643 modules)
+ GET /pro/products 200 in 5392ms
+ GET /pro/products 200 in 591ms
+ GET /pro/products 200 in 333ms
+ ✓ Compiled in 1559ms (1609 modules)
+ GET /pro/products 200 in 370ms
+ GET /pro/products 200 in 884ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1108ms (1111 modules)
+ GET /favicon.ico 200 in 1816ms
+ POST /pro/products 200 in 1744ms
+ ✓ Compiled in 1124ms (1626 modules)
+ GET /pro/products 200 in 228ms
+ GET /pro/products?category=Conserves 200 in 163ms
+ GET /pro/products?category=Riz+et+P%C3%A2tes 200 in 137ms
+ ○ Compiling /pro/cart ...
+ ✓ Compiled /pro/cart in 2.7s (1624 modules)
+ GET /pro/cart 200 in 3127ms
+ GET /pro/cart 200 in 68ms
+ GET /pro/account 200 in 207ms
+ GET /pro/products 200 in 242ms
+ ○ Compiling /pro/orders ...
+ ✓ Compiled /pro/orders in 1606ms (1634 modules)
+ GET /pro/orders 200 in 1931ms
+ GET /pro/orders 200 in 132ms
+ ✓ Compiled in 225ms (520 modules)
+ ✓ Compiled in 872ms (1620 modules)
+ GET /pro/orders 200 in 1704ms
+ GET /pro/orders 200 in 55ms
+ ✓ Compiled in 187ms (520 modules)
+ ✓ Compiled in 917ms (1620 modules)
+ GET /pro/orders 200 in 1068ms
+ GET /pro/orders 200 in 228ms
+ ○ Compiling /pro/orders/[id] ...
+ ✓ Compiled /pro/orders/[id] in 3.9s (1615 modules)
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 5121ms
+ ✓ Compiled in 226ms (521 modules)
+ ✓ Compiled in 975ms (1583 modules)
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 1090ms
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 64ms
+ ✓ Compiled in 182ms (521 modules)
+ ✓ Compiled in 1334ms (1583 modules)
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 1319ms
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 94ms
+ ✓ Compiled in 201ms (521 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1684ms (1588 modules)
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 404 in 1560ms
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 97ms
+ GET /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 398ms
+ POST /pro/orders/cmq6rbp580003mvn03uh28uar 200 in 125ms
+ GET /pro/orders 200 in 177ms
+ GET /pro/orders/cmq6q0w7u0010mvuk5shnhz31 200 in 136ms
+ ○ Compiling /pro/quotes/[id] ...
+ ✓ Compiled /pro/quotes/[id] in 1893ms (1609 modules)
+ GET /pro/quotes/cmq6qow4t0001mvbkzr4d04ws 200 in 3076ms
+ GET /pro/quotes/cmq6qow4t0001mvbkzr4d04ws 200 in 108ms
+ ○ Compiling /pro/quotes/[id]/pdf ...
+ ✓ Compiled /pro/quotes/[id]/pdf in 1334ms (1600 modules)
+ GET /pro/quotes/cmq6qow4t0001mvbkzr4d04ws/pdf 302 in 2125ms
+ ○ Compiling /pro/invoices ...
+ ✓ Compiled /pro/invoices in 894ms (1613 modules)
+ GET /pro/invoices 200 in 1222ms
+ GET /pro/invoices 200 in 86ms
+ ○ Compiling /pro/quotes ...
+ ✓ Compiled /pro/quotes in 1498ms (1604 modules)
+ GET /pro/quotes 200 in 1774ms
+ GET /pro/account 200 in 175ms
+ GET /pro/products 200 in 249ms
+ ○ Compiling /pro/cart ...
+ ✓ Compiled /pro/cart in 1379ms (1105 modules)
+ GET /pro/cart 200 in 2362ms
+ GET /pro/products 200 in 840ms
+ ○ Compiling /pro/products/[id] ...
+ ✓ Compiled /pro/products/[id] in 3.9s (1646 modules)
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 4878ms
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 121ms
+ ✓ Compiled in 346ms (529 modules)
+ ✓ Compiled in 1078ms (1618 modules)
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 1299ms
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 83ms
+ ✓ Compiled in 170ms (529 modules)
+ ✓ Compiled in 1284ms (1609 modules)
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 1353ms
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 74ms
+ ✓ Compiled in 200ms (529 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1396ms (1614 modules)
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 404 in 1335ms
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 133ms
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 413ms
+ POST /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 171ms
+ ✓ Compiled in 1914ms (1609 modules)
+ GET /pro/products/cmq6g4lpu000dmv3whw2of6ps 200 in 177ms
+ ○ Compiling /pro/products ...
+ ✓ Compiled /pro/products in 4s (1089 modules)
+ GET /pro/products?category=%C3%89pices 200 in 4328ms
+ ✓ Compiled in 2.1s (1607 modules)
+ GET /pro/products?category=%C3%89pices 200 in 240ms
+ ✓ Compiled in 573ms (1607 modules)
+ GET /pro/products?category=%C3%89pices 200 in 120ms
+ ✓ Compiled in 470ms (1607 modules)
+ GET /pro/products?category=%C3%89pices 200 in 115ms
+ GET /pro/cart 200 in 60ms
+ GET /pro/products/cmq6g4lqb000hmv3wd9zv7rti 200 in 224ms
+ POST /pro/products/cmq6g4lqb000hmv3wd9zv7rti 200 in 178ms
+ POST /pro/products/cmq6g4lqb000hmv3wd9zv7rti 200 in 67ms
+ GET /pro/cart 200 in 56ms
+ ✓ Compiled in 253ms (529 modules)
+ GET /pro/cart 200 in 41ms
+ ✓ Compiled in 1509ms (1607 modules)
+ GET /pro/cart 200 in 148ms
+ ✓ Compiled in 846ms (1607 modules)
+ GET /pro/cart 200 in 137ms
+ ✓ Compiled in 200ms (529 modules)
+ GET /pro/cart 200 in 57ms
+ ✓ Compiled in 187ms (529 modules)
+ ✓ Compiled in 206ms (529 modules)
+ GET /pro/cart 200 in 140ms
+ GET /pro/cart 200 in 38ms
+ ✓ Compiled in 201ms (529 modules)
+ ✓ Compiled in 201ms (529 modules)
+ GET /pro/cart 200 in 147ms
+ GET /pro/cart 200 in 39ms
+ POST /pro/cart 200 in 221ms
+ ○ Compiling /pro/orders/[id] ...
+ ✓ Compiled /pro/orders/[id] in 4.1s (1087 modules)
+ GET /pro/orders/cmq856tdp001wmvn0xafx6os2 200 in 4549ms
+ POST /pro/orders/cmq856tdp001wmvn0xafx6os2 200 in 238ms
+ POST /pro/orders/cmq856tdp001wmvn0xafx6os2 200 in 87ms
+ GET /pro/orders/cmq856tdp001wmvn0xafx6os2 200 in 126ms
+ GET /pro/quotes 200 in 164ms
+ ○ Compiling /pro/quotes/[id] ...
+ ✓ Compiled /pro/quotes/[id] in 1274ms (1098 modules)
+ GET /pro/quotes/cmq6rbxqf0008mvn0ty7wcv8p 200 in 1526ms
+ GET /pro/quotes/cmq6rbxqf0008mvn0ty7wcv8p 200 in 108ms
+ ○ Compiling /pro/quotes/[id]/pdf ...
+ ✓ Compiled /pro/quotes/[id]/pdf in 1274ms (1103 modules)
+ GET /pro/quotes/cmq6rbxqf0008mvn0ty7wcv8p/pdf 302 in 1566ms
+ ○ Compiling /pro/invoices ...
+ ✓ Compiled /pro/invoices in 2.8s (1086 modules)
+ GET /pro/invoices 200 in 3184ms
+ GET /pro/invoices 200 in 91ms
+ ✓ Compiled in 5.8s (1592 modules)
+ GET /pro/invoices 200 in 339ms

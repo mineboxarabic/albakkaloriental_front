@@ -14,7 +14,22 @@
       "Bash(netstat -ano)",
       "Bash(wmic process *)",
       "Bash(curl *)",
-      "Bash(wsl -- bash -c \"npm view @img/sharp-linux-x64 dependencies 2>/dev/null\")"
+      "Bash(wsl -- bash -c \"npm view @img/sharp-linux-x64 dependencies 2>/dev/null\")",
+      "Bash(tasklist /FI \"PID eq 7892\")",
+      "Bash(tasklist /FI \"PID eq 9196\")",
+      "PowerShell(Get-Process *)",
+      "Bash(DATABASE_URL=postgresql://postgres:password@localhost:5433/stock_manager node -e ' *)",
+      "Bash(export PGPASSWORD=password)",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -h localhost -p 5433 -U postgres -d stock_manager -tAc \"select migration_name from \\\\\"_prisma_migrations\\\\\" where migration_name like '20260616%';\")",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -h localhost -p 5433 -U postgres -d stock_manager -tAc \"select column_name, is_nullable, data_type from information_schema.columns where table_name='Payment' and column_name='invoiceId';\")",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -h localhost -p 5433 -U postgres -d stock_manager -tAc \"select conname from pg_constraint where conrelid='\\\\\"Payment\\\\\"'::regclass and contype='f';\")",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -h localhost -p 5433 -U postgres -d stock_manager -tAc \"select migration_name, finished_at, rolled_back_at, \\(logs is not null\\) as has_logs from \\\\\"_prisma_migrations\\\\\" where migration_name='20260613130000_add_invoice_id_nullable';\")",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5433/stock_manager\" npx prisma migrate status)",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -h localhost -p 5433 -U postgres -d stock_manager -tAc \"select column_name, is_nullable from information_schema.columns where table_name='Payment' and column_name='invoiceId';\")",
+      "Bash(grep -nA 30 \"^model Invoice \" \"C:/Users/anasl/Desktop/AlimExpressApp/prisma/schema.prisma\")",
+      "Bash(grep -niA 25 \"^model RetailOrder \" \"C:/Users/anasl/Desktop/AlimExpressApp/prisma/schema.prisma\")",
+      "Bash(exit 1)",
+      "Bash(node -e ' *)"
     ]
   }
 }
