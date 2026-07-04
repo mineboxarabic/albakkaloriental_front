@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
-import { clearSessionCookie, storeBackendToken } from "@/lib/session";
+import { clearProSession, storeProToken } from "@/lib/session";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Adresse e-mail invalide."),
@@ -52,7 +52,7 @@ export async function loginPro(
       body: parsed.data,
     });
 
-    await storeBackendToken(result.token);
+    await storeProToken(result.token);
   } catch (error) {
     return {
       ok: false,
@@ -73,6 +73,6 @@ function mapLoginError(error: unknown): string {
 }
 
 export async function logoutPro() {
-  await clearSessionCookie();
+  await clearProSession();
   redirect("/pro/login");
 }

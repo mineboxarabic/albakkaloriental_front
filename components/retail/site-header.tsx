@@ -74,11 +74,9 @@ export function SiteHeader({ categories = [], phone = "" }: { categories?: strin
           </div>
           <div className="flex items-center gap-6">
             {phone && <span>Besoin d&apos;aide ? {phone}</span>}
-            {!isConnected && (
-              <Link className="hover:underline" href="/pro/login">
-                Espace pro
-              </Link>
-            )}
+            <Link className="hover:underline" href="/pro">
+              Espace pro
+            </Link>
             {isConnected ? (
               <Link className="flex items-center gap-1.5 hover:underline" href="/account">
                 <span className="inline-block h-2 w-2 rounded-full bg-white/90" />

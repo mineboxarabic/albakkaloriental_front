@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const SESSION_COOKIE = "catalog_session";
+const SESSION_COOKIE = "b2b_session";
 
 function getBackendUrl(): string {
   const url = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL;

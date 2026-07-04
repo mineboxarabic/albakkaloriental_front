@@ -7,17 +7,17 @@ import { SiteFooter } from "@/components/retail/site-footer";
 import { CartDrawer } from "@/components/retail/cart-drawer";
 import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
-import { getSession } from "@/lib/session";
+import { getRetailSession } from "@/lib/session";
 import { getCategories } from "@/lib/catalog";
 import { COLORS } from "@/lib/ui";
 import { company } from "@/lib/company";
 
 export default async function RetailLayout({ children }: { children: ReactNode }) {
   const [session, categories] = await Promise.all([
-    getSession(),
+    getRetailSession(),
     getCategories("retail"),
   ]);
-  const isRetail = session?.type === "retail";
+  const isRetail = session !== null;
   const sessionValue: ClientSession = {
     isConnected: !!isRetail,
     type: isRetail ? "retail" : null,
