@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossier technique — Alim Express</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#3F561F;        /* primaire : CTA, nav, titres */
+    --bg:#FAF8F2;           /* fond principal */
+    --section:#F0EBDD;      /* fond de section */
+    --ink:#171717;          /* texte principal */
+    --muted:#6B665D;        /* texte secondaire */
+    --border:#DDD8CC;       /* bordures */
+    --alert:#D52B14;        /* alerte / promo */
+    --highlight:#F2C400;    /* mise en avant */
+    --green-soft:rgba(63,86,31,.08);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{
+    font-family:"Satoshi","Poppins",system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    margin:0;
+    line-height:1.6;
+    font-size:15px;
+  }
+  .page{
+    max-width:900px;
+    margin:0 auto;
+    padding:48px 56px;
+  }
+
+  h1,h2,h3,h4{font-family:"Poppins",sans-serif;color:var(--green);line-height:1.25;}
+  h1{font-size:30px;font-weight:800;margin:0 0 6px;}
+  h2{
+    font-size:23px;font-weight:700;margin:48px 0 16px;
+    padding-bottom:10px;border-bottom:3px solid var(--highlight);
+  }
+  h3{font-size:18px;font-weight:600;margin:28px 0 10px;}
+  h4{font-size:15px;font-weight:600;margin:18px 0 8px;color:var(--ink);}
+  p{margin:0 0 12px;}
+  a{color:var(--green);}
+  strong{color:var(--ink);font-weight:600;}
+  code{
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace;
+    background:var(--green-soft);color:var(--green);
+    padding:1px 6px;border-radius:5px;font-size:.88em;
+  }
+
+  /* ---- Cover ---- */
+  .cover{
+    min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+    background:var(--green);color:var(--bg);padding:80px 64px;
+  }
+  .cover .kicker{font-family:"Poppins";text-transform:uppercase;letter-spacing:3px;
+    font-size:13px;color:var(--highlight);font-weight:600;margin-bottom:24px;}
+  .cover h1{color:#fff;font-size:54px;font-weight:900;margin:0 0 16px;line-height:1.05;}
+  .cover .sub{font-size:20px;color:#EDE7D6;max-width:620px;margin-bottom:48px;}
+  .cover .meta{border-top:1px solid rgba(250,248,242,.25);padding-top:24px;
+    display:grid;grid-template-columns:1fr 1fr;gap:14px 40px;max-width:680px;font-size:14px;}
+  .cover .meta b{color:var(--highlight);font-family:"Poppins";font-weight:600;display:block;
+    font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+  .cover .meta span{color:#F4F0E6;}
+  .cover .pill{display:inline-block;background:var(--highlight);color:var(--green);
+    font-family:"Poppins";font-weight:700;font-size:12px;padding:6px 14px;border-radius:999px;
+    margin-bottom:32px;text-transform:uppercase;letter-spacing:1px;}
+
+  /* ---- Notes / callouts ---- */
+  .note{background:var(--section);border-left:4px solid var(--green);
+    padding:16px 20px;border-radius:8px;margin:18px 0;color:var(--muted);font-size:14px;}
+  .note strong{color:var(--green);}
+
+  /* ---- Tables ---- */
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;
+    background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  thead th{background:var(--green);color:#fff;font-family:"Poppins";font-weight:600;
+    text-align:left;padding:10px 14px;font-size:12.5px;}
+  tbody td{padding:10px 14px;border-top:1px solid var(--border);vertical-align:top;}
+  tbody tr:nth-child(even){background:var(--green-soft);}
+
+  /* ---- Identity / KV table ---- */
+  .kv td:first-child{font-weight:600;color:var(--green);width:34%;font-family:"Poppins";}
+
+  /* ---- Criterion badge ---- */
+  .crit{display:flex;align-items:baseline;gap:14px;margin-top:48px;}
+  .crit .score{background:var(--highlight);color:var(--green);font-family:"Poppins";
+    font-weight:800;padding:4px 12px;border-radius:8px;font-size:14px;white-space:nowrap;}
+  .crit h2{margin:0;border:none;padding:0;flex:1;}
+
+  /* ---- Code / ASCII blocks ---- */
+  pre{background:#23301a;color:#EDE7D6;padding:18px 20px;border-radius:10px;overflow:auto;
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:12.5px;line-height:1.5;}
+  pre code{background:none;color:inherit;padding:0;}
+
+  /* ---- Placeholders : diagrammes & captures ---- */
+  .ph{border:2px dashed var(--green);border-radius:12px;padding:26px;margin:20px 0;
+    background:repeating-linear-gradient(45deg,var(--section),var(--section) 12px,#fff 12px,#fff 24px);
+    text-align:center;}
+  .ph .tag{display:inline-block;font-family:"Poppins";font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:1.5px;padding:5px 12px;border-radius:999px;
+    color:#fff;margin-bottom:10px;}
+  .ph.diagram .tag{background:var(--green);}
+  .ph.capture .tag{background:var(--alert);}
+  .ph h4{margin:6px 0 4px;color:var(--ink);}
+  .ph p{color:var(--muted);font-size:13px;margin:2px 0;}
+  .ph .ref{font-family:ui-monospace,monospace;font-size:12px;color:var(--green);font-weight:600;}
+
+  ul,ol{margin:0 0 14px;padding-left:22px;}
+  li{margin:4px 0;}
+  hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
+  .lead{font-size:16px;color:var(--muted);}
+
+  @media print{
+    body{font-size:11.5px;}
+    .page{max-width:none;padding:0 14mm;}
+    .cover{min-height:auto;height:100vh;page-break-after:always;}
+    h2{page-break-after:avoid;}
+    .crit{page-break-after:avoid;}
+    table,pre,.ph,.note{page-break-inside:avoid;}
+    h1.section-break{page-break-before:always;}
+  }
+  @page{size:A4;margin:16mm 0;}
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<section class="cover">
+  <div class="kicker">MBA Développeur Full Stack 2 · MyDigitalSchool · Workshop client</div>
+  <h1>Dossier&nbsp;technique</h1>
+  <div class="sub">Alim Express — plateforme de gestion et portail client pour un grossiste alimentaire halal-oriental, région PACA</div>
+  <span class="pill">Enseigne · Le Bakkal Oriental</span>
+  <div class="meta">
+    <div><b>Commanditaire</b><span>Rashed Younes, dirigeant d'Alim Express</span></div>
+    <div><b>Encadrante pédagogique</b><span>Camille SIX</span></div>
+    <div><b>Équipe</b><span>David · Anas · Yassin</span></div>
+    <div><b>Période</b><span>3 mars → 22 juin 2026</span></div>
+    <div><b>Soutenance</b><span>1er juillet 2026</span></div>
+    <div><b>Filière</b><span>Manager de projet web et digital</span></div>
+  </div>
+</section>
+
+<div class="page">
+
+<div class="note">
+  <strong>Objet de ce dossier.</strong> Conformément au guide du workshop client, ce document n'est
+  <em>pas un exercice de rédaction</em> : il <strong>compile et donne à voir les livrables réellement produits</strong>
+  (code source, outils de pilotage, documentation, recette) et en fournit les <strong>liens d'accès</strong>.
+  Il est organisé selon les <strong>cinq critères de la grille « Réalisation du projet — Développeur full stack »</strong>.
+</div>
+
+<!-- ============ IDENTITÉ ============ -->
+<h2>Identité du projet</h2>
+<table class="kv">
+  <tr><td>Projet</td><td>Alim Express — back-office de gestion + portail client (B2C / B2B)</td></tr>
+  <tr><td>Commanditaire</td><td>Rashed Younes, dirigeant d'Alim Express (grossiste halal-oriental, PACA)</td></tr>
+  <tr><td>Enseigne (storefront)</td><td>Le Bakkal Oriental</td></tr>
+  <tr><td>Formation</td><td>MBA Développeur Full Stack 2 — MyDigitalSchool</td></tr>
+  <tr><td>Encadrante</td><td>Camille SIX</td></tr>
+  <tr><td>Période / Gel de version</td><td>3 mars → 22 juin 2026 / 19 juin 2026</td></tr>
+  <tr><td>Rendu / Soutenance</td><td>22 juin 2026 / 1er juillet 2026</td></tr>
+</table>
+
+<h3>Équipe et apports individuels</h3>
+<table>
+  <thead><tr><th>Membre</th><th>Rôle</th><th>Périmètre de réalisation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Yassin</strong></td><td>Développeur back-end (partenaire technique du commanditaire)</td>
+      <td>Cœur du back-office : produits, stock par lots &amp; palettes (FEFO), commandes pro, devis, avoirs, tableau de bord ; explorations IA.</td></tr>
+    <tr><td><strong>Anas</strong></td><td>Développeur front-end</td>
+      <td>Portail client intégral : parcours particuliers et professionnels, UX responsive <strong>mobile-first</strong>, PDF devis/facture côté client.</td></tr>
+    <tr><td><strong>David</strong></td><td>Coordination projet + développeur</td>
+      <td>API reliant back-office et portail ; modules clients particuliers, facturation, livraisons ; pilotage, relation commanditaire, note de cadrage, recettage.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ INDEX LIVRABLES ============ -->
+<h2>Index des livrables</h2>
+<p class="lead">Liens d'accès pour le jury — à compléter avec les URL réelles avant le rendu.</p>
+<table>
+  <thead><tr><th>Livrable</th><th>Type</th><th>Accès</th></tr></thead>
+  <tbody>
+    <tr><td>Note de cadrage (v1.0 approuvée 03/03/2026)</td><td>PDF</td><td><code>docs/doc/Note-de-cadrage-Alim-Express-David.pdf</code></td></tr>
+    <tr><td>Code source — back-office (API + admin)</td><td>GitHub</td><td><code>github.com/mineboxarabic/AlimExpressApp</code></td></tr>
+    <tr><td>Code source — portail client (B2C + B2B)</td><td>GitHub</td><td><code>github.com/mineboxarabic/albakkaloriental_front</code></td></tr>
+    <tr><td>Tableau de pilotage (backlog, sprints)</td><td>Trello</td><td><em>lien partagé en consultation</em></td></tr>
+    <tr><td>Environnement de démonstration</td><td>App déployée</td><td><em>URL de démo</em></td></tr>
+    <tr><td>Documentation de tests</td><td>Markdown</td><td><code>docs/doc/TESTING.md</code></td></tr>
+    <tr><td>Procès-verbal de recettage</td><td>PDF signé</td><td><em>à joindre</em></td></tr>
+    <tr><td>Guides utilisateur (back-office, portail)</td><td>PDF</td><td><em>à joindre</em></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ CRITÈRE 1 ============ -->
+<h1 class="section-break" style="font-size:0;margin:0;height:0;overflow:hidden">Critère 1</h1>
+<div class="crit"><span class="score">/ 5</span><h2>Critère 1 — Structuration technique de l'application</h2></div>
+
+<h3>1.1 Architecture : deux applications, une base partagée</h3>
+<p>L'architecture repose sur <strong>deux applications web distinctes partageant une même base PostgreSQL</strong>.
+Le portail <strong>consomme l'API</strong> du back-office et n'accède pas directement à la base — ce qui
+isole la surface publique de la surface interne et simplifie le raisonnement sur la sécurité.</p>
+
+<div class="ph diagram">
+  <span class="tag">Schéma à insérer</span>
+  <h4>Schéma 1 — Architecture applicative</h4>
+  <p>Deux apps (portail client ↔ back-office via API REST) + base PostgreSQL partagée.</p>
+  <p class="ref">→ Prompt de génération fourni séparément (Schéma&nbsp;1)</p>
+</div>
+
+<h3>1.2 Stack technique</h3>
+<table>
+  <thead><tr><th>Couche</th><th>Back-office (AlimExpressApp)</th><th>Portail (AlimExpressCatalog)</th></tr></thead>
+  <tbody>
+    <tr><td>Framework</td><td>Next.js 15 (App Router), React 19</td><td>Next.js 15 (App Router), React 19</td></tr>
+    <tr><td>Langage</td><td>TypeScript strict</td><td>TypeScript strict</td></tr>
+    <tr><td>UI</td><td>Tailwind CSS + shadcn/ui</td><td>Tailwind CSS v4 + shadcn/ui + Lucide</td></tr>
+    <tr><td>Données</td><td>PostgreSQL + Prisma (schéma ~980 lignes)</td><td>API REST <code>/api/v1/*</code></td></tr>
+    <tr><td>Authentification</td><td>Session serveur (admin) + JWT (clients)</td><td>JWT portable (<code>jose</code>), cookie HttpOnly</td></tr>
+    <tr><td>Validation</td><td>Zod</td><td>Zod</td></tr>
+    <tr><td>Documents</td><td>Génération PDF (devis, factures, bons)</td><td>Rendu PDF devis/facture</td></tr>
+    <tr><td>Tests</td><td>Vitest + Playwright</td><td>Vitest + Testing Library + Playwright</td></tr>
+  </tbody>
+</table>
+
+<h3>1.3 Organisation du code — portail client</h3>
+<pre><code>app/
+├── (public)/   → CGV, confidentialité, contact, mots de passe, vérification e-mail
+├── (retail)/   → B2C : accueil, produits, panier, checkout, compte, suivi commande
+└── (pro)/      → B2B : login pro, catalogue à niveaux tarifaires, devis, factures
+actions/        → Server Actions validées par Zod (pro-quote.ts, pro-order.ts, …)
+lib/            → api-client.ts, session.ts, catalog-pricing.ts (C/D/E/F), order-rules.ts
+middleware.ts   → protection des routes /pro/* (vérification JWT)</code></pre>
+<p>Les <strong>groupes de routes</strong> isolent les parcours B2C / B2B / public ; les
+<strong>règles métier sont centralisées</strong> pour éviter la duplication (DRY).</p>
+
+<h3>1.4 Authentification — trois publics, trois mécanismes</h3>
+<ul>
+  <li><strong>Administrateurs</strong> : session côté serveur (révocation immédiate).</li>
+  <li><strong>Particuliers &amp; professionnels</strong> : <strong>JWT portable</strong> émis par le back-office, vérifié par le portail, en cookie HttpOnly.</li>
+  <li>Cloisonnement strict : le portail ne peut jamais atteindre une opération d'administration.</li>
+</ul>
+
+<h3>1.5 Cycle commercial &amp; points techniques notables</h3>
+<div class="ph diagram">
+  <span class="tag">Schéma à insérer</span>
+  <h4>Schéma 2 — Cycle commercial B2B</h4>
+  <p>Devis → acceptation horodatée → commande ferme → facture → avoir (remise en stock).</p>
+  <p class="ref">→ Prompt de génération fourni séparément (Schéma&nbsp;2)</p>
+</div>
+<ul>
+  <li><strong>Tarification par niveaux</strong> (C/D/E/F) calculée dynamiquement, jamais exposée à un visiteur non authentifié.</li>
+  <li><strong>Stock FEFO</strong> par lots/palettes, déduction automatique à la livraison.</li>
+  <li><strong>Logistique</strong> : adresses géolocalisées, zonage, ordre de tournée, <strong>verrouillage J-1 à 21h</strong>.</li>
+</ul>
+
+<h3>1.6 Qualité logicielle</h3>
+<ul>
+  <li>Couverture de tests <strong>&gt; 60 %</strong> sur les modules critiques (commandes, stock, facturation, auth).</li>
+  <li>Validation systématique aux frontières réseau (Zod), <strong>journal d'audit</strong> des opérations sensibles.</li>
+  <li>Revue de code en binôme (Pull Requests), commits conventionnels.</li>
+</ul>
+
+<!-- ============ CRITÈRE 2 ============ -->
+<div class="crit"><span class="score">/ 3</span><h2>Critère 2 — Contraintes d'hébergement anticipées</h2></div>
+<p>L'environnement du commanditaire était minimal (tableurs + papier), sans contrainte d'intégration.
+Les choix ont privilégié la <strong>sobriété tarifaire et la fiabilité</strong>.</p>
+<table>
+  <thead><tr><th>Poste</th><th>Service retenu</th><th>Tarification</th><th>Coût/an</th></tr></thead>
+  <tbody>
+    <tr><td>Hébergement web + base de données</td><td><strong>Railway</strong> (plan Hobby)</td><td>5 $/mois, crédits inclus</td><td>~60 €</td></tr>
+    <tr><td>Stockage des PDF</td><td>AWS S3</td><td>à l'usage, faible volumétrie</td><td>~60 €</td></tr>
+    <tr><td>E-mails transactionnels</td><td>Resend (gratuit)</td><td>3 000 e-mails/mois</td><td>0 €</td></tr>
+    <tr><td>Notifications mobiles</td><td>Twilio (WhatsApp)</td><td>0,005 $/message</td><td>~40 €</td></tr>
+    <tr><td>Géocodage des adresses</td><td>Référentiel public (BAN)</td><td>gratuit</td><td>0 €</td></tr>
+    <tr><td colspan="3"><strong>Total infrastructure v1</strong></td><td><strong>~160 €</strong></td></tr>
+  </tbody>
+</table>
+<h4>Anticipations intégrées au développement</h4>
+<ul>
+  <li><strong>Variables d'environnement</strong> centralisées (<code>.env.example</code>) : <code>BACKEND_URL</code>, <code>AUTH_SECRET</code> (secret JWT partagé).</li>
+  <li><strong>Images produit</strong> servies depuis S3, domaine distant autorisé dans <code>next.config.ts</code>.</li>
+  <li><strong>Mode dégradé</strong> prévu pour chaque dépendance tierce critique.</li>
+  <li><strong>Montée en charge</strong> : indexation soignée, monitoring, tests de charge avant mise en production.</li>
+  <li><strong>Cibles</strong> : page catalogue &lt; 1 s (95e centile), erreurs serveur &lt; 1 %, disponibilité &gt; 99 %.</li>
+</ul>
+
+<!-- ============ CRITÈRE 3 ============ -->
+<div class="crit"><span class="score">/ 5</span><h2>Critère 3 — Administration facilitée par un back-office</h2></div>
+<p>L'administration est assurée par <strong>AlimExpressApp</strong>, qui centralise toute la gestion d'Alim Express.</p>
+
+<div class="ph capture">
+  <span class="tag">Capture à insérer</span>
+  <h4>Capture 1 — Tableau de bord du back-office</h4>
+  <p>Vue d'ensemble de l'activité (commandes, stock, indicateurs).</p>
+  <p class="ref">→ Source de capture fournie séparément (Capture&nbsp;1)</p>
+</div>
+
+<table>
+  <thead><tr><th>Module</th><th>Fonctions principales</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Produits</strong></td><td>Catalogue, SKU/codes-barres, images S3, niveaux tarifaires C/D/E/F, visibilité RETAIL/WHOLESALE/BOTH.</td></tr>
+    <tr><td><strong>Stock</strong></td><td>Lots (péremption, FEFO), palettes, déduction auto à la livraison, traçabilité anti-survente.</td></tr>
+    <tr><td><strong>Clients</strong></td><td>Particuliers (auto-inscription) et pros (création manuelle + activation par lien).</td></tr>
+    <tr><td><strong>Cycle commercial</strong></td><td>Devis, commande ferme, facture, avoir (remise en stock), documents PDF.</td></tr>
+    <tr><td><strong>Livraisons</strong></td><td>Géolocalisation, zonage, tournées, verrouillage J-1 21h, bons PDF.</td></tr>
+    <tr><td><strong>Transverse</strong></td><td>Tableau de bord, journal d'audit, notifications e-mail/WhatsApp, multilingue FR/AR.</td></tr>
+  </tbody>
+</table>
+
+<h4>Spécifications techniques et fonctionnelles écrites</h4>
+<ul>
+  <li><strong>Modèle de données</strong> : schéma Prisma (~980 lignes), déployable sur environnement vierge, jeu de données rejouable.</li>
+  <li><strong>Contrat d'API</strong> : points d'entrée <code>/api/v1/*</code> documentés, validations en entrée/sortie.</li>
+  <li><strong>Spécifications fonctionnelles</strong> des modules (<code>AGENTS.md</code>) + <strong>documentation utilisateur</strong> (guide + formation 2 h).</li>
+</ul>
+
+<!-- ============ CRITÈRE 4 ============ -->
+<div class="crit"><span class="score">/ 4</span><h2>Critère 4 — Recettage formalisé et corrections</h2></div>
+<p>Recettage à <strong>deux niveaux automatisés</strong> + recette manuelle avec le commanditaire, donnant lieu à un <strong>procès-verbal signé</strong>.</p>
+<ul>
+  <li><strong>Tests unitaires / composants</strong> — Vitest + Testing Library : logique <code>lib/</code>, Server Actions (back mocké), composants. Dossier <code>__tests__/</code>.</li>
+  <li><strong>Tests end-to-end</strong> — Playwright : parcours complets contre un back mocké (<code>e2e/mock-backend.ts</code>). Dossier <code>e2e/</code>.</li>
+  <li>Objectif de couverture <strong>&gt; 60 %</strong> sur les modules critiques.</li>
+</ul>
+
+<h4>Exemple de plan de test (E2E — parcours panier, <code>e2e/cart.spec.ts</code>)</h4>
+<table>
+  <thead><tr><th>#</th><th>Étape</th><th>Résultat attendu</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Ouvrir le catalogue retail</td><td>Produits affichés</td></tr>
+    <tr><td>2</td><td>Ajouter un produit au panier</td><td>Panier mis à jour</td></tr>
+    <tr><td>3</td><td>Dépasser la quantité maximale</td><td>Limite par produit respectée</td></tr>
+    <tr><td>4</td><td>Aller au paiement sous le minimum</td><td>Minimum de commande exigé</td></tr>
+    <tr><td>5</td><td>Atteindre le seuil de franco</td><td>Frais de livraison offerts</td></tr>
+    <tr><td>6</td><td>Valider la commande</td><td>Confirmation affichée</td></tr>
+  </tbody>
+</table>
+
+<div class="ph capture">
+  <span class="tag">Capture à insérer</span>
+  <h4>Capture 2 — Exécution de la suite de tests</h4>
+  <p>Sortie terminal Vitest + Playwright au vert (et/ou rapport de couverture).</p>
+  <p class="ref">→ Source de capture fournie séparément (Capture&nbsp;2)</p>
+</div>
+
+<pre><code>npx vitest run --pool=threads      # tests unitaires et composants
+npx playwright test                 # tests end-to-end
+npm run lint                        # qualité du code (ESLint)</code></pre>
+
+<p><strong>Corrections réalisées</strong> (traçables dans Git) : refonte de la navigation retail
+suite aux retours du commanditaire, ajustements responsive, intégration du branding Le Bakkal
+Oriental (logo, favicon). Le PV de recette formalise le périmètre testé, les anomalies, les
+corrections et le statut final de chaque parcours.</p>
+
+<!-- ============ CRITÈRE 5 ============ -->
+<div class="crit"><span class="score">/ 3</span><h2>Critère 5 — Responsive et mobile-first</h2></div>
+<p>Le portail est conçu en <strong>approche mobile-first</strong> : pensé et validé prioritairement
+sur smartphone, puis décliné sur tablette et ordinateur — reflet de l'usage réel (commande depuis le téléphone).</p>
+
+<div class="ph capture">
+  <span class="tag">Capture à insérer</span>
+  <h4>Capture 3 — Portail responsive (mobile / desktop)</h4>
+  <p>Même page catalogue affichée côte à côte en vue mobile et vue desktop.</p>
+  <p class="ref">→ Source de capture fournie séparément (Capture&nbsp;3)</p>
+</div>
+
+<h4>Charte graphique — Le Bakkal Oriental</h4>
+<table>
+  <thead><tr><th>Usage</th><th>Couleur</th><th>Hex</th></tr></thead>
+  <tbody>
+    <tr><td>Vert principal (CTA, nav)</td><td>Olive foncé</td><td><code>#3F561F</code></td></tr>
+    <tr><td>Fond principal</td><td>Blanc cassé chaud</td><td><code>#FAF8F2</code></td></tr>
+    <tr><td>Fond de section</td><td>Beige crème</td><td><code>#F0EBDD</code></td></tr>
+    <tr><td>Texte principal</td><td>Noir</td><td><code>#171717</code></td></tr>
+    <tr><td>Texte secondaire</td><td>Gris chaud</td><td><code>#6B665D</code></td></tr>
+    <tr><td>Bordures</td><td>Beige-gris clair</td><td><code>#DDD8CC</code></td></tr>
+    <tr><td>Alerte / promo</td><td>Rouge-orangé</td><td><code>#D52B14</code></td></tr>
+    <tr><td>Mise en avant</td><td>Jaune chaud</td><td><code>#F2C400</code></td></tr>
+  </tbody>
+</table>
+<p>Typographie : <strong>Poppins</strong> (titres) et <strong>Satoshi</strong> (corps).</p>
+
+<hr>
+
+<!-- ============ GLOSSAIRE ============ -->
+<h2>Annexe — Glossaire technique</h2>
+<table>
+  <thead><tr><th>Terme</th><th>Définition</th></tr></thead>
+  <tbody>
+    <tr><td>B2C / B2B</td><td>Vente aux particuliers (prix standards) / aux professionnels (prix négociés par niveau).</td></tr>
+    <tr><td>Devis (proforma)</td><td>Document chiffré pré-commande, soumis au client pour acceptation.</td></tr>
+    <tr><td>Commande ferme</td><td>Devis accepté et signé, déclenchant la préparation.</td></tr>
+    <tr><td>Avoir</td><td>Document de crédit avec réintégration du stock.</td></tr>
+    <tr><td>FEFO</td><td><em>First-Expired-First-Out</em> : sortie du lot dont la péremption est la plus proche.</td></tr>
+    <tr><td>Niveau tarifaire</td><td>Catégorie de prix (C/D/E/F) attribuée à un client professionnel.</td></tr>
+    <tr><td>JWT</td><td>Jeton portable vérifiable entre le back-office et le portail.</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  Pour le contexte marché, les enjeux stratégiques, le budget, le planning et les risques,
+  se reporter à la <strong>note de cadrage</strong> (livrable joint).
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
