@@ -112,6 +112,8 @@ export default async function ProProductDetailPage({
               pricingLevel={session?.pricingLevel ?? null}
               authenticated={authenticated}
               isOutOfStock={product.isOutOfStock}
+              availableStock={product.availableStock}
+              baseUnit={product.baseUnit}
               pricing={{
                 sellingPrice: product.sellingPrice,
                 unitSellingPrice: product.unitSellingPrice,

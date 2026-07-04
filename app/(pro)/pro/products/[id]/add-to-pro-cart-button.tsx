@@ -21,6 +21,8 @@ type Props = {
   pricing: ProPriceInput;
   pricingLevel: PricingLevel | null;
   isOutOfStock?: boolean;
+  availableStock?: number;
+  baseUnit?: string;
   authenticated?: boolean;
 };
 
@@ -32,6 +34,8 @@ export function AddToProCartButton({
   pricing,
   pricingLevel,
   isOutOfStock = false,
+  availableStock = 0,
+  baseUnit = "PIECE",
   authenticated = true,
 }: Props) {
   const allowsUnit = supportsUnitSale(pricing);
@@ -46,6 +50,18 @@ export function AddToProCartButton({
     [pricing, saleUnit, pricingLevel],
   );
   const lineTotal = unitPrice * qty;
+
+  const maxQtyForUnit = useMemo(
+    () =>
+      saleUnit === "PACK" && unitsPerPack > 0
+        ? Math.floor(availableStock / unitsPerPack)
+        : availableStock,
+    [saleUnit, availableStock, unitsPerPack],
+  );
+  const stockLabel =
+    saleUnit === "PACK"
+      ? `${maxQtyForUnit} carton${maxQtyForUnit > 1 ? "s" : ""} disponible${maxQtyForUnit > 1 ? "s" : ""}`
+      : `${maxQtyForUnit} ${unitNoun(baseUnit)} disponible${maxQtyForUnit > 1 ? "s" : ""}`;
 
   if (!authenticated) {
     return (
@@ -128,7 +144,7 @@ export function AddToProCartButton({
           <button
             type="button"
             aria-label="Augmenter la quantité"
-            onClick={() => setQty((q) => Math.min(999, q + 1))}
+            onClick={() => setQty((q) => Math.min(Math.max(maxQtyForUnit, 1), q + 1))}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
             style={{ color: COLORS.text }}
           >
@@ -136,6 +152,12 @@ export function AddToProCartButton({
           </button>
         </div>
       </div>
+
+      {!isOutOfStock && (
+        <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
+          {stockLabel}
+        </p>
+      )}
 
       <div
         className="flex items-center justify-between rounded-sm border px-4 py-2.5"
@@ -205,6 +227,19 @@ export function AddToProCartButton({
       )}
     </div>
   );
+}
+
+function unitNoun(baseUnit: string): string {
+  switch (baseUnit) {
+    case "KILOGRAM":
+      return "kg";
+    case "LITER":
+      return "L";
+    case "PIECE":
+      return "u.";
+    default:
+      return baseUnit.toLowerCase();
+  }
 }
 
 function ToggleButton({

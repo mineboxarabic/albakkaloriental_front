@@ -26,6 +26,11 @@ export type ProductCard = {
    */
   effectivePrice: number;
   isOutOfStock: boolean;
+  /** Available-to-promise stock (on-hand minus pending B2B demand), in the
+   *  product's base unit. Only meaningful for "pro" (B2B) — retail out-of-stock
+   *  is a manual admin badge, not quantity-driven. Matches what the B2B
+   *  cart/checkout stock check itself is computed from. */
+  availableStock: number;
 };
 
 type BackendCatalogProduct = {
@@ -53,6 +58,8 @@ type BackendCatalogProduct = {
   b2bStatus?: "VISIBLE" | "HIDDEN";
   /** Still sent by B2B endpoint: computed from real stock quantity. */
   isOutOfStock?: boolean;
+  /** Sent by both endpoints (same on-hand sum isOutOfStock is derived from). */
+  availableStock?: number;
   isActive?: boolean;
 };
 
@@ -78,6 +85,7 @@ function toProductCard(p: BackendCatalogProduct, audience: CatalogAudience): Pro
     priceLevelF: p.priceLevelF,
     effectivePrice: p.price,
     isOutOfStock,
+    availableStock: p.availableStock ?? 0,
   };
 }
 

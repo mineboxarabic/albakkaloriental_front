@@ -82,9 +82,18 @@ export async function backendFetch<T>(
   }
 
   if (!response.ok) {
+    // apiError()/apiBadRequest() on the backend return either { error: string }
+    // or { errors: [{ message }, ...] } (Zod issues / apiBadRequest shape).
+    const errors = (parsed as { errors?: unknown })?.errors;
+    const firstErrorMessage =
+      Array.isArray(errors) && errors.length > 0
+        ? (errors[0] as { message?: string })?.message
+        : undefined;
+
     const message =
       (parsed as { error?: string })?.error ??
       (parsed as { message?: string })?.message ??
+      firstErrorMessage ??
       `Request failed: ${response.status}`;
 
     if (response.status === 401) {

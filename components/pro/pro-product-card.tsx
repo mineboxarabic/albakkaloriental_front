@@ -74,6 +74,12 @@ export function ProProductCard({
             : buildWeightLabel(product)}
         </div>
 
+        {authenticated && !isOutOfStock && (
+          <div className="text-[10.5px] font-medium" style={{ color: COLORS.muted }}>
+            {formatAvailableStock(product.availableStock, product.unitsPerPack, product.baseUnit)}
+          </div>
+        )}
+
         {authenticated && (
           <>
         {/* Mobile: simple label/value rows */}
@@ -228,4 +234,16 @@ function buildUnitNoun(baseUnit: string): string {
     default:
       return baseUnit.toLowerCase();
   }
+}
+
+export function formatAvailableStock(
+  availableStock: number,
+  unitsPerPack: number,
+  baseUnit: string,
+): string {
+  if (unitsPerPack > 1) {
+    const cartons = Math.floor(availableStock / unitsPerPack);
+    return `${cartons} carton${cartons > 1 ? "s" : ""} disponible${cartons > 1 ? "s" : ""}`;
+  }
+  return `${availableStock} ${buildUnitNoun(baseUnit)} disponible${availableStock > 1 ? "s" : ""}`;
 }
