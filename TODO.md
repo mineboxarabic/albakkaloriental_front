@@ -1,0 +1,1 @@
+- [ ] Change the text "Livraison à domicile dans toute la France" to "Livraison à domicile dans toute la region PACA"
