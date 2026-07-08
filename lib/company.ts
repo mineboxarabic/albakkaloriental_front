@@ -12,6 +12,7 @@ export const company = {
   phone,
   whatsappUrl: phone ? `https://wa.me/${phoneToWaNumber(phone)}` : null,
   email: process.env.COMPANY_EMAIL ?? "",
+  supportEmail: process.env.SUPPORT_EMAIL ?? "support@lebakkaloriental.fr",
   siret: process.env.COMPANY_SIRET ?? "",
   vat: process.env.COMPANY_VAT ?? "",
   socials: {

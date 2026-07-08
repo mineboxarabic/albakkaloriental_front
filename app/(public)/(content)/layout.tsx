@@ -5,14 +5,13 @@ import { AuthModalProvider } from "@/components/auth-modal";
 import { SiteHeader } from "@/components/retail/site-header";
 import { SiteFooter } from "@/components/retail/site-footer";
 import { CartDrawer } from "@/components/retail/cart-drawer";
-import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getRetailSession } from "@/lib/session";
 import { getCategories } from "@/lib/catalog";
 import { COLORS } from "@/lib/ui";
 import { company } from "@/lib/company";
 
-export default async function RetailLayout({ children }: { children: ReactNode }) {
+export default async function ContentLayout({ children }: { children: ReactNode }) {
   const [session, categories] = await Promise.all([
     getRetailSession(),
     getCategories("retail"),
@@ -31,7 +30,6 @@ export default async function RetailLayout({ children }: { children: ReactNode }
           <div className="flex min-h-screen flex-col overflow-x-clip" style={{ background: COLORS.bg }}>
             <SiteHeader categories={categories} phone={company.phone} />
             <CartDrawer />
-            <PendingCartIntentConsumer />
             <div className="flex-1">{children}</div>
             <SiteFooter categories={categories} />
           </div>

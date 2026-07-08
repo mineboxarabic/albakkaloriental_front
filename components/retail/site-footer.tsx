@@ -1,8 +1,13 @@
+import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { company } from "@/lib/company";
+import { getDisplayCategories } from "@/lib/category-display";
 
-export function SiteFooter() {
+type FooterItem = { label: string; href: string | null };
+const MAX_CATEGORY_LINKS = 6;
+
+export function SiteFooter({ categories }: { categories: string[] }) {
   const socialLinks = [
     {
       label: "Facebook",
@@ -26,6 +31,29 @@ export function SiteFooter() {
       path: "M21.6 8.3a2.5 2.5 0 0 0-1.8-1.8C18.2 6 12 6 12 6s-6.2 0-7.8.5A2.5 2.5 0 0 0 2.4 8.3 26 26 0 0 0 2 12a26 26 0 0 0 .4 3.7 2.5 2.5 0 0 0 1.8 1.8c1.6.5 7.8.5 7.8.5s6.2 0 7.8-.5a2.5 2.5 0 0 0 1.8-1.8 26 26 0 0 0 .4-3.7 26 26 0 0 0-.4-3.7zM10 15V9l5.2 3L10 15z",
     },
   ].filter((s) => s.href);
+
+  const catalogueLinks: FooterItem[] = getDisplayCategories(categories)
+    .slice(0, MAX_CATEGORY_LINKS)
+    .map((c) => ({
+      label: c.name,
+      href: `/products?category=${encodeURIComponent(c.name)}`,
+    }));
+
+  const serviceLinks: FooterItem[] = [
+    { label: "Livraison à domicile", href: "/livraison" },
+    { label: "Click & collect", href: "/click-collect" },
+    { label: "Espace professionnels", href: "/pro/login" },
+    { label: "Promotions", href: null },
+    { label: "Cartes cadeaux", href: null },
+  ];
+
+  const aboutLinks: FooterItem[] = [
+    { label: "Qui sommes-nous", href: "/a-propos" },
+    { label: "Nos engagements", href: "/nos-engagements" },
+    { label: "Mentions légales", href: "/mentions-legales" },
+    { label: "CGV", href: "/cgv" },
+    { label: "Politique de confidentialité", href: "/confidentialite" },
+  ];
 
   return (
     <footer className="mt-8" style={{ background: COLORS.primary, color: "#FAF8F2" }}>
@@ -75,37 +103,9 @@ export function SiteFooter() {
           )}
         </div>
 
-        <FooterCol
-          title="Catalogue"
-          links={[
-            "Épicerie salée",
-            "Épicerie sucrée",
-            "Boissons",
-            "Produits frais",
-            "Surgelés",
-            "Hygiène & maison",
-          ]}
-        />
-        <FooterCol
-          title="Services"
-          links={[
-            "Livraison à domicile",
-            "Click & collect",
-            "Espace professionnels",
-            "Promotions",
-            "Cartes cadeaux",
-          ]}
-        />
-        <FooterCol
-          title="À propos"
-          links={[
-            "Qui sommes-nous",
-            "Nos engagements",
-            "Mentions légales",
-            "CGV",
-            "Politique de confidentialité",
-          ]}
-        />
+        <FooterCol title="Catalogue" links={catalogueLinks} />
+        <FooterCol title="Services" links={serviceLinks} />
+        <FooterCol title="À propos" links={aboutLinks} />
 
         <div className="col-span-1 md:col-span-2">
           <div className="text-[12px] font-bold tracking-wide opacity-90">CONTACT</div>
@@ -142,9 +142,9 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {company.name}. Tous droits réservés.
           </span>
           <span className="flex items-center gap-4">
-            <a href="/cgv" className="hover:underline">CGV</a>
-            <a href="/confidentialite" className="hover:underline">Confidentialité</a>
-            <a href="/contact" className="hover:underline">Contact</a>
+            <Link href="/cgv" className="hover:underline">CGV</Link>
+            <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
+            <Link href="/contact" className="hover:underline">Contact</Link>
           </span>
         </div>
       </div>
@@ -176,7 +176,7 @@ function SocialLink({
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+function FooterCol({ title, links }: { title: string; links: FooterItem[] }) {
   return (
     <div className="col-span-1 md:col-span-2">
       <div className="text-[12px] font-bold tracking-wide opacity-90">
@@ -184,10 +184,19 @@ function FooterCol({ title, links }: { title: string; links: string[] }) {
       </div>
       <ul className="mt-4 space-y-2.5 text-[12.5px] opacity-85">
         {links.map((l) => (
-          <li key={l}>
-            <a href="#" className="hover:underline">
-              {l}
-            </a>
+          <li key={l.label}>
+            {l.href ? (
+              <Link href={l.href} className="hover:underline">
+                {l.label}
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 opacity-45" aria-disabled>
+                {l.label}
+                <span className="rounded bg-white/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
+                  Bientôt
+                </span>
+              </span>
+            )}
           </li>
         ))}
       </ul>

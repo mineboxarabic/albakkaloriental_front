@@ -70,7 +70,7 @@ export function SiteHeader({ categories = [], phone = "" }: { categories?: strin
         <div className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-2">
           <div className="flex items-center gap-2">
             <Truck className="h-3.5 w-3.5" strokeWidth={2} />
-            <span>Livraison à domicile dans toute la France</span>
+            <span>Livraison à domicile dans toute la region PACA</span>
           </div>
           <div className="flex items-center gap-6">
             {phone && <span>Besoin d&apos;aide ? {phone}</span>}
