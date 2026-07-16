@@ -4,7 +4,13 @@ import { notFound } from "next/navigation";
 import { Package } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
 import { getProMe } from "@/actions/pro-me";
-import { COLORS, DISPLAY_FONT, buildWeightLabel, productImage } from "@/lib/ui";
+import {
+  COLORS,
+  DISPLAY_FONT,
+  buildQuantityLabel,
+  buildUnitLabel,
+  productImage,
+} from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { AddToProCartButton } from "./add-to-pro-cart-button";
 
@@ -25,6 +31,10 @@ export default async function ProProductDetailPage({
   const { id } = await params;
   const product = await getProduct(id, "pro");
   if (!product) notFound();
+  const packagingLabel =
+    product.unitsPerPack > 1
+      ? `Carton de ${buildQuantityLabel(product.unitsPerPack, product.baseUnit, true)}`
+      : buildUnitLabel(product.baseUnit, true);
 
   const firstCategory = product.category.split(",")[0]?.trim();
   const { products: relatedRaw } = await getProducts({
@@ -94,13 +104,15 @@ export default async function ProProductDetailPage({
           </h1>
           <div className="mt-1 flex items-center gap-3 text-[12.5px]" style={{ color: COLORS.muted }}>
             <span>Réf : {product.sku}</span>
-            <span>·</span>
-            <span className="inline-flex items-center gap-1">
-              <Package className="h-3.5 w-3.5" strokeWidth={2} />
-              {product.unitsPerPack > 1
-                ? `Carton de ${product.unitsPerPack} ${packUnitLabel(product.baseUnit)}`
-                : buildWeightLabel(product)}
-            </span>
+            {packagingLabel && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <Package className="h-3.5 w-3.5" strokeWidth={2} />
+                  {packagingLabel}
+                </span>
+              </>
+            )}
           </div>
 
           <div className="mt-6">
@@ -151,17 +163,4 @@ export default async function ProProductDetailPage({
       )}
     </main>
   );
-}
-
-function packUnitLabel(baseUnit: string): string {
-  switch (baseUnit) {
-    case "KILOGRAM":
-      return "kg";
-    case "LITER":
-      return "L";
-    case "PIECE":
-      return "u.";
-    default:
-      return baseUnit.toLowerCase();
-  }
 }

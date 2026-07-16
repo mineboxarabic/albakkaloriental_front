@@ -9,7 +9,7 @@ import {
   ArrowLeft,
   FileText,
 } from "lucide-react";
-import { getProMe, getProOrders } from "@/actions/pro-me";
+import { getProMe } from "@/actions/pro-me";
 import { logoutPro } from "@/actions/pro-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProContactForm } from "./pro-contact-form";
@@ -24,18 +24,9 @@ export default async function ProAccountPage() {
   }
   const { user, customer: c } = result;
 
-  // Amount still owed across all non-cancelled orders (what's left to pay,
-  // not what has been paid). Mirrors the admin "Reste à payer" figure.
-  const ordersResult = await getProOrders();
-  const remainingToPay = ordersResult.ok
-    ? ordersResult.orders.reduce(
-        (sum, o) =>
-          o.status === "CANCELLED"
-            ? sum
-            : sum + Math.max(0, o.totalAmount - o.paidAmount),
-        0,
-      )
-    : 0;
+  // Authoritative balance computed server-side from unpaid invoices net of
+  // avoirs (not re-derived per order, which can't be split for a shared invoice).
+  const remainingToPay = c.outstandingBalance;
 
   return (
     <main

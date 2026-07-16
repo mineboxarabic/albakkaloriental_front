@@ -44,16 +44,20 @@ export type ProOrderSummary = {
   orderNumber: string;
   orderDate: string;
   status: string;
-  paymentStatus: string;
   totalAmount: number;
-  paidAmount: number;
   lockedAt: string | null;
   createdAt: string;
+  billingState: "UNINVOICED" | "INVOICED";
+  invoiceCount: number;
   _count: { items: number };
   quote: { id: string; acceptedAt: string | null; validUntil: string } | null;
 };
 
 export type ProOrderDetail = ProOrderSummary & {
+  billing: {
+    state: "UNINVOICED" | "INVOICED";
+    invoices: ProInvoice[];
+  };
   items: Array<{
     id: string;
     productId: string;
@@ -75,11 +79,17 @@ export type ProInvoice = {
   invoiceNumber: string;
   invoiceDate: string;
   dueDate: string;
-  status: "UNPAID" | "PAID" | "PARTIAL" | "OVERDUE";
+  status: "UNPAID" | "PAID" | "OVERDUE";
   totalAmount: number;
   paidAmount: number;
+  remainingAmount: number;
   isSent: boolean;
-  order: { id: string; orderNumber: string } | null;
+  orders: Array<{
+    id: string;
+    orderNumber: string;
+    orderDate: string;
+    totalAmount: number;
+  }>;
 };
 
 type Ok<T> = { ok: true } & T;

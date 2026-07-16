@@ -12,6 +12,53 @@ async function createSignedToken(payload: any): Promise<string> {
     .sign(secret);
 }
 
+const SHARED_INVOICE = {
+  id: "inv-1",
+  invoiceNumber: "FAC-2026-0042",
+  invoiceDate: "2026-07-01",
+  dueDate: "2026-08-01",
+  status: "UNPAID",
+  totalAmount: 1000,
+  paidAmount: 600,
+  remainingAmount: 400,
+  isSent: true,
+  orders: [
+    { id: "o1", orderNumber: "CMD-E2E-1", orderDate: "2026-06-01", totalAmount: 400 },
+    { id: "o2", orderNumber: "CMD-E2E-2", orderDate: "2026-06-05", totalAmount: 300 },
+    { id: "o3", orderNumber: "CMD-E2E-3", orderDate: "2026-06-10", totalAmount: 300 },
+  ],
+};
+
+function mockOrderDetail(orderId: string, orderNumber: string, totalAmount: number) {
+  return {
+    id: orderId,
+    orderNumber,
+    orderDate: "2026-06-01",
+    status: "DELIVERED",
+    totalAmount,
+    lockedAt: "2026-07-01",
+    createdAt: "2026-06-01",
+    billingState: "INVOICED",
+    invoiceCount: 1,
+    _count: { items: 1 },
+    quote: null,
+    billing: { state: "INVOICED", invoices: [SHARED_INVOICE] },
+    items: [
+      {
+        id: "item-1",
+        productId: "prod-2",
+        quantity: 1,
+        unitPrice: totalAmount,
+        discount: 0,
+        taxRate: 20,
+        totalPrice: totalAmount,
+        product: { name: "Produit Pro 2", sku: "PP-2", imageUrl: null },
+      },
+    ],
+    deliveryCity: null,
+  };
+}
+
 export class MockBackend {
   private server: http.Server | null = null;
   public retailCartItems: any[] = [];
@@ -174,6 +221,25 @@ export class MockBackend {
                 outstandingBalance: 0
               }
             });
+          }
+
+          if (path === "/api/v1/b2b/invoices") {
+            if (!this.loggedInPro) {
+              return sendJSON(401, { error: "Authentication required" });
+            }
+            return sendJSON(200, { invoices: [SHARED_INVOICE] });
+          }
+
+          if (path.startsWith("/api/v1/b2b/orders/")) {
+            if (!this.loggedInPro) {
+              return sendJSON(401, { error: "Authentication required" });
+            }
+            const orderId = path.split("/").pop() as string;
+            const order = SHARED_INVOICE.orders.find((o) => o.id === orderId);
+            if (!order) {
+              return sendJSON(404, { error: "Not found" });
+            }
+            return sendJSON(200, { order: mockOrderDetail(order.id, order.orderNumber, order.totalAmount) });
           }
 
           // Retail Cart

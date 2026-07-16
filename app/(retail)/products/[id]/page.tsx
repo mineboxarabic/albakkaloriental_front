@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { XCircle } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
-import { COLORS, buildWeightLabel, productImage } from "@/lib/ui";
+import { COLORS, buildUnitLabel, productImage } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { PriceTag } from "@/components/retail/price-tag";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -20,6 +20,7 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
   const { id } = await params;
   const product = await getProduct(id, "retail");
   if (!product) notFound();
+  const unitLabel = buildUnitLabel(product.baseUnit);
 
   // Suggestions: same category first, exclude self, then top up from the rest
   // of the catalogue so the "Vous aimerez aussi" row is always well filled.
@@ -94,7 +95,8 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
             {product.name}
           </h1>
           <div className="mt-1 text-[12.5px]" style={{ color: COLORS.muted }}>
-            Réf : {product.sku} · {buildWeightLabel(product)}
+            Réf : {product.sku}
+            {unitLabel && <> · {unitLabel}</>}
           </div>
 
           <div className="mt-6 flex items-baseline gap-2">

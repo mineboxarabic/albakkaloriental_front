@@ -8,7 +8,7 @@ import {
   resolveProPrice,
   supportsUnitSale,
 } from "@/lib/catalog-pricing";
-import { COLORS, buildWeightLabel, productImage } from "@/lib/ui";
+import { COLORS, buildQuantityLabel, buildUnitLabel, productImage } from "@/lib/ui";
 
 export function ProProductCard({
   product,
@@ -23,6 +23,10 @@ export function ProProductCard({
   const hasUnit = supportsUnitSale(product);
   const unitPrice = hasUnit ? resolveProPrice(product, "UNIT", pricingLevel) : null;
   const isOutOfStock = product.isOutOfStock;
+  const packagingLabel =
+    product.unitsPerPack > 1
+      ? `Carton de ${buildQuantityLabel(product.unitsPerPack, product.baseUnit, true)}`
+      : buildUnitLabel(product.baseUnit, true);
 
   return (
     <article
@@ -67,12 +71,12 @@ export function ProProductCard({
           {product.name}
         </Link>
 
-        <div className="flex items-center gap-1.5 text-[11px]" style={{ color: COLORS.muted }}>
-          <Package className="h-3 w-3" strokeWidth={2} />
-          {product.unitsPerPack > 1
-            ? `Carton de ${product.unitsPerPack} ${buildUnitNoun(product.baseUnit)}`
-            : buildWeightLabel(product)}
-        </div>
+        {packagingLabel && (
+          <div className="flex items-center gap-1.5 text-[11px]" style={{ color: COLORS.muted }}>
+            <Package className="h-3 w-3" strokeWidth={2} />
+            {packagingLabel}
+          </div>
+        )}
 
         {authenticated && !isOutOfStock && (
           <div className="text-[10.5px] font-medium" style={{ color: COLORS.muted }}>
@@ -223,19 +227,6 @@ function PriceBlock({
   );
 }
 
-function buildUnitNoun(baseUnit: string): string {
-  switch (baseUnit) {
-    case "KILOGRAM":
-      return "kg";
-    case "LITER":
-      return "L";
-    case "PIECE":
-      return "u.";
-    default:
-      return baseUnit.toLowerCase();
-  }
-}
-
 export function formatAvailableStock(
   availableStock: number,
   unitsPerPack: number,
@@ -245,5 +236,5 @@ export function formatAvailableStock(
     const cartons = Math.floor(availableStock / unitsPerPack);
     return `${cartons} carton${cartons > 1 ? "s" : ""} disponible${cartons > 1 ? "s" : ""}`;
   }
-  return `${availableStock} ${buildUnitNoun(baseUnit)} disponible${availableStock > 1 ? "s" : ""}`;
+  return `${buildQuantityLabel(availableStock, baseUnit, true)} disponible${availableStock > 1 ? "s" : ""}`;
 }

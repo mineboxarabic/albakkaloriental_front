@@ -11,7 +11,7 @@ import {
   supportsUnitSale,
   type ProPriceInput,
 } from "@/lib/catalog-pricing";
-import { COLORS } from "@/lib/ui";
+import { COLORS, buildQuantityLabel } from "@/lib/ui";
 
 type Props = {
   productId: string;
@@ -61,7 +61,7 @@ export function AddToProCartButton({
   const stockLabel =
     saleUnit === "PACK"
       ? `${maxQtyForUnit} carton${maxQtyForUnit > 1 ? "s" : ""} disponible${maxQtyForUnit > 1 ? "s" : ""}`
-      : `${maxQtyForUnit} ${unitNoun(baseUnit)} disponible${maxQtyForUnit > 1 ? "s" : ""}`;
+      : `${buildQuantityLabel(maxQtyForUnit, baseUnit, true)} disponible${maxQtyForUnit > 1 ? "s" : ""}`;
 
   if (!authenticated) {
     return (
@@ -227,19 +227,6 @@ export function AddToProCartButton({
       )}
     </div>
   );
-}
-
-function unitNoun(baseUnit: string): string {
-  switch (baseUnit) {
-    case "KILOGRAM":
-      return "kg";
-    case "LITER":
-      return "L";
-    case "PIECE":
-      return "u.";
-    default:
-      return baseUnit.toLowerCase();
-  }
 }
 
 function ToggleButton({
