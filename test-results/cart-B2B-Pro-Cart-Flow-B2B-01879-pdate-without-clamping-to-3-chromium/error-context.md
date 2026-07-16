@@ -14,16 +14,14 @@
 ```
 Error: expect(locator).toBeVisible() failed
 
-Locator:  locator('div').filter({ hasText: /^5$/ }).first()
+Locator: getByText('5', { exact: true })
 Expected: visible
-Received: hidden
-Timeout:  5000ms
+Timeout: 5000ms
+Error: element(s) not found
 
 Call log:
   - Expect "toBeVisible" with timeout 5000ms
-  - waiting for locator('div').filter({ hasText: /^5$/ }).first()
-    14 × locator resolved to <div class="mt-3 md:hidden">…</div>
-       - unexpected value "hidden"
+  - waiting for getByText('5', { exact: true })
 
 ```
 
@@ -42,7 +40,9 @@ Call log:
       - /url: /pro/quotes
     - link "FACTURES":
       - /url: /pro/invoices
-  - link "PANIER 5":
+  - link "BOUTIQUE":
+    - /url: /
+  - link "PANIER":
     - /url: /pro/cart
   - link "Mon compte":
     - /url: /pro/account
@@ -51,43 +51,40 @@ Call log:
   - navigation:
     - link "Catalogue pro":
       - /url: /pro/products
-    - text: ›Mon panier
-  - heading "Mon panier professionnel" [level=1]
-  - paragraph: 5 articles dans votre panier.
-  - text: PRODUIT UNITÉ QUANTITÉ TOTAL HT
-  - list:
-    - listitem:
-      - link "Produit Pro 2":
-        - /url: /pro/products/prod-2
-        - img "Produit Pro 2"
-      - link "Produit Pro 2":
-        - /url: /pro/products/prod-2
-      - text: 12,00 € HT / carton Carton
-      - button "Diminuer"
-      - text: "5"
-      - button "Augmenter"
-      - text: 60,00 €
-      - button "Supprimer Produit Pro 2"
-  - link "Continuer mes achats":
-    - /url: /pro/products
-  - button "Vider le panier"
-  - text: NOTES POUR LE DEVIS (OPTIONNEL)
-  - textbox "Demandes particulières, délai souhaité, instructions de livraison…"
-  - complementary:
-    - text: RÉCAPITULATIF
-    - term: Sous-total HT
-    - definition: 60,00 €
-    - term: TVA 20%
-    - definition: 12,00 €
-    - text: Total TTC 72,00 €
-    - button "Commander"
-    - paragraph: Votre commande sera transmise pour validation. Un devis vous sera ensuite envoyé à signer avant la livraison.
+    - text: ›
+    - link "epicerie":
+      - /url: /pro/products?category=epicerie
+    - text: ›Produit Pro 2
+  - img "Produit Pro 2"
+  - text: epicerie
+  - heading "Produit Pro 2" [level=1]
+  - text: "Réf : PP-2 · Carton de 12 kg"
+  - button "Par carton 12 unités / carton"
+  - button "À l'unité Vente au détail"
+  - text: Prix par carton 144,00 €
+  - button "Diminuer la quantité"
+  - text: "1"
+  - button "Augmenter la quantité"
+  - paragraph: 0 carton disponible
+  - text: Sous-total pour cette ligne 144,00 €
+  - button "Ajouter au devis"
 - alert
 ```
 
 # Test source
 
 ```ts
+  20  |   backend.loggedInPro = false;
+  21  | });
+  22  | 
+  23  | test.describe("B2C Retail Cart Flow", () => {
+  24  |   test("guest adding item to cart opens login modal, consumes intent post-login, and enforces retail limits", async ({ page }) => {
+  25  |     // 1. Visit the product page as a guest
+  26  |     await page.goto("/products/prod-1");
+  27  | 
+  28  |     // We should see "Se connecter pour ajouter" button because we are guest
+  29  |     const addToCartBtn = page.getByRole("button", { name: "Se connecter pour ajouter" });
+  30  |     await expect(addToCartBtn).toBeVisible();
   31  | 
   32  |     // 2. Click to add to cart -> should open login modal
   33  |     await addToCartBtn.click();
@@ -177,7 +174,8 @@ Call log:
   117 |       await plusBtn.click();
   118 |     }
   119 |     // Verify quantity input shows 5
-  120 |     await expect(page.getByText("5", { exact: true })).toBeVisible();
+> 120 |     await expect(page.getByText("5", { exact: true })).toBeVisible();
+      |                                                        ^ Error: expect(locator).toBeVisible() failed
   121 | 
   122 |     // 4. Click "Ajouter au devis"
   123 |     await page.getByRole("button", { name: "Ajouter au devis" }).click();
@@ -188,8 +186,7 @@ Call log:
   128 |     await expect(page.getByText("Produit Pro 2").first()).toBeVisible();
   129 |     
   130 |     // Check quantity is indeed 5 (not clamped to 3)
-> 131 |     await expect(page.locator("div").filter({ hasText: /^5$/ }).first()).toBeVisible();
-      |                                                                          ^ Error: expect(locator).toBeVisible() failed
+  131 |     await expect(page.locator("div").filter({ hasText: /^5$/ }).first()).toBeVisible();
   132 | 
   133 |     // 6. Increase quantity even further in cart (e.g., to 6)
   134 |     const cartPlusBtn = page.getByRole("button", { name: "Augmenter" });
