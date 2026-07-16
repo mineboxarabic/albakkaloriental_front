@@ -108,22 +108,25 @@ describe("listProInvoices", () => {
   beforeEach(() => backendFetchMock.mockReset());
   afterEach(() => vi.restoreAllMocks());
 
+  const sharedInvoice = {
+    id: "i1",
+    invoiceNumber: "FAC-2026-0042",
+    invoiceDate: "2026-05-01",
+    dueDate: "2026-06-01",
+    status: "UNPAID" as const,
+    totalAmount: 1000,
+    paidAmount: 600,
+    remainingAmount: 400,
+    isSent: true,
+    orders: [
+      { id: "o1", orderNumber: "CMD-1042", orderDate: "2026-04-01", totalAmount: 300 },
+      { id: "o2", orderNumber: "CMD-1051", orderDate: "2026-04-15", totalAmount: 300 },
+      { id: "o3", orderNumber: "CMD-1060", orderDate: "2026-04-20", totalAmount: 400 },
+    ],
+  };
+
   it("GETs /api/v1/b2b/invoices and returns the list", async () => {
-    backendFetchMock.mockResolvedValueOnce({
-      invoices: [
-        {
-          id: "i1",
-          invoiceNumber: "INV-001",
-          invoiceDate: "2026-05-01",
-          dueDate: "2026-06-01",
-          status: "UNPAID",
-          totalAmount: 100,
-          paidAmount: 0,
-          isSent: true,
-          order: null,
-        },
-      ],
-    });
+    backendFetchMock.mockResolvedValueOnce({ invoices: [sharedInvoice] });
     const result = await listProInvoices();
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.invoices).toHaveLength(1);
@@ -138,5 +141,11 @@ describe("listProInvoices", () => {
     backendFetchMock.mockRejectedValueOnce(new ApiClientError(401, "Unauthorized"));
     const result = await listProInvoices();
     expect(result.ok).toBe(false);
+  });
+
+  it("uses remainingAmount from the backend for total outstanding", async () => {
+    backendFetchMock.mockResolvedValue({ invoices: [{ ...sharedInvoice, remainingAmount: 400 }] });
+    const result = await listProInvoices();
+    expect(result).toMatchObject({ ok: true, invoices: [{ remainingAmount: 400 }] });
   });
 });

@@ -1,16 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Receipt, Download, ChevronRight, AlertTriangle } from "lucide-react";
+import { Receipt, AlertTriangle } from "lucide-react";
 import { listProInvoices } from "@/actions/pro-me";
+import { ProInvoicesList } from "./pro-invoices-list";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
-
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 function formatPrice(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
@@ -19,29 +13,12 @@ function formatPrice(amount: number): string {
   }).format(amount);
 }
 
-const STATUS_META: Record<string, { label: string; bg: string; color: string }> = {
-  UNPAID: { label: "Non réglée", bg: "#FFF1D6", color: "#7A5409" },
-  PARTIAL: { label: "Partielle", bg: "#FFE3C4", color: "#7A3F09" },
-  PAID: { label: "Réglée", bg: "#E5F0D9", color: "#2E3F17" },
-  OVERDUE: { label: "En retard", bg: "#FCE9E5", color: "#7A1709" },
-};
-
-function isOverdue(invoice: { dueDate: string; status: string }): boolean {
-  return (
-    invoice.status !== "PAID" &&
-    new Date(invoice.dueDate).getTime() < Date.now()
-  );
-}
-
 export default async function ProInvoicesPage() {
   const result = await listProInvoices();
   if (!result.ok) redirect("/pro/login?next=/pro/invoices");
 
   const invoices = result.invoices;
-  const totalOutstanding = invoices.reduce(
-    (sum, i) => sum + (i.totalAmount - i.paidAmount),
-    0,
-  );
+  const totalOutstanding = invoices.reduce((sum, invoice) => sum + invoice.remainingAmount, 0);
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -91,82 +68,7 @@ export default async function ProInvoicesPage() {
           </p>
         </div>
       ) : (
-        <ul
-          className="mt-6 overflow-hidden rounded-sm border bg-white divide-y"
-          style={{ borderColor: COLORS.border }}
-        >
-          {invoices.map((inv) => {
-            const overdue = isOverdue(inv);
-            const meta =
-              overdue && inv.status !== "PAID"
-                ? STATUS_META.OVERDUE
-                : STATUS_META[inv.status] ?? {
-                    label: inv.status,
-                    bg: COLORS.beige,
-                    color: COLORS.text,
-                  };
-            const outstanding = inv.totalAmount - inv.paidAmount;
-            return (
-              <li
-                key={inv.id}
-                className="px-5 py-4"
-                style={{ borderColor: COLORS.border }}
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-[14px] font-extrabold" style={{ color: COLORS.text }}>
-                        {inv.invoiceNumber}
-                      </span>
-                      <span
-                        className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.05em]"
-                        style={{ background: meta.bg, color: meta.color }}
-                      >
-                        {meta.label.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                      Émise le {DATE_FMT.format(new Date(inv.invoiceDate))} · Échéance{" "}
-                      {DATE_FMT.format(new Date(inv.dueDate))}
-                      {inv.order && (
-                        <>
-                          {" · "}
-                          <Link href={`/pro/orders/${inv.order.id}`} className="underline">
-                            {inv.order.orderNumber}
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                    {outstanding > 0 && (
-                      <div className="mt-1 text-[11.5px] font-semibold" style={{ color: "#7A5409" }}>
-                        Reste à payer : {formatPrice(outstanding)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between gap-3 sm:justify-end">
-                    <div className="text-right">
-                      <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
-                        {formatPrice(inv.totalAmount)}
-                      </div>
-                    </div>
-                    <Link
-                      href={`/pro/invoices/${inv.id}/pdf`}
-                      prefetch={false}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
-                      style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                      PDF
-                    </Link>
-                    <ChevronRight className="hidden h-4 w-4 shrink-0 sm:block" style={{ color: COLORS.muted }} />
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <ProInvoicesList invoices={invoices} />
       )}
     </main>
   );

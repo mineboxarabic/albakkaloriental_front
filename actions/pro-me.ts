@@ -75,11 +75,17 @@ export type ProInvoice = {
   invoiceNumber: string;
   invoiceDate: string;
   dueDate: string;
-  status: "UNPAID" | "PAID" | "PARTIAL" | "OVERDUE";
+  status: "UNPAID" | "PAID" | "OVERDUE";
   totalAmount: number;
   paidAmount: number;
+  remainingAmount: number;
   isSent: boolean;
-  order: { id: string; orderNumber: string } | null;
+  orders: Array<{
+    id: string;
+    orderNumber: string;
+    orderDate: string;
+    totalAmount: number;
+  }>;
 };
 
 type Ok<T> = { ok: true } & T;

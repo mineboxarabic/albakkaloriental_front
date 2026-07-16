@@ -98,7 +98,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   // Find the invoice attached to this order (if any) to expose its PDF.
   const invoicesRes = await listProInvoices();
   const invoice = invoicesRes.ok
-    ? invoicesRes.invoices.find((i) => i.order?.id === order.id) ?? null
+    ? invoicesRes.invoices.find((i) => i.orders.some((o) => o.id === order.id)) ?? null
     : null;
   // order.totalAmount is the authoritative amount owed (same figure the admin
   // tracks payments against). TVA is informational; payments are recorded
