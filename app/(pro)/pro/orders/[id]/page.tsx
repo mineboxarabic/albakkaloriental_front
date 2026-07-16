@@ -12,9 +12,10 @@ import {
   Download,
 } from "lucide-react";
 import Image from "next/image";
-import { getProOrderById, listProInvoices } from "@/actions/pro-me";
+import { getProOrderById } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
+import { ProOrderBillingCard } from "./pro-order-billing-card";
 
 export const dynamic = "force-dynamic";
 
@@ -68,13 +69,6 @@ const STATUS_FALLBACK = {
   description: "Statut non reconnu, contactez le support.",
 } satisfies (typeof STATUS_META)[string];
 
-const PAYMENT_META: Record<string, { label: string; bg: string; color: string }> = {
-  UNPAID: { label: "Non réglée", bg: "#FFF1D6", color: "#7A5409" },
-  PARTIAL: { label: "Partiellement réglée", bg: "#FFE3C4", color: "#7A3F09" },
-  PAID: { label: "Réglée", bg: "#E5F0D9", color: "#2E3F17" },
-  OVERDUE: { label: "En retard", bg: "#FCE9E5", color: "#7A1709" },
-};
-
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit",
   month: "long",
@@ -95,18 +89,10 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const order = result.order;
   const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
   const Icon = meta.icon;
-  // Find the invoice attached to this order (if any) to expose its PDF.
-  const invoicesRes = await listProInvoices();
-  const invoice = invoicesRes.ok
-    ? invoicesRes.invoices.find((i) => i.orders.some((o) => o.id === order.id)) ?? null
-    : null;
-  // order.totalAmount is the authoritative amount owed (same figure the admin
-  // tracks payments against). TVA is informational; payments are recorded
-  // against totalAmount, so paid + remaining always reconcile to it.
+  // TVA is informational only; invoicing/payment is tracked per invoice via
+  // order.billing, never split back onto the order (see ProOrderBillingCard).
   const total = order.totalAmount;
   const tva = Number((total * (TAX_RATE / 100)).toFixed(2));
-  const paid = order.paidAmount;
-  const remaining = Number(Math.max(0, total - paid).toFixed(2));
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -148,18 +134,6 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         </div>
 
         <div className="flex items-center gap-3">
-          {invoice && (
-            <a
-              href={`/pro/invoices/${invoice.id}/pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
-              style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Facture
-            </a>
-          )}
           <span
             className="inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-[11.5px] font-bold tracking-[0.1em]"
             style={{ background: meta.bg, color: meta.color }}
@@ -326,53 +300,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             </div>
           )}
 
-          <div
-            className="mt-5 rounded-sm border p-4"
-            style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className="text-[10.5px] font-bold uppercase tracking-[0.14em]"
-                style={{ color: COLORS.muted }}
-              >
-                Paiement
-              </span>
-              {(() => {
-                const pm = PAYMENT_META[order.paymentStatus] ?? null;
-                if (!pm) return null;
-                return (
-                  <span
-                    className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold"
-                    style={{ background: pm.bg, color: pm.color }}
-                  >
-                    {pm.label}
-                  </span>
-                );
-              })()}
-            </div>
-            <dl className="mt-3 space-y-2 text-[13px]">
-              <div className="flex items-center justify-between">
-                <dt style={{ color: COLORS.muted }}>Déjà payé</dt>
-                <dd className="font-semibold" style={{ color: COLORS.primary }}>
-                  {formatPriceEUR(paid)}
-                </dd>
-              </div>
-              <div
-                className="flex items-center justify-between border-t pt-2"
-                style={{ borderColor: COLORS.border }}
-              >
-                <dt className="font-bold" style={{ color: COLORS.text }}>
-                  Reste à payer
-                </dt>
-                <dd
-                  className="text-[16px] font-extrabold"
-                  style={{ color: remaining > 0 ? COLORS.red : COLORS.primary }}
-                >
-                  {formatPriceEUR(remaining)}
-                </dd>
-              </div>
-            </dl>
-          </div>
+          <ProOrderBillingCard billing={order.billing} orderStatus={order.status} />
         </aside>
       </section>
     </main>

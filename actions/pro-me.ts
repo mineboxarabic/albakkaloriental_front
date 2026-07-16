@@ -44,16 +44,20 @@ export type ProOrderSummary = {
   orderNumber: string;
   orderDate: string;
   status: string;
-  paymentStatus: string;
   totalAmount: number;
-  paidAmount: number;
   lockedAt: string | null;
   createdAt: string;
+  billingState: "UNINVOICED" | "INVOICED";
+  invoiceCount: number;
   _count: { items: number };
   quote: { id: string; acceptedAt: string | null; validUntil: string } | null;
 };
 
 export type ProOrderDetail = ProOrderSummary & {
+  billing: {
+    state: "UNINVOICED" | "INVOICED";
+    invoices: ProInvoice[];
+  };
   items: Array<{
     id: string;
     productId: string;
