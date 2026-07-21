@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarClock, FileText, Lock } from "lucide-react";
+import { ArrowLeft, CalendarClock, FileText, History, Lock } from "lucide-react";
 import { getQuote } from "@/actions/pro-quote";
 import AcceptButton from "./accept-button";
+import { getQuoteState } from "@/lib/quote-state";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,12 @@ export default async function QuoteDetailPage({
   const isAccepted = quote.acceptedAt !== null;
   const isExpired = new Date(quote.validUntil).getTime() <= Date.now();
   const isLocked = quote.order.lockedAt !== null;
-  const canAccept = !isAccepted && !isExpired && !isLocked;
+  const quoteState = getQuoteState({
+    ...quote,
+    lockedAt: quote.order.lockedAt,
+  });
+  const isSuperseded = quoteState === "superseded";
+  const canAccept = quoteState === "pending";
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8 space-y-6">
@@ -93,17 +99,27 @@ export default async function QuoteDetailPage({
             <strong>{formatDate(quote.validUntil)}</strong>
           </span>
         </div>
-        {isAccepted && (
+        {isSuperseded && (
+          <div role="alert" className="mt-2 flex items-start gap-2 text-sm text-amber-900">
+            <History className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Ce devis a été remplacé par une version plus récente
+              {quote.supersededAt ? ` le ${formatDate(quote.supersededAt)}` : ""}.
+              Il reste disponible comme historique du document signé.
+            </span>
+          </div>
+        )}
+        {isAccepted && !isSuperseded && (
           <div className="mt-2 text-sm text-emerald-700">
             ✓ Devis signé le {formatDate(quote.acceptedAt!)}.
           </div>
         )}
-        {isExpired && !isAccepted && !isLocked && (
+        {isExpired && !isAccepted && !isLocked && !isSuperseded && (
           <div className="mt-2 text-sm text-red-700">
             Ce devis a expiré. Contactez-nous pour le renouveler.
           </div>
         )}
-        {isLocked && !isAccepted && (
+        {isLocked && !isAccepted && !isSuperseded && (
           <div role="alert" className="mt-2 flex items-start gap-2 text-sm text-amber-900">
             <Lock className="mt-0.5 h-4 w-4 shrink-0" />
             <span>

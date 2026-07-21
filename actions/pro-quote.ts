@@ -23,6 +23,9 @@ export type QuoteDTO = {
   total: number;
   validUntil: string;
   acceptedAt: string | null;
+  isActive: boolean;
+  supersededAt: string | null;
+  supersededReason: string | null;
   lines: QuoteLine[];
   order: {
     id: string;
@@ -41,6 +44,9 @@ export type QuoteSummary = {
   total: number;
   validUntil: string;
   acceptedAt: string | null;
+  isActive: boolean;
+  supersededAt: string | null;
+  supersededReason: string | null;
   createdAt: string;
   order: {
     id: string;

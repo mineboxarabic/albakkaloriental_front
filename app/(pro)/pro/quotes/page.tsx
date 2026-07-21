@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter, Download } from "lucide-react";
+import { FileText, ChevronRight, CheckCircle2, Clock, XCircle, Lock, ListFilter, Download, History } from "lucide-react";
 import { listQuotes } from "@/actions/pro-quote";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getQuoteState, type QuoteState } from "@/lib/quote-state";
 
 export const dynamic = "force-dynamic";
 
@@ -19,27 +20,15 @@ function formatPrice(amount: number): string {
   }).format(amount);
 }
 
-type QuoteState = "pending" | "signed" | "expired" | "locked";
-
-function quoteState(q: {
-  acceptedAt: string | null;
-  validUntil: string;
-  order: { lockedAt: string | null };
-}): QuoteState {
-  if (q.acceptedAt) return "signed";
-  if (q.order.lockedAt) return "locked";
-  if (new Date(q.validUntil).getTime() <= Date.now()) return "expired";
-  return "pending";
-}
-
 const STATE_META: Record<QuoteState, { label: string; bg: string; color: string; icon: typeof FileText }> = {
   pending: { label: "À signer", bg: "#FFF1D6", color: "#7A5409", icon: Clock },
   signed: { label: "Signé", bg: "#E5F0D9", color: "#2E3F17", icon: CheckCircle2 },
   expired: { label: "Expiré", bg: "#FCE9E5", color: "#7A1709", icon: XCircle },
   locked: { label: "Verrouillé", bg: "#F0E2D6", color: "#7A3F09", icon: Lock },
+  superseded: { label: "Remplacé", bg: "#ECEAE5", color: "#5E5A52", icon: History },
 };
 
-const FILTERS = ["all", "pending", "signed", "expired", "locked"] as const;
+const FILTERS = ["all", "pending", "signed", "expired", "locked", "superseded"] as const;
 type Filter = (typeof FILTERS)[number];
 const FILTER_LABEL: Record<Filter, string> = {
   all: "Tous",
@@ -47,6 +36,7 @@ const FILTER_LABEL: Record<Filter, string> = {
   signed: "Signés",
   expired: "Expirés",
   locked: "Verrouillés",
+  superseded: "Remplacés",
 };
 
 export default async function ProQuotesPage({
@@ -62,7 +52,10 @@ export default async function ProQuotesPage({
   const result = await listQuotes();
   if (!result.ok) redirect("/pro/login?next=/pro/quotes");
 
-  const filtered = result.quotes.filter((q) => state === "all" || quoteState(q) === state);
+  const filtered = result.quotes.filter((q) => state === "all" || getQuoteState({
+    ...q,
+    lockedAt: q.order.lockedAt,
+  }) === state);
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -124,7 +117,7 @@ export default async function ProQuotesPage({
           style={{ borderColor: COLORS.border }}
         >
           {filtered.map((q) => {
-            const s = quoteState(q);
+            const s = getQuoteState({ ...q, lockedAt: q.order.lockedAt });
             const meta = STATE_META[s];
             const Icon = meta.icon;
             return (
@@ -162,6 +155,11 @@ export default async function ProQuotesPage({
                         {s === "signed" && q.acceptedAt && (
                           <>
                             {" · "}Signé le {DATE_FMT.format(new Date(q.acceptedAt))}
+                          </>
+                        )}
+                        {s === "superseded" && q.supersededAt && (
+                          <>
+                            {" · "}Remplacé le {DATE_FMT.format(new Date(q.supersededAt))}
                           </>
                         )}
                       </div>
