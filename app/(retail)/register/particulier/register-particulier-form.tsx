@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerRetail, type RegisterState } from "@/actions/retail-auth";
 import { AddressAutocompleteFields } from "@/components/address-autocomplete-fields";
@@ -14,6 +14,7 @@ export function RegisterParticulierForm() {
     registerRetail,
     initial,
   );
+  const [zoneDenied, setZoneDenied] = useState(false);
 
   const err = (k: string) => (state && !state.ok ? state.errors[k] : undefined);
   const val = (k: string) =>
@@ -54,6 +55,7 @@ export function RegisterParticulierForm() {
           postalCode: err("postalCode"),
           city: err("city"),
         }}
+        onZoneStatus={(allowed) => setZoneDenied(allowed === false)}
       />
       <Field
         name="password"
@@ -97,7 +99,7 @@ export function RegisterParticulierForm() {
         </div>
       )}
 
-      <SubmitButton />
+      <SubmitButton disabled={zoneDenied} />
     </form>
   );
 }
@@ -144,12 +146,12 @@ function Consent({
   );
 }
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       className="grid h-11 place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm disabled:opacity-70"
       style={{ background: COLORS.primary }}
     >

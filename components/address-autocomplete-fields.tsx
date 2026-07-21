@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { COLORS } from "@/lib/ui";
+import { checkDeliveryZone } from "@/actions/delivery-zone";
+
+type ZoneStatus = "idle" | "checking" | "allowed" | "denied";
 
 type BanFeature = {
   geometry: { coordinates: [number, number] };
@@ -93,10 +96,13 @@ export function AddressAutocompleteFields({
   defaults,
   errors,
   onChange,
+  onZoneStatus,
 }: {
   defaults: { address: string; postalCode: string; city: string };
   errors: { address?: string; postalCode?: string; city?: string };
   onChange?: (value: { address: string; postalCode: string; city: string }) => void;
+  /** Called with the zone verdict: true = in zone, false = out of zone, null = unknown/checking. */
+  onZoneStatus?: (allowed: boolean | null) => void;
 }) {
   const [address, setAddressRaw] = useState(defaults.address);
   const [postalCode, setPostalCodeRaw] = useState(defaults.postalCode);
@@ -104,7 +110,11 @@ export function AddressAutocompleteFields({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [zoneStatus, setZoneStatus] = useState<ZoneStatus>("idle");
+  const [zoneLabel, setZoneLabel] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const onZoneStatusRef = useRef(onZoneStatus);
+  onZoneStatusRef.current = onZoneStatus;
 
   const setAddress = (v: string) => {
     setAddressRaw(v);
@@ -147,6 +157,41 @@ export function AddressAutocompleteFields({
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
   }, [address]);
+
+  useEffect(() => {
+    const cp = postalCode.replace(/\D/g, "");
+    if (cp.length !== 5) {
+      setZoneStatus("idle");
+      setZoneLabel(null);
+      onZoneStatusRef.current?.(null);
+      return;
+    }
+
+    let cancelled = false;
+    setZoneStatus("checking");
+    onZoneStatusRef.current?.(null);
+
+    const handle = setTimeout(async () => {
+      try {
+        const res = await checkDeliveryZone(cp);
+        if (cancelled) return;
+        setZoneStatus(res.allowed ? "allowed" : "denied");
+        setZoneLabel(res.label);
+        onZoneStatusRef.current?.(res.allowed);
+      } catch {
+        if (cancelled) return;
+        // Check failed (network) — stay neutral; the server still enforces.
+        setZoneStatus("idle");
+        setZoneLabel(null);
+        onZoneStatusRef.current?.(null);
+      }
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [postalCode]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -260,6 +305,25 @@ export function AddressAutocompleteFields({
           autoComplete="address-level2"
         />
       </div>
+
+      {zoneStatus === "checking" && (
+        <p className="text-[12px]" style={{ color: COLORS.muted }}>
+          Vérification de la zone de livraison…
+        </p>
+      )}
+      {zoneStatus === "allowed" && (
+        <p className="text-[12px] font-semibold" style={{ color: COLORS.primary }}>
+          ✓ Nous livrons {zoneLabel ? `à ${zoneLabel}` : "chez vous"}.
+        </p>
+      )}
+      {zoneStatus === "denied" && (
+        <p
+          className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
+        >
+          Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.
+        </p>
+      )}
     </>
   );
 }

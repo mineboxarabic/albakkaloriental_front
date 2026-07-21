@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { checkoutRetail } from "@/actions/retail-order";
+import { checkDeliveryZone } from "@/actions/delivery-zone";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
 import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
@@ -30,6 +31,28 @@ export function CheckoutForm({
 
   const [delivery, setDelivery] = useState(defaultDelivery);
   const [notes, setNotes] = useState("");
+  const [zoneDenied, setZoneDenied] = useState(false);
+
+  useEffect(() => {
+    const cp = delivery.postalCode.replace(/\D/g, "");
+    if (cp.length !== 5) {
+      setZoneDenied(false);
+      return;
+    }
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      try {
+        const res = await checkDeliveryZone(cp);
+        if (!cancelled) setZoneDenied(!res.allowed);
+      } catch {
+        if (!cancelled) setZoneDenied(false);
+      }
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [delivery.postalCode]);
 
   const onChange =
     (k: keyof typeof delivery) =>
@@ -45,6 +68,10 @@ export function CheckoutForm({
     }
     if (belowMinimum) {
       setError(`Commande minimum de ${MIN_ORDER_EUR} €.`);
+      return;
+    }
+    if (zoneDenied) {
+      setError("Nous ne livrons pas encore à ce code postal (de Nice à Toulon).");
       return;
     }
     startTransition(async () => {
@@ -105,6 +132,14 @@ export function CheckoutForm({
               </div>
             </div>
             <Field label="Adresse complète" name="deliveryAddress" value={delivery.address} onChange={onChange("address")} required />
+            {zoneDenied && (
+              <p
+                className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+                style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
+              >
+                Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.
+              </p>
+            )}
           </div>
         </div>
 
@@ -206,7 +241,7 @@ export function CheckoutForm({
 
           <button
             type="submit"
-            disabled={pending || belowMinimum}
+            disabled={pending || belowMinimum || zoneDenied}
             className="mt-5 grid h-11 w-full place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm disabled:opacity-70"
             style={{ background: COLORS.primary }}
           >
