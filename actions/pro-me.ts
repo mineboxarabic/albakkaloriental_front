@@ -50,7 +50,6 @@ export type ProOrderSummary = {
   billingState: "UNINVOICED" | "INVOICED";
   invoiceCount: number;
   _count: { items: number };
-  quote: { id: string; acceptedAt: string | null; validUntil: string } | null;
 };
 
 export type ProOrderDetail = ProOrderSummary & {

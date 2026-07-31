@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   Truck,
   XCircle,
-  CheckCircle2,
   Download,
 } from "lucide-react";
 import Image from "next/image";
@@ -24,19 +23,19 @@ const STATUS_META: Record<
   { label: string; bg: string; color: string; icon: typeof FileText; description: string }
 > = {
   PENDING: {
-    label: "Devis en cours d'émission",
+    label: "En attente de validation",
     bg: "#FFF1D6",
     color: "#7A5409",
     icon: FileText,
     description:
-      "Notre équipe valide votre demande. Vous recevrez sous peu un devis par email à signer en ligne.",
+      "Notre équipe vérifie la disponibilité des produits. Vous pouvez encore nous signaler un changement avant la clôture des commandes, à 21h la veille de la livraison.",
   },
   CONFIRMED: {
     label: "Commande confirmée",
     bg: "#E5F0D9",
     color: COLORS.primary,
     icon: ShieldCheck,
-    description: "Devis signé. Préparation en cours.",
+    description: "Commande validée. Préparation en cours.",
   },
   PREPARED: {
     label: "Préparée",
@@ -151,43 +150,31 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         <p className="text-[13px]" style={{ color: COLORS.muted }}>
           {meta.description}
         </p>
-        {order.quote && (
-          <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
-            <div className="flex items-center gap-3">
-              <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
-              <div className="flex-1">
-                <div className="font-semibold" style={{ color: COLORS.text }}>
-                  Devis associé
-                </div>
-                <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                  {order.quote.acceptedAt
-                    ? `Signé le ${DATE_FMT.format(new Date(order.quote.acceptedAt))}`
-                    : `Valable jusqu'au ${DATE_FMT.format(new Date(order.quote.validUntil))}`}
-                </div>
+        <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
+            <div className="flex-1">
+              <div className="font-semibold" style={{ color: COLORS.text }}>
+                {order.status === "PENDING" ? "Devis" : "Bon de commande"}
+              </div>
+              <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
+                Récapitulatif de votre commande {order.orderNumber}
               </div>
             </div>
-            <div className="flex gap-2 sm:ml-auto">
-              <a
-                href={`/pro/quotes/${order.quote.id}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] sm:flex-none sm:py-1.5"
-                style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
-              >
-                <Download className="h-3 w-3" />
-                Devis PDF
-              </a>
-              <Link
-                href={`/pro/quotes/${order.quote.id}`}
-                className="inline-flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] sm:flex-none sm:py-1.5"
-                style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
-              >
-                <CheckCircle2 className="h-3 w-3" />
-                Consulter le devis
-              </Link>
-            </div>
           </div>
-        )}
+          <div className="flex gap-2 sm:ml-auto">
+            <a
+              href={`/pro/orders/${order.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-1 rounded-sm border px-3 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] sm:flex-none sm:py-1.5"
+              style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
+            >
+              <Download className="h-3 w-3" />
+              Télécharger le PDF
+            </a>
+          </div>
+        </div>
       </section>
 
       <section className="mt-6 grid grid-cols-12 gap-6">

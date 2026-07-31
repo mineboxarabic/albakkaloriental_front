@@ -19,7 +19,7 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const upstream = await fetch(`${getBackendUrl()}/api/v1/b2b/quotes/${id}/pdf`, {
+  const upstream = await fetch(`${getBackendUrl()}/api/v1/b2b/orders/${id}/pdf`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
@@ -30,8 +30,8 @@ export async function GET(
     });
   }
 
-  // Stream the PDF bytes through; the backend serves a private document, so we
-  // never expose the underlying S3 URL to the browser.
+  // Stream the PDF bytes through; the backend serves a private document, so the
+  // browser never sees the backend URL or the session token.
   return new Response(upstream.body, {
     status: 200,
     headers: {
