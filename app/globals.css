@@ -135,3 +135,20 @@
     @apply font-sans;
   }
 }
+html[dir="rtl"] body {
+  font-family: Tahoma, Arial, sans-serif;
+}
+html[dir="rtl"] .tracking-wide,
+html[dir="rtl"] .tracking-tight {
+  letter-spacing: normal;
+}
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="tel"],
+html[dir="rtl"] input[type="number"] {
+  direction: ltr;
+  text-align: right;
+}
+[aria-current="page"] {
+  font-weight: 700;
+  color: #3f561f;
+}

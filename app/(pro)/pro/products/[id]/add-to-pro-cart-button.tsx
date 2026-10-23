@@ -1,8 +1,17 @@
 "use client";
+import { TranslatedText } from "@/components/translated-text";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Minus, Plus, ShoppingCart, Check, Package, Box, Lock } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  ShoppingCart,
+  Check,
+  Package,
+  Box,
+  Lock,
+} from "lucide-react";
 type PricingLevel = "C" | "D" | "E" | "F";
 import { useCart, type CartSaleUnit } from "@/components/cart-context";
 import {
@@ -70,10 +79,17 @@ export function AddToProCartButton({
           className="flex items-center gap-3 rounded-sm border px-4 py-3"
           style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
         >
-          <Lock className="h-5 w-5 shrink-0" strokeWidth={2} style={{ color: COLORS.primary }} />
+          <Lock
+            className="h-5 w-5 shrink-0"
+            strokeWidth={2}
+            style={{ color: COLORS.primary }}
+          />
           <p className="text-[13px] font-medium" style={{ color: COLORS.text }}>
-            Connectez-vous à votre compte professionnel pour voir les prix et
-            commander.
+            <TranslatedText
+              value={
+                "Connectez-vous à votre compte professionnel pour voir les prix et commander."
+              }
+            />{" "}
           </p>
         </div>
         <Link
@@ -81,7 +97,7 @@ export function AddToProCartButton({
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
           style={{ background: COLORS.primary }}
         >
-          Se connecter
+          <TranslatedText value={"Se connecter"} />{" "}
         </Link>
       </div>
     );
@@ -113,10 +129,17 @@ export function AddToProCartButton({
 
       <div className="flex items-center justify-between gap-3">
         <div className="leading-tight">
-          <div className="text-[11px] uppercase tracking-[0.12em]" style={{ color: COLORS.muted }}>
-            Prix {saleUnit === "PACK" ? "par carton" : "à l'unité"}
+          <div
+            className="text-[11px] uppercase tracking-[0.12em]"
+            style={{ color: COLORS.muted }}
+          >
+            <TranslatedText value={"Prix"} />{" "}
+            {saleUnit === "PACK" ? "par carton" : "à l'unité"}
           </div>
-          <div className="mt-1 text-[24px] font-extrabold" style={{ color: COLORS.primary }}>
+          <div
+            className="mt-1 text-[24px] font-extrabold"
+            style={{ color: COLORS.primary }}
+          >
             {formatPriceEUR(unitPrice)}
           </div>
         </div>
@@ -144,7 +167,9 @@ export function AddToProCartButton({
           <button
             type="button"
             aria-label="Augmenter la quantité"
-            onClick={() => setQty((q) => Math.min(Math.max(maxQtyForUnit, 1), q + 1))}
+            onClick={() =>
+              setQty((q) => Math.min(Math.max(maxQtyForUnit, 1), q + 1))
+            }
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
             style={{ color: COLORS.text }}
           >
@@ -164,9 +189,12 @@ export function AddToProCartButton({
         style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
       >
         <span className="text-[12px]" style={{ color: COLORS.muted }}>
-          Sous-total pour cette ligne
+          <TranslatedText value={"Sous-total pour cette ligne"} />{" "}
         </span>
-        <span className="text-[16px] font-extrabold" style={{ color: COLORS.text }}>
+        <span
+          className="text-[16px] font-extrabold"
+          style={{ color: COLORS.text }}
+        >
           {formatPriceEUR(lineTotal)}
         </span>
       </div>
@@ -176,7 +204,7 @@ export function AddToProCartButton({
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white"
           style={{ background: "#999" }}
         >
-          Produit en rupture
+          <TranslatedText value={"Produit en rupture"} />{" "}
         </div>
       ) : (
         <button
@@ -207,12 +235,12 @@ export function AddToProCartButton({
           {confirmed ? (
             <span className="inline-flex items-center gap-2">
               <Check className="h-4 w-4" strokeWidth={2.4} />
-              Ajouté au panier
+              <TranslatedText value={"Ajouté au panier"} />{" "}
             </span>
           ) : (
             <span className="inline-flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" strokeWidth={2} />
-              Ajouter au devis
+              <TranslatedText value={"Ajouter au devis"} />{" "}
             </span>
           )}
         </button>

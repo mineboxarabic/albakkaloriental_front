@@ -1,3 +1,4 @@
+import { TranslatedText } from "@/components/translated-text";
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
@@ -21,7 +22,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           className="absolute right-2 top-2 z-10 rounded-sm px-2 py-0.5 text-[10px] font-extrabold tracking-[0.1em]"
           style={{ background: "#D52B14", color: "#FFFFFF" }}
         >
-          RUPTURE
+          <TranslatedText value={"RUPTURE"} />{" "}
         </span>
       )}
       <Link
@@ -58,7 +59,11 @@ export function ProductCard({ product }: { product: ProductCardData }) {
               type="button"
               disabled
               className="grid h-9 w-9 place-items-center rounded-md text-[11px] font-bold"
-              style={{ background: "#F0F0F0", color: "#999", cursor: "not-allowed" }}
+              style={{
+                background: "#F0F0F0",
+                color: "#999",
+                cursor: "not-allowed",
+              }}
               aria-label="Indisponible"
               title="Indisponible"
             >

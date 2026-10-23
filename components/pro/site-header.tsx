@@ -1,5 +1,8 @@
 "use client";
+import { useLanguage } from "@/components/language-provider";
+import { TranslatedText } from "@/components/translated-text";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -42,6 +45,7 @@ export function ProSiteHeader({
 }: {
   authenticated?: boolean;
 }) {
+  const { t } = useLanguage();
   const pathname = usePathname();
   const { itemCount } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,170 +60,177 @@ export function ProSiteHeader({
 
   return (
     <>
-    <header
-      className="sticky top-0 z-40 w-full border-b backdrop-blur"
-      style={{
-        background: "linear-gradient(180deg, rgba(30,42,14,0.96) 0%, rgba(43,59,20,0.96) 100%)",
-        borderColor: "rgba(255,255,255,0.08)",
-      }}
-    >
-      <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-4 py-3 md:px-6 lg:gap-8">
-        {/* Hamburger — mobile only */}
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-sm text-white/90 hover:bg-white/10 lg:hidden"
-          aria-label="Ouvrir le menu"
-        >
-          <Menu className="h-6 w-6" strokeWidth={2} />
-        </button>
-
-        <Link
-          href="/pro/products"
-          className="flex items-center gap-2.5 shrink-0"
-          aria-label="Le Bakkal Oriental: espace pro"
-        >
-          <Image
-            src="/Assets/img/logo.png"
-            alt="Le Bakkal Oriental"
-            width={80}
-            height={80}
-            priority
-            className="h-14 w-auto md:h-16"
-            style={{ filter: "brightness(0) invert(1)" }}
-          />
-          <span
-            className="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[9px] font-bold tracking-[0.2em] text-white/85"
-            style={{ borderColor: "rgba(255,255,255,0.3)" }}
+      <header
+        className="sticky top-0 z-40 w-full border-b backdrop-blur"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(30,42,14,0.96) 0%, rgba(43,59,20,0.96) 100%)",
+          borderColor: "rgba(255,255,255,0.08)",
+        }}
+      >
+        <div className="mx-auto flex max-w-[1180px] items-center gap-4 px-4 py-3 md:px-6 lg:gap-8">
+          {/* Hamburger — mobile only */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-sm text-white/90 hover:bg-white/10 lg:hidden"
+            aria-label={t("Ouvrir le menu")}
           >
-            <Shield className="h-2.5 w-2.5" strokeWidth={2.4} /> PRO
-          </span>
-        </Link>
+            <Menu className="h-6 w-6" strokeWidth={2} />
+          </button>
 
-        <nav className="hidden items-center gap-1 lg:flex">
-          {/* Catalogue — dropdown (Tous les produits / Catégories / Marques) */}
-          <div className="relative group/cat">
-            <Link
-              href="/pro/products"
-              className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-[12px] font-semibold tracking-wide transition"
-              style={{
-                background:
-                  isActive("/pro/products") ||
-                  isActive("/pro/categories") ||
-                  isActive("/pro/marques")
-                    ? "rgba(255,255,255,0.1)"
-                    : "transparent",
-                color: "rgba(255,255,255,0.9)",
-              }}
+          <Link
+            href="/pro/products"
+            className="flex items-center gap-2.5 shrink-0"
+            aria-label={t("Le Bakkal Oriental: espace pro")}
+          >
+            <Image
+              src="/Assets/img/logo.png"
+              alt="Le Bakkal Oriental"
+              width={80}
+              height={80}
+              priority
+              className="h-14 w-auto md:h-16"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+            <span
+              className="flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[9px] font-bold tracking-[0.2em] text-white/85"
+              style={{ borderColor: "rgba(255,255,255,0.3)" }}
             >
-              <Package className="h-3.5 w-3.5" strokeWidth={2} />
-              CATALOGUE
-              <ChevronDown
-                className="h-3 w-3 transition-transform duration-200 group-hover/cat:rotate-180"
-                strokeWidth={2.4}
-              />
-            </Link>
-            <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 transition-all duration-200 ease-out group-hover/cat:opacity-100 group-hover/cat:visible group-hover/cat:translate-y-0">
-              <div
-                className="w-[210px] rounded-sm border bg-white p-1.5 shadow-xl"
-                style={{ borderColor: COLORS.border }}
-              >
-                {CATALOGUE_SUBMENU.map(({ label, href, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="flex items-center gap-2.5 rounded-sm px-3 py-2 text-[12.5px] font-medium transition-colors hover:bg-[#FAF8F2]"
-                    style={{ color: COLORS.text }}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={2} />
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+              <Shield className="h-2.5 w-2.5" strokeWidth={2.4} />
+              <TranslatedText value={"PRO"} />{" "}
+            </span>
+          </Link>
 
-          {NAV.slice(1).map(({ label, href, icon: Icon }) => {
-            const active = isActive(href);
-            return (
+          <LanguageSwitcher />
+          <nav className="hidden items-center gap-1 lg:flex">
+            {/* Catalogue — dropdown (Tous les produits / Catégories / Marques) */}
+            <div className="relative group/cat">
               <Link
-                key={href}
-                href={href}
+                href="/pro/products"
                 className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-[12px] font-semibold tracking-wide transition"
                 style={{
-                  background: active ? "rgba(255,255,255,0.1)" : "transparent",
-                  color: active ? "#FFFFFF" : "rgba(255,255,255,0.75)",
+                  background:
+                    isActive("/pro/products") ||
+                    isActive("/pro/categories") ||
+                    isActive("/pro/marques")
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
+                  color: "rgba(255,255,255,0.9)",
                 }}
               >
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-                {label.toUpperCase()}
+                <Package className="h-3.5 w-3.5" strokeWidth={2} />
+                <TranslatedText value={"CATALOGUE"} />{" "}
+                <ChevronDown
+                  className="h-3 w-3 transition-transform duration-200 group-hover/cat:rotate-180"
+                  strokeWidth={2.4}
+                />
               </Link>
-            );
-          })}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/"
-            className="hidden h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3 lg:flex"
-            style={{ color: "rgba(255,255,255,0.9)" }}
-          >
-            <Store className="h-4 w-4" strokeWidth={2} />
-            BOUTIQUE
-          </Link>
-
-          <Link
-            href="/pro/cart"
-            className="relative flex h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3"
-            style={{ color: "rgba(255,255,255,0.9)" }}
-          >
-            <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" strokeWidth={2} />
-            <span className="hidden sm:inline">PANIER</span>
-            {itemCount > 0 && (
-              <span
-                className="absolute -right-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white sm:static sm:right-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
-                style={{ background: COLORS.red }}
-              >
-                {itemCount}
-              </span>
-            )}
-          </Link>
-
-          {authenticated ? (
-            <>
-              <Link
-                href="/pro/account"
-                aria-label="Mon compte"
-                className="hidden h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10 lg:grid"
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                <User className="h-4 w-4" strokeWidth={2} />
-              </Link>
-
-              <form action={logoutPro} className="hidden lg:block">
-                <button
-                  type="submit"
-                  aria-label="Se déconnecter"
-                  className="grid h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10"
-                  style={{ color: "rgba(255,255,255,0.9)" }}
+              <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 transition-all duration-200 ease-out group-hover/cat:opacity-100 group-hover/cat:visible group-hover/cat:translate-y-0">
+                <div
+                  className="w-[210px] rounded-sm border bg-white p-1.5 shadow-xl"
+                  style={{ borderColor: COLORS.border }}
                 >
-                  <LogOut className="h-4 w-4" strokeWidth={2} />
-                </button>
-              </form>
-            </>
-          ) : (
+                  {CATALOGUE_SUBMENU.map(({ label, href, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="flex items-center gap-2.5 rounded-sm px-3 py-2 text-[12.5px] font-medium transition-colors hover:bg-[#FAF8F2]"
+                      style={{ color: COLORS.text }}
+                    >
+                      <Icon className="h-4 w-4" strokeWidth={2} />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {NAV.slice(1).map(({ label, href, icon: Icon }) => {
+              const active = isActive(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex items-center gap-1.5 rounded-sm px-3 py-2 text-[12px] font-semibold tracking-wide transition"
+                  style={{
+                    background: active
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
+                    color: active ? "#FFFFFF" : "rgba(255,255,255,0.75)",
+                  }}
+                >
+                  <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                  {label.toUpperCase()}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
             <Link
-              href="/pro/login"
-              className="hidden h-10 items-center gap-2 rounded-sm px-3 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 lg:flex"
+              href="/"
+              className="hidden h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3 lg:flex"
               style={{ color: "rgba(255,255,255,0.9)" }}
             >
-              <LogIn className="h-4 w-4" strokeWidth={2} />
-              SE CONNECTER
+              <Store className="h-4 w-4" strokeWidth={2} />
+              <TranslatedText value={"BOUTIQUE"} />{" "}
             </Link>
-          )}
+
+            <Link
+              href="/pro/cart"
+              className="relative flex h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3"
+              style={{ color: "rgba(255,255,255,0.9)" }}
+            >
+              <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" strokeWidth={2} />
+              <span className="hidden sm:inline">
+                <TranslatedText value={"PANIER"} />
+              </span>
+              {itemCount > 0 && (
+                <span
+                  className="absolute -right-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white sm:static sm:right-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
+                  style={{ background: COLORS.red }}
+                >
+                  {itemCount}
+                </span>
+              )}
+            </Link>
+
+            {authenticated ? (
+              <>
+                <Link
+                  href="/pro/account"
+                  aria-label={t("Mon compte")}
+                  className="hidden h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10 lg:grid"
+                  style={{ color: "rgba(255,255,255,0.9)" }}
+                >
+                  <User className="h-4 w-4" strokeWidth={2} />
+                </Link>
+
+                <form action={logoutPro} className="hidden lg:block">
+                  <button
+                    type="submit"
+                    aria-label={t("Se déconnecter")}
+                    className="grid h-10 w-10 place-items-center rounded-sm transition hover:bg-white/10"
+                    style={{ color: "rgba(255,255,255,0.9)" }}
+                  >
+                    <LogOut className="h-4 w-4" strokeWidth={2} />
+                  </button>
+                </form>
+              </>
+            ) : (
+              <Link
+                href="/pro/login"
+                className="hidden h-10 items-center gap-2 rounded-sm px-3 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 lg:flex"
+                style={{ color: "rgba(255,255,255,0.9)" }}
+              >
+                <LogIn className="h-4 w-4" strokeWidth={2} />
+                <TranslatedText value={"SE CONNECTER"} />{" "}
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
       {/* Mobile slide-in menu */}
       <div
@@ -250,13 +261,14 @@ export function ProSiteHeader({
               className="flex items-center gap-1.5 text-[15px] font-extrabold tracking-tight"
               style={{ fontFamily: DISPLAY_FONT }}
             >
-              <Shield className="h-3.5 w-3.5" strokeWidth={2.4} /> ESPACE PRO
+              <Shield className="h-3.5 w-3.5" strokeWidth={2.4} />
+              <TranslatedText value={"ESPACE PRO"} />{" "}
             </span>
             <button
               type="button"
               onClick={closeMenu}
               className="grid h-9 w-9 place-items-center rounded-sm hover:bg-white/10"
-              aria-label="Fermer le menu"
+              aria-label={t("Fermer le menu")}
             >
               <X className="h-5 w-5" strokeWidth={2} />
             </button>
@@ -273,34 +285,40 @@ export function ProSiteHeader({
                   background: isActive("/pro/products")
                     ? "rgba(255,255,255,0.12)"
                     : "transparent",
-                  color: isActive("/pro/products") ? "#FFFFFF" : "rgba(255,255,255,0.8)",
+                  color: isActive("/pro/products")
+                    ? "#FFFFFF"
+                    : "rgba(255,255,255,0.8)",
                 }}
               >
                 <Package className="h-4 w-4" strokeWidth={2} />
-                CATALOGUE
+                <TranslatedText value={"CATALOGUE"} />{" "}
               </Link>
               <div
                 className="ml-4 grid gap-0.5 border-l pl-2"
                 style={{ borderColor: "rgba(255,255,255,0.15)" }}
               >
-                {CATALOGUE_SUBMENU.slice(1).map(({ label, href, icon: Icon }) => {
-                  const active = isActive(href);
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={closeMenu}
-                      className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13px] font-medium tracking-wide transition"
-                      style={{
-                        background: active ? "rgba(255,255,255,0.12)" : "transparent",
-                        color: active ? "#FFFFFF" : "rgba(255,255,255,0.7)",
-                      }}
-                    >
-                      <Icon className="h-4 w-4" strokeWidth={2} />
-                      {label.toUpperCase()}
-                    </Link>
-                  );
-                })}
+                {CATALOGUE_SUBMENU.slice(1).map(
+                  ({ label, href, icon: Icon }) => {
+                    const active = isActive(href);
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={closeMenu}
+                        className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13px] font-medium tracking-wide transition"
+                        style={{
+                          background: active
+                            ? "rgba(255,255,255,0.12)"
+                            : "transparent",
+                          color: active ? "#FFFFFF" : "rgba(255,255,255,0.7)",
+                        }}
+                      >
+                        <Icon className="h-4 w-4" strokeWidth={2} />
+                        {label.toUpperCase()}
+                      </Link>
+                    );
+                  },
+                )}
               </div>
 
               {NAV.slice(1).map(({ label, href, icon: Icon }) => {
@@ -312,7 +330,9 @@ export function ProSiteHeader({
                     onClick={closeMenu}
                     className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide transition"
                     style={{
-                      background: active ? "rgba(255,255,255,0.12)" : "transparent",
+                      background: active
+                        ? "rgba(255,255,255,0.12)"
+                        : "transparent",
                       color: active ? "#FFFFFF" : "rgba(255,255,255,0.8)",
                     }}
                   >
@@ -336,14 +356,16 @@ export function ProSiteHeader({
                     onClick={closeMenu}
                     className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
                   >
-                    <User className="h-4 w-4" strokeWidth={2} /> MON COMPTE
+                    <User className="h-4 w-4" strokeWidth={2} />
+                    <TranslatedText value={"MON COMPTE"} />{" "}
                   </Link>
                   <form action={logoutPro}>
                     <button
                       type="submit"
                       className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-left text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
                     >
-                      <LogOut className="h-4 w-4" strokeWidth={2} /> DÉCONNEXION
+                      <LogOut className="h-4 w-4" strokeWidth={2} />
+                      <TranslatedText value={"DÉCONNEXION"} />{" "}
                     </button>
                   </form>
                 </>
@@ -353,7 +375,8 @@ export function ProSiteHeader({
                   onClick={closeMenu}
                   className="flex items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
                 >
-                  <LogIn className="h-4 w-4" strokeWidth={2} /> SE CONNECTER
+                  <LogIn className="h-4 w-4" strokeWidth={2} />
+                  <TranslatedText value={"SE CONNECTER"} />{" "}
                 </Link>
               )}
             </div>

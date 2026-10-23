@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/components/language-provider";
 
 import { useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -13,6 +14,7 @@ export function CatalogSortSelect({
   className?: string;
   variant?: "light" | "dark";
 }) {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -38,7 +40,7 @@ export function CatalogSortSelect({
         strokeWidth={2}
       />
       <select
-        aria-label="Trier les produits"
+        aria-label={t("Trier les produits")}
         value={current}
         onChange={(e) => onChange(e.target.value)}
         className="h-9 w-full appearance-none rounded-md border pl-9 pr-8 text-[13px] outline-none transition focus:border-[#3F561F]"
@@ -50,7 +52,7 @@ export function CatalogSortSelect({
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value} style={{ color: COLORS.text }}>
-            {o.label}
+            {t(o.label)}
           </option>
         ))}
       </select>

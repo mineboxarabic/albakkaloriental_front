@@ -1,13 +1,18 @@
+import { TranslatedText } from "@/components/translated-text";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { company } from "@/lib/company";
-import { getDisplayCategories } from "@/lib/category-display";
+import type { CategoryNavigation } from "@/lib/catalog-navigation";
 
 type FooterItem = { label: string; href: string | null };
 const MAX_CATEGORY_LINKS = 6;
 
-export function SiteFooter({ categories }: { categories: string[] }) {
+export function SiteFooter({
+  categories,
+}: {
+  categories: CategoryNavigation[];
+}) {
   const socialLinks = [
     {
       label: "Facebook",
@@ -32,11 +37,11 @@ export function SiteFooter({ categories }: { categories: string[] }) {
     },
   ].filter((s) => s.href);
 
-  const catalogueLinks: FooterItem[] = getDisplayCategories(categories)
+  const catalogueLinks: FooterItem[] = categories
     .slice(0, MAX_CATEGORY_LINKS)
     .map((c) => ({
-      label: c.name,
-      href: `/products?category=${encodeURIComponent(c.name)}`,
+      label: c.label,
+      href: `/products?category=${encodeURIComponent(c.value)}`,
     }));
 
   const serviceLinks: FooterItem[] = [
@@ -56,11 +61,20 @@ export function SiteFooter({ categories }: { categories: string[] }) {
   ];
 
   return (
-    <footer className="mt-8" style={{ background: COLORS.primary, color: "#FAF8F2" }}>
+    <footer
+      className="mt-8"
+      style={{ background: COLORS.primary, color: "#FAF8F2" }}
+    >
       <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-x-6 gap-y-9 px-6 py-10 md:grid-cols-12 md:gap-8 md:py-12">
         <div className="col-span-2 md:col-span-4">
           <div className="flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden>
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 34 34"
+              fill="none"
+              aria-hidden
+            >
               <path
                 d="M17 4c-3 6-7 9-12 10 1 8 6 14 12 16 6-2 11-8 12-16-5-1-9-4-12-10z"
                 fill="#FAF8F2"
@@ -77,12 +91,17 @@ export function SiteFooter({ categories }: { categories: string[] }) {
               >
                 LE BAKKAL
               </div>
-              <div className="text-[9px] tracking-[0.35em] opacity-80">ORIENTAL</div>
+              <div className="text-[9px] tracking-[0.35em] opacity-80">
+                ORIENTAL
+              </div>
             </div>
           </div>
           <p className="mt-4 max-w-[280px] text-[12.5px] leading-relaxed opacity-85">
-            Votre épicerie orientale de confiance. Des produits authentiques,
-            soigneusement sélectionnés, livrés partout en France.
+            <TranslatedText
+              value={
+                "Votre épicerie orientale de confiance. Des produits authentiques, soigneusement sélectionnés, livrés partout en France."
+              }
+            />{" "}
           </p>
           {socialLinks.length > 0 && (
             <div className="mt-5 flex items-center gap-3">
@@ -90,8 +109,24 @@ export function SiteFooter({ categories }: { categories: string[] }) {
                 <SocialLink key={s.label} label={s.label} href={s.href!}>
                   {s.isInstagram ? (
                     <>
-                      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-                      <circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                      <rect
+                        x="3.5"
+                        y="3.5"
+                        width="17"
+                        height="17"
+                        rx="4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3.8"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                      />
                       <circle cx="17" cy="7" r="1" fill="currentColor" />
                     </>
                   ) : (
@@ -108,7 +143,9 @@ export function SiteFooter({ categories }: { categories: string[] }) {
         <FooterCol title="À propos" links={aboutLinks} />
 
         <div className="col-span-1 md:col-span-2">
-          <div className="text-[12px] font-bold tracking-wide opacity-90">CONTACT</div>
+          <div className="text-[12px] font-bold tracking-wide opacity-90">
+            <TranslatedText value={"CONTACT"} />
+          </div>
           <ul className="mt-4 space-y-3 text-[12.5px] opacity-90">
             {company.phone && (
               <li className="flex items-start gap-2">
@@ -139,12 +176,19 @@ export function SiteFooter({ categories }: { categories: string[] }) {
       <div className="border-t border-white/15">
         <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-2 px-6 py-4 text-[11.5px] opacity-80 md:flex-row">
           <span>
-            © {new Date().getFullYear()} {company.name}. Tous droits réservés.
+            © {new Date().getFullYear()} {company.name}
+            <TranslatedText value={". Tous droits réservés."} />{" "}
           </span>
           <span className="flex items-center gap-4">
-            <Link href="/cgv" className="hover:underline">CGV</Link>
-            <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
-            <Link href="/contact" className="hover:underline">Contact</Link>
+            <Link href="/cgv" className="hover:underline">
+              <TranslatedText value={"CGV"} />
+            </Link>
+            <Link href="/confidentialite" className="hover:underline">
+              <TranslatedText value={"Confidentialité"} />
+            </Link>
+            <Link href="/contact" className="hover:underline">
+              <TranslatedText value={"Contact"} />
+            </Link>
           </span>
         </div>
       </div>
@@ -169,7 +213,13 @@ function SocialLink({
       aria-label={label}
       className="grid h-8 w-8 place-items-center rounded-full border border-white/30 hover:bg-white/10"
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden
+      >
         {children}
       </svg>
     </a>
@@ -180,20 +230,23 @@ function FooterCol({ title, links }: { title: string; links: FooterItem[] }) {
   return (
     <div className="col-span-1 md:col-span-2">
       <div className="text-[12px] font-bold tracking-wide opacity-90">
-        {title.toUpperCase()}
+        <TranslatedText value={title.toUpperCase()} />
       </div>
       <ul className="mt-4 space-y-2.5 text-[12.5px] opacity-85">
         {links.map((l) => (
           <li key={l.label}>
             {l.href ? (
               <Link href={l.href} className="hover:underline">
-                {l.label}
+                <TranslatedText value={l.label} />
               </Link>
             ) : (
-              <span className="inline-flex items-center gap-1.5 opacity-45" aria-disabled>
-                {l.label}
+              <span
+                className="inline-flex items-center gap-1.5 opacity-45"
+                aria-disabled
+              >
+                <TranslatedText value={l.label} />
                 <span className="rounded bg-white/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
-                  Bientôt
+                  <TranslatedText value={"Bientôt"} />{" "}
                 </span>
               </span>
             )}

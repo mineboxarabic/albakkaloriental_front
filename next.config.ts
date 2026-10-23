@@ -11,10 +11,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "https://anahit.fr/data/img_products/**",
+        hostname: "anahit.fr",
         port: "",
         pathname: "/**",
-      }
+      },
+      { protocol: "https", hostname: "amilapps.com", pathname: "/azimages/**" },
     ],
   },
 };

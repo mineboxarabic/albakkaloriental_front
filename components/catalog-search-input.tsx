@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/components/language-provider";
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -16,6 +17,7 @@ export function CatalogSearchInput({
   className?: string;
   variant?: "light" | "dark";
 }) {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -53,8 +55,8 @@ export function CatalogSearchInput({
       <input
         type="search"
         role="searchbox"
-        aria-label="Rechercher dans le catalogue"
-        placeholder={placeholder}
+        aria-label={t("Rechercher dans le catalogue")}
+        placeholder={t(placeholder)}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="h-9 w-full rounded-md border pl-9 pr-9 text-[13px] outline-none transition focus:border-[#3F561F]"
@@ -67,7 +69,7 @@ export function CatalogSearchInput({
       {value && (
         <button
           type="button"
-          aria-label="Effacer la recherche"
+          aria-label={t("Effacer la recherche")}
           onClick={() => setValue("")}
           className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full"
           style={{ color: isDark ? "rgba(255,255,255,0.6)" : COLORS.muted }}

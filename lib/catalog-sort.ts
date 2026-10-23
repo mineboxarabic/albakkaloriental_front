@@ -13,14 +13,20 @@ const SORT_KEYS = new Set<SortKey>(SORT_OPTIONS.map((o) => o.value));
 
 /** Coerce an unknown search-param value into a valid SortKey (defaults to "default"). */
 export function parseSortKey(value: string | undefined): SortKey {
-  return value && SORT_KEYS.has(value as SortKey) ? (value as SortKey) : "default";
+  return value && SORT_KEYS.has(value as SortKey)
+    ? (value as SortKey)
+    : "default";
 }
 
 /**
  * Returns a sorted copy of `products`. In every mode, in-stock products come
  * before out-of-stock ones so buyable items stay in view first.
  */
-export function sortProducts(products: ProductCard[], sort: SortKey): ProductCard[] {
+export function sortProducts(
+  products: ProductCard[],
+  sort: SortKey,
+  language: "fr" | "ar" = "fr",
+): ProductCard[] {
   const sorted = [...products];
   sorted.sort((a, b) => {
     if (a.isOutOfStock !== b.isOutOfStock) return a.isOutOfStock ? 1 : -1;
@@ -30,7 +36,7 @@ export function sortProducts(products: ProductCard[], sort: SortKey): ProductCar
       case "price-desc":
         return b.effectivePrice - a.effectivePrice;
       case "name-asc":
-        return a.name.localeCompare(b.name, "fr");
+        return a.name.localeCompare(b.name, language);
       default:
         return 0;
     }
