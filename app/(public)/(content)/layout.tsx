@@ -1,20 +1,29 @@
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-context";
-import { SessionProvider, type ClientSession } from "@/components/session-provider";
+import {
+  SessionProvider,
+  type ClientSession,
+} from "@/components/session-provider";
 import { AuthModalProvider } from "@/components/auth-modal";
 import { SiteHeader } from "@/components/retail/site-header";
 import { SiteFooter } from "@/components/retail/site-footer";
 import { CartDrawer } from "@/components/retail/cart-drawer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getRetailSession } from "@/lib/session";
-import { getCategories } from "@/lib/catalog";
+import { getCatalogNavigation } from "@/lib/catalog-navigation-server";
+import { getLanguage } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 import { company } from "@/lib/company";
 
-export default async function ContentLayout({ children }: { children: ReactNode }) {
+export default async function ContentLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const language = await getLanguage();
   const [session, categories] = await Promise.all([
     getRetailSession(),
-    getCategories("retail"),
+    getCatalogNavigation("retail", language),
   ]);
   const isRetail = session !== null;
   const sessionValue: ClientSession = {
@@ -27,7 +36,10 @@ export default async function ContentLayout({ children }: { children: ReactNode 
     <SessionProvider value={sessionValue}>
       <CartProvider audience="retail">
         <AuthModalProvider>
-          <div className="flex min-h-screen flex-col overflow-x-clip" style={{ background: COLORS.bg }}>
+          <div
+            className="flex min-h-screen flex-col overflow-x-clip"
+            style={{ background: COLORS.bg }}
+          >
             <SiteHeader categories={categories} phone={company.phone} />
             <CartDrawer />
             <div className="flex-1">{children}</div>

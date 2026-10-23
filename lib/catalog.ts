@@ -1,13 +1,31 @@
 import "server-only";
+import { localizedText, type Language } from "@/lib/language";
+import { matchesCategory } from "@/lib/catalog-navigation";
 import { backendFetch, ApiClientError } from "@/lib/api-client";
 
-export { getTierPrice, formatPriceEUR, type TierPriceInput } from "@/lib/catalog-pricing";
+export {
+  getTierPrice,
+  formatPriceEUR,
+  type TierPriceInput,
+} from "@/lib/catalog-pricing";
 
 export type CatalogAudience = "retail" | "pro";
 
 export type ProductCard = {
   id: string;
   name: string;
+  nameFr?: string;
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  categoryAr?: string | null;
+  categoryCode?: string | null;
+  categoryLabel?: string;
+  subcategory?: string | null;
+  subcategoryAr?: string | null;
+  subcategoryCode?: string | null;
+  subcategoryLabel?: string | null;
+  tags?: string[];
   sku: string;
   category: string;
   marques: string[];
@@ -36,6 +54,18 @@ export type ProductCard = {
 type BackendCatalogProduct = {
   id: string;
   name: string;
+  nameFr?: string;
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  categoryAr?: string | null;
+  categoryCode?: string | null;
+  categoryLabel?: string;
+  subcategory?: string | null;
+  subcategoryAr?: string | null;
+  subcategoryCode?: string | null;
+  subcategoryLabel?: string | null;
+  tags?: string[];
   sku: string;
   category: string;
   marques?: string[];
@@ -63,14 +93,32 @@ type BackendCatalogProduct = {
   isActive?: boolean;
 };
 
-function toProductCard(p: BackendCatalogProduct, audience: CatalogAudience): ProductCard {
+function toProductCard(
+  p: BackendCatalogProduct,
+  audience: CatalogAudience,
+  language: Language = "fr",
+): ProductCard {
   const isOutOfStock =
     audience === "retail"
       ? getRetailStatus(p) === "OUT_OF_STOCK"
       : (p.isOutOfStock ?? false);
   return {
     id: p.id,
-    name: p.name,
+    name: localizedText(p.name, p.nameAr, language),
+    nameFr: p.name,
+    nameAr: p.nameAr ?? null,
+    description:
+      localizedText(p.description, p.descriptionAr, language) || null,
+    descriptionAr: p.descriptionAr ?? null,
+    categoryAr: p.categoryAr ?? null,
+    categoryCode: p.categoryCode ?? null,
+    categoryLabel: localizedText(p.category, p.categoryAr, language),
+    subcategory: p.subcategory ?? null,
+    subcategoryAr: p.subcategoryAr ?? null,
+    subcategoryCode: p.subcategoryCode ?? null,
+    subcategoryLabel:
+      localizedText(p.subcategory, p.subcategoryAr, language) || null,
+    tags: p.tags ?? [],
     sku: p.sku,
     category: p.category,
     marques: p.marques ?? [],
@@ -108,7 +156,10 @@ function isVisibleForAudience(
     : p.visibility === "WHOLESALE" || p.visibility === "BOTH";
 }
 
-function isHidden(p: BackendCatalogProduct, audience: CatalogAudience): boolean {
+function isHidden(
+  p: BackendCatalogProduct,
+  audience: CatalogAudience,
+): boolean {
   if (p.isActive === false || !isVisibleForAudience(p, audience)) return true;
 
   return audience === "retail"
@@ -124,9 +175,12 @@ async function fetchCatalog(
   // Both audiences browse with optional auth: the back-end returns prices when a
   // valid session is present and a price-stripped catalog otherwise (B2B guests).
   try {
-    const data = await backendFetch<{ products: BackendCatalogProduct[] }>(path, {
-      auth: "optional",
-    });
+    const data = await backendFetch<{ products: BackendCatalogProduct[] }>(
+      path,
+      {
+        auth: "optional",
+      },
+    );
     return { products: data.products, backendDown: false };
   } catch (err) {
     // 401 = no/expired session; not a server failure, just unauthenticated
@@ -139,6 +193,7 @@ async function fetchCatalog(
 
 export async function getProducts(opts: {
   audience: CatalogAudience;
+  language?: Language;
   category?: string;
   marque?: string;
   take?: number;
@@ -146,14 +201,8 @@ export async function getProducts(opts: {
 }): Promise<{ products: ProductCard[]; backendDown: boolean }> {
   const { products: all, backendDown } = await fetchCatalog(opts.audience);
   const visible = all.filter((p) => !isHidden(p, opts.audience));
-  const categoryFilter = opts.category?.trim().toLowerCase();
-  const byCategory = categoryFilter
-    ? visible.filter((p) => {
-        const productCategories = p.category
-          ? p.category.split(",").map((c) => c.trim().toLowerCase())
-          : [];
-        return productCategories.includes(categoryFilter);
-      })
+  const byCategory = opts.category
+    ? visible.filter((p) => matchesCategory(p, opts.category!))
     : visible;
   const marqueFilter = opts.marque?.trim().toLowerCase();
   const filtered = marqueFilter
@@ -164,7 +213,9 @@ export async function getProducts(opts: {
   const skip = opts.skip ?? 0;
   const take = opts.take ?? filtered.length;
   return {
-    products: filtered.slice(skip, skip + take).map((p) => toProductCard(p, opts.audience)),
+    products: filtered
+      .slice(skip, skip + take)
+      .map((p) => toProductCard(p, opts.audience, opts.language)),
     backendDown,
   };
 }
@@ -172,11 +223,12 @@ export async function getProducts(opts: {
 export async function getProduct(
   id: string,
   audience: CatalogAudience,
+  language: Language = "fr",
 ): Promise<ProductCard | null> {
   const { products: all } = await fetchCatalog(audience);
   const found = all.find((p) => p.id === id);
   if (!found || isHidden(found, audience)) return null;
-  return toProductCard(found, audience);
+  return toProductCard(found, audience, language);
 }
 
 export type MarqueItem = {
@@ -203,12 +255,31 @@ export async function getMarques(): Promise<MarqueItem[]> {
 export type CategoryItem = {
   id: string;
   name: string;
+  nameAr?: string | null;
+  code?: string | null;
+  parentId?: string | null;
+  sortOrder?: number;
   imageUrl: string | null;
   isFeatured: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function getCategories(audience: CatalogAudience): Promise<string[]> {
+/** Full category metadata; the backend owns category names, nesting and artwork. */
+export async function getCategoryItems(): Promise<CategoryItem[]> {
+  try {
+    const data = await backendFetch<{ categories: CategoryItem[] }>(
+      "/api/v1/public/categories",
+      { auth: "none" },
+    );
+    return data.categories;
+  } catch {
+    return [];
+  }
+}
+
+export async function getCategories(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  audience: CatalogAudience,
+): Promise<string[]> {
   try {
     const data = await backendFetch<{ categories: { name: string }[] }>(
       "/api/v1/public/categories",

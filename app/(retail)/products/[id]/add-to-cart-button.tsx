@@ -1,4 +1,5 @@
 "use client";
+import { TranslatedText } from "@/components/translated-text";
 
 import { useState } from "react";
 import { Minus, Plus, ShoppingCart, Check, Lock } from "lucide-react";
@@ -8,11 +9,7 @@ import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
 import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
 
-export function AddToCartButton({
-  item,
-}: {
-  item: AddCartItem;
-}) {
+export function AddToCartButton({ item }: { item: AddCartItem }) {
   const { addItem, items } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
@@ -20,7 +17,8 @@ export function AddToCartButton({
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const existingQty = items.find((i) => i.productId === item.productId)?.quantity ?? 0;
+  const existingQty =
+    items.find((i) => i.productId === item.productId)?.quantity ?? 0;
   const remainingQty = Math.max(0, MAX_QTY_PER_PRODUCT - existingQty);
   const effectiveQty = Math.min(qty, remainingQty);
 
@@ -84,17 +82,17 @@ export function AddToCartButton({
           ) : !isConnected ? (
             <>
               <Lock className="h-4 w-4" strokeWidth={2} />
-              Se connecter pour ajouter
+              <TranslatedText value={"Se connecter pour ajouter"} />{" "}
             </>
           ) : confirmed ? (
             <>
               <Check className="h-4 w-4" strokeWidth={2.4} />
-              Ajouté au panier
+              <TranslatedText value={"Ajouté au panier"} />{" "}
             </>
           ) : (
             <>
               <ShoppingCart className="h-4 w-4" strokeWidth={2} />
-              Ajouter au panier
+              <TranslatedText value={"Ajouter au panier"} />{" "}
             </>
           )}
         </button>

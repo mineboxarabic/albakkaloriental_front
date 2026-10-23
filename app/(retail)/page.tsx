@@ -1,3 +1,4 @@
+import { TranslatedText } from "@/components/translated-text";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,62 +14,44 @@ import {
   ShoppingBag,
   Check,
 } from "lucide-react";
-import { getCategories, getFeaturedCategories, getProducts, getUpcomingDeliveries } from "@/lib/catalog";
+import {
+  getCategoryItems,
+  getProducts,
+  getUpcomingDeliveries,
+} from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
-import { getCategoryDisplay, getDisplayCategories } from "@/lib/category-display";
+import { buildCategoryNavigation } from "@/lib/catalog-navigation";
+import { getLanguage } from "@/lib/server-language";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
 
 // Match the "Planning de livraison hebdomadaire" typography (Inter + JetBrains Mono).
 const INTER = "var(--font-inter), 'Inter', system-ui, sans-serif";
-const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
+const MONO =
+  "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
 
 export const revalidate = 60;
 
-const FALLBACK_CATEGORIES = [
-  "CONFISERIES",
-  "BOISSONS",
-  "ÉPICES",
-  "PRODUITS FRAIS",
-  "HUILES",
-  "CONSERVES",
-  "RIZ ET PÂTES",
-];
-
-
 export default async function Home() {
-  const [{ products: retailProducts, backendDown }, deliveries, categories, featuredCategories] = await Promise.all([
-    getProducts({ audience: "retail", take: 12 }),
-    getUpcomingDeliveries(4),
-    getCategories("retail"),
-    getFeaturedCategories(),
-  ]);
+  const language = await getLanguage();
+  const [{ products: allProducts, backendDown }, deliveries, categories] =
+    await Promise.all([
+      getProducts({ audience: "retail", language }),
+      getUpcomingDeliveries(4),
+      getCategoryItems(),
+    ]);
 
+  const retailProducts = allProducts.slice(0, 12);
   const bestSellers = retailProducts.slice(0, 6);
   const newArrivals = retailProducts.slice(6, 12);
 
-  const productCategories = Array.from(
-    new Set(
-      retailProducts.flatMap((p) =>
-        p.category ? p.category.toUpperCase().split(",").map((c) => c.trim()) : []
-      )
-    )
+  const navigation = buildCategoryNavigation(categories, allProducts, language);
+  const featured = navigation.filter((c) => c.isFeatured);
+  const categoryDisplays = (featured.length > 0 ? featured : navigation).slice(
+    0,
+    6,
   );
-  // Admin-curated featured categories take priority on the homepage, using their
-  // real logo/image. When none are featured, fall back to the previous behavior.
-  const categoryDisplays =
-    featuredCategories.length > 0
-      ? featuredCategories
-          .map((c) => ({ name: c.name, image: c.imageUrl || getCategoryDisplay(c.name).image }))
-          .slice(0, 6)
-      : getDisplayCategories(
-          categories.length > 0
-            ? categories
-            : productCategories.length > 0
-              ? productCategories
-              : FALLBACK_CATEGORIES,
-        ).slice(0, 6);
 
   const serverDate = new Date().toISOString();
 
@@ -77,10 +60,18 @@ export default async function Home() {
       {backendDown && (
         <div
           className="mt-4 flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-[13px]"
-          style={{ borderColor: "#F2C400", background: "#FFFBEA", color: "#92740A" }}
+          style={{
+            borderColor: "#F2C400",
+            background: "#FFFBEA",
+            color: "#92740A",
+          }}
         >
           <WifiOff className="h-4 w-4 shrink-0" />
-          Le serveur est temporairement indisponible — le catalogue ne peut pas être chargé.
+          <TranslatedText
+            value={
+              "Le serveur est temporairement indisponible — le catalogue ne peut pas être chargé."
+            }
+          />{" "}
         </div>
       )}
 
@@ -88,37 +79,58 @@ export default async function Home() {
 
       <section
         className="relative mt-5 overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"
-        style={{ background: "#FFFFFF", borderColor: COLORS.border, fontFamily: INTER }}
+        style={{
+          background: "#FFFFFF",
+          borderColor: COLORS.border,
+          fontFamily: INTER,
+        }}
       >
         <div className="grid grid-cols-1 items-end gap-4 px-6 pt-6 pb-0 lg:grid-cols-12 lg:px-8 lg:pt-8">
           <div className="flex flex-col justify-center pb-6 lg:col-span-5 lg:pb-10">
             <div
               className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase"
-              style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
+              style={{
+                fontFamily: MONO,
+                letterSpacing: "0.18em",
+                color: COLORS.muted,
+              }}
             >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
-              Épicerie orientale
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: COLORS.primary }}
+              />
+              <TranslatedText value={"Épicerie orientale"} />{" "}
             </div>
             <h1
               className="text-[26px] font-medium leading-[1.04] tracking-tight sm:text-[30px]"
               style={{ color: COLORS.text }}
             >
-              Vos produits orientaux préférés,{" "}
-              <span style={{ color: COLORS.primary }}>livrés chez vous</span>
+              <TranslatedText value={"Vos produits orientaux préférés,"} />{" "}
+              <span style={{ color: COLORS.primary }}>
+                <TranslatedText value={"livrés chez vous"} />
+              </span>
             </h1>
             <p
               className="mt-2 max-w-[320px] text-[13px] leading-relaxed"
               style={{ color: COLORS.muted }}
             >
-              Faites vos courses en ligne et recevez-les directement à domicile
-              lors de nos tournées.
+              <TranslatedText
+                value={
+                  "Faites vos courses en ligne et recevez-les directement à domicile lors de nos tournées."
+                }
+              />{" "}
             </p>
             <Link
               href="/products"
               className="mt-5 inline-flex w-fit items-center gap-1.5 rounded-lg px-4 py-2.5 text-[11px] font-semibold uppercase transition-opacity hover:opacity-90"
-              style={{ fontFamily: MONO, letterSpacing: "0.08em", background: COLORS.primary, color: "#FAF8F2" }}
+              style={{
+                fontFamily: MONO,
+                letterSpacing: "0.08em",
+                background: COLORS.primary,
+                color: "#FAF8F2",
+              }}
             >
-              Voir nos produits
+              <TranslatedText value={"Voir nos produits"} />{" "}
             </Link>
           </div>
           <div className="relative -mx-6 flex items-end justify-center lg:col-span-7 lg:mx-0">
@@ -145,10 +157,26 @@ export default async function Home() {
         className="mt-5 grid grid-cols-2 gap-4 rounded-xl border bg-white px-5 py-5 lg:flex lg:flex-wrap lg:items-center lg:justify-around lg:gap-6 lg:px-8"
         style={{ borderColor: COLORS.border }}
       >
-        <Feature icon={<Truck className="h-6 w-6" strokeWidth={1.8} />} title="LIVRAISON RAPIDE" sub="Partout en France" />
-        <Feature icon={<Store className="h-6 w-6" strokeWidth={1.8} />} title="CLICK & COLLECT" sub="Retrait en magasin" />
-        <Feature icon={<Tag className="h-6 w-6" strokeWidth={1.8} />} title="PRIX ACCESSIBLES" sub="Toute l'année" />
-        <Feature icon={<Headphones className="h-6 w-6" strokeWidth={1.8} />} title="SERVICE CLIENT" sub="À votre écoute" />
+        <Feature
+          icon={<Truck className="h-6 w-6" strokeWidth={1.8} />}
+          title="LIVRAISON RAPIDE"
+          sub="Partout en France"
+        />
+        <Feature
+          icon={<Store className="h-6 w-6" strokeWidth={1.8} />}
+          title="CLICK & COLLECT"
+          sub="Retrait en magasin"
+        />
+        <Feature
+          icon={<Tag className="h-6 w-6" strokeWidth={1.8} />}
+          title="PRIX ACCESSIBLES"
+          sub="Toute l'année"
+        />
+        <Feature
+          icon={<Headphones className="h-6 w-6" strokeWidth={1.8} />}
+          title="SERVICE CLIENT"
+          sub="À votre écoute"
+        />
       </section>
 
       <section className="mt-9">
@@ -157,25 +185,29 @@ export default async function Home() {
             className="text-[22px] font-extrabold tracking-tight"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Nos catégories
+            <TranslatedText value={"Nos catégories"} />{" "}
           </h2>
           <Link
             href="/products"
             className="flex items-center gap-1 text-[12px] font-semibold"
             style={{ color: COLORS.primary }}
           >
-            Voir toutes les catégories <ChevronRight className="h-3.5 w-3.5" />
+            <TranslatedText value={"Voir toutes les catégories"} />{" "}
+            <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           {categoryDisplays.map((category) => (
             <Link
               key={category.name}
-              href={`/products?category=${encodeURIComponent(category.name)}`}
+              href={`/products?category=${encodeURIComponent(category.value)}`}
               className="group flex flex-col items-center overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
               style={{ borderColor: COLORS.border }}
             >
-              <div className="relative h-[90px] w-full overflow-hidden sm:h-[110px]" style={{ background: COLORS.beige }}>
+              <div
+                className="relative aspect-[4/3] w-full overflow-hidden"
+                style={{ background: COLORS.beige }}
+              >
                 <Image
                   src={category.image}
                   alt=""
@@ -189,7 +221,7 @@ export default async function Home() {
                   className="text-[10px] font-bold tracking-wide"
                   style={{ color: COLORS.text }}
                 >
-                  {category.name.toUpperCase()}
+                  {category.label}
                 </div>
               </div>
             </Link>
@@ -215,10 +247,17 @@ export default async function Home() {
             className="text-[26px] font-extrabold leading-[1.1] tracking-tight sm:text-[34px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Épicerie orientale livrée chez vous
+            <TranslatedText
+              value={"Épicerie orientale livrée chez vous"}
+            />{" "}
           </h3>
-          <p className="mt-3 text-[14px] leading-relaxed sm:text-[15px]" style={{ color: COLORS.muted }}>
-            Découvrez nos rayons et commandez en quelques clics.
+          <p
+            className="mt-3 text-[14px] leading-relaxed sm:text-[15px]"
+            style={{ color: COLORS.muted }}
+          >
+            <TranslatedText
+              value={"Découvrez nos rayons et commandez en quelques clics."}
+            />{" "}
           </p>
         </div>
         <div className="flex justify-center lg:col-span-3">
@@ -227,7 +266,7 @@ export default async function Home() {
             className="inline-flex items-center rounded-md px-7 py-3.5 text-[14px] font-semibold text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
-            Voir le catalogue
+            <TranslatedText value={"Voir le catalogue"} />{" "}
           </Link>
         </div>
         <div className="hidden items-center justify-end lg:col-span-3 lg:flex">
@@ -246,28 +285,35 @@ export default async function Home() {
         <div className="text-center">
           <div
             className="mb-2.5 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase"
-            style={{ fontFamily: MONO, letterSpacing: "0.18em", color: COLORS.muted }}
+            style={{
+              fontFamily: MONO,
+              letterSpacing: "0.18em",
+              color: COLORS.muted,
+            }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS.primary }} />
-            Épicerie orientale &amp; halal
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: COLORS.primary }}
+            />
+            <TranslatedText value={"Épicerie orientale & halal"} />{" "}
           </div>
           <h2
             className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Votre Épicerie Orientale et Halal en Ligne
+            <TranslatedText
+              value={"Votre Épicerie Orientale et Halal en Ligne"}
+            />{" "}
           </h2>
           <p
             className="mx-auto mt-3 max-w-[720px] text-[14px] leading-relaxed sm:text-[15px]"
             style={{ color: COLORS.muted }}
           >
-            Bienvenue chez Le Bakkal Oriental, votre référence en matière d&apos;épicerie orientale et de
-            produits authentiques du bassin méditerranéen. Nous sélectionnons avec soin une large gamme de
-            produits orientaux halal, d&apos;épices, de conserves, de boissons, de douceurs traditionnelles
-            et d&apos;ingrédients indispensables à la préparation de recettes familiales riches en saveurs.
-            Notre mission est de permettre à chacun de retrouver facilement les goûts authentiques de
-            l&apos;Orient grâce à une plateforme de courses halal en ligne simple, rapide et accessible
-            partout en France.
+            <TranslatedText
+              value={
+                "Bienvenue chez Le Bakkal Oriental, votre référence en matière d'épicerie orientale et de produits authentiques du bassin méditerranéen. Nous sélectionnons avec soin une large gamme de produits orientaux halal, d'épices, de conserves, de boissons, de douceurs traditionnelles et d'ingrédients indispensables à la préparation de recettes familiales riches en saveurs. Notre mission est de permettre à chacun de retrouver facilement les goûts authentiques de l'Orient grâce à une plateforme de courses halal en ligne simple, rapide et accessible partout en France."
+              }
+            />{" "}
           </p>
         </div>
 
@@ -312,7 +358,10 @@ export default async function Home() {
               >
                 {card.title}
               </h3>
-              <p className="mt-2 text-[13.5px] leading-relaxed" style={{ color: COLORS.muted }}>
+              <p
+                className="mt-2 text-[13.5px] leading-relaxed"
+                style={{ color: COLORS.muted }}
+              >
                 {card.text}
               </p>
             </div>
@@ -328,7 +377,9 @@ export default async function Home() {
             className="text-[20px] font-extrabold tracking-tight sm:text-[24px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Pourquoi Choisir Le Bakkal Oriental ?
+            <TranslatedText
+              value={"Pourquoi Choisir Le Bakkal Oriental ?"}
+            />{" "}
           </h3>
           <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
             {[
@@ -344,7 +395,11 @@ export default async function Home() {
                 className="flex items-start gap-2.5 text-[14px] leading-relaxed sm:text-[15px]"
                 style={{ color: COLORS.text }}
               >
-                <Check className="mt-0.5 h-4.5 w-4.5 shrink-0" strokeWidth={2.4} style={{ color: COLORS.primary }} />
+                <Check
+                  className="mt-0.5 h-4.5 w-4.5 shrink-0"
+                  strokeWidth={2.4}
+                  style={{ color: COLORS.primary }}
+                />
                 {item}
               </li>
             ))}
@@ -357,15 +412,19 @@ export default async function Home() {
             className="text-[20px] font-extrabold tracking-tight sm:text-[24px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Découvrez Les Saveurs Authentiques De L&apos;Orient
+            <TranslatedText
+              value={"Découvrez Les Saveurs Authentiques De L'Orient"}
+            />{" "}
           </h3>
           <p
             className="mx-auto mt-3 max-w-[720px] text-[14px] leading-relaxed sm:text-[15px]"
             style={{ color: COLORS.muted }}
           >
-            Le Bakkal Oriental met à l&apos;honneur la richesse de la gastronomie orientale et
-            méditerranéenne à travers une sélection de produits de qualité destinée aux particuliers comme
-            aux passionnés de cuisine traditionnelle.
+            <TranslatedText
+              value={
+                "Le Bakkal Oriental met à l'honneur la richesse de la gastronomie orientale et méditerranéenne à travers une sélection de produits de qualité destinée aux particuliers comme aux passionnés de cuisine traditionnelle."
+              }
+            />{" "}
           </p>
         </div>
       </section>
@@ -382,7 +441,6 @@ export default async function Home() {
         items={newArrivals}
         emptyLabel="Les nouveautés arriveront bientôt."
       />
-
     </main>
   );
 }
@@ -409,7 +467,7 @@ function Feature({
           className="text-[11.5px] font-bold tracking-wide"
           style={{ color: COLORS.text }}
         >
-          {title}
+          <TranslatedText value={title} />
         </div>
         <div className="text-[11px]" style={{ color: COLORS.muted }}>
           {sub}
@@ -437,7 +495,7 @@ function ProductSection({
           className="text-[22px] font-extrabold tracking-tight"
           style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
         >
-          {title}
+          <TranslatedText value={title} />
         </h2>
         <Link
           href="/products"

@@ -1,3 +1,4 @@
+import { TranslatedText } from "@/components/translated-text";
 import Image from "next/image";
 import Link from "next/link";
 import { Package, Box, AlertCircle } from "lucide-react";
@@ -8,7 +9,12 @@ import {
   resolveProPrice,
   supportsUnitSale,
 } from "@/lib/catalog-pricing";
-import { COLORS, buildQuantityLabel, buildUnitLabel, productImage } from "@/lib/ui";
+import {
+  COLORS,
+  buildQuantityLabel,
+  buildUnitLabel,
+  productImage,
+} from "@/lib/ui";
 
 export function ProProductCard({
   product,
@@ -21,7 +27,9 @@ export function ProProductCard({
 }) {
   const packPrice = resolveProPrice(product, "PACK", pricingLevel);
   const hasUnit = supportsUnitSale(product);
-  const unitPrice = hasUnit ? resolveProPrice(product, "UNIT", pricingLevel) : null;
+  const unitPrice = hasUnit
+    ? resolveProPrice(product, "UNIT", pricingLevel)
+    : null;
   const isOutOfStock = product.isOutOfStock;
   const packagingLabel =
     product.unitsPerPack > 1
@@ -39,7 +47,7 @@ export function ProProductCard({
           style={{ background: COLORS.red }}
         >
           <AlertCircle className="h-3 w-3" strokeWidth={2.4} />
-          RUPTURE
+          <TranslatedText value={"RUPTURE"} />{" "}
         </span>
       )}
       <Link
@@ -72,77 +80,93 @@ export function ProProductCard({
         </Link>
 
         {packagingLabel && (
-          <div className="flex items-center gap-1.5 text-[11px]" style={{ color: COLORS.muted }}>
+          <div
+            className="flex items-center gap-1.5 text-[11px]"
+            style={{ color: COLORS.muted }}
+          >
             <Package className="h-3 w-3" strokeWidth={2} />
             {packagingLabel}
           </div>
         )}
 
         {authenticated && !isOutOfStock && (
-          <div className="text-[10.5px] font-medium" style={{ color: COLORS.muted }}>
-            {formatAvailableStock(product.availableStock, product.unitsPerPack, product.baseUnit)}
+          <div
+            className="text-[10.5px] font-medium"
+            style={{ color: COLORS.muted }}
+          >
+            {formatAvailableStock(
+              product.availableStock,
+              product.unitsPerPack,
+              product.baseUnit,
+            )}
           </div>
         )}
 
         {authenticated && (
           <>
-        {/* Mobile: simple label/value rows */}
-        <div
-          className="mt-1 flex flex-col gap-1.5 rounded-sm border px-3 py-2.5 sm:hidden"
-          style={{ borderColor: COLORS.border }}
-        >
-          <div className="flex items-baseline justify-between gap-2">
-            <span
-              className="text-[10px] font-bold tracking-[0.1em]"
-              style={{ color: COLORS.muted }}
-            >
-              CARTON
-            </span>
-            <span className="text-[15px] font-extrabold leading-none" style={{ color: COLORS.primary }}>
-              {formatPriceEUR(packPrice)}
-            </span>
-          </div>
-          {hasUnit && unitPrice != null && (
+            {/* Mobile: simple label/value rows */}
             <div
-              className="flex items-baseline justify-between gap-2 border-t pt-1.5"
+              className="mt-1 flex flex-col gap-1.5 rounded-sm border px-3 py-2.5 sm:hidden"
               style={{ borderColor: COLORS.border }}
             >
-              <span
-                className="text-[10px] font-bold tracking-[0.1em]"
-                style={{ color: COLORS.muted }}
-              >
-                UNITÉ
-              </span>
-              <span className="text-[14px] font-extrabold leading-none" style={{ color: COLORS.text }}>
-                {formatPriceEUR(unitPrice)}
-              </span>
+              <div className="flex items-baseline justify-between gap-2">
+                <span
+                  className="text-[10px] font-bold tracking-[0.1em]"
+                  style={{ color: COLORS.muted }}
+                >
+                  <TranslatedText value={"CARTON"} />{" "}
+                </span>
+                <span
+                  className="text-[15px] font-extrabold leading-none"
+                  style={{ color: COLORS.primary }}
+                >
+                  {formatPriceEUR(packPrice)}
+                </span>
+              </div>
+              {hasUnit && unitPrice != null && (
+                <div
+                  className="flex items-baseline justify-between gap-2 border-t pt-1.5"
+                  style={{ borderColor: COLORS.border }}
+                >
+                  <span
+                    className="text-[10px] font-bold tracking-[0.1em]"
+                    style={{ color: COLORS.muted }}
+                  >
+                    <TranslatedText value={"UNITÉ"} />{" "}
+                  </span>
+                  <span
+                    className="text-[14px] font-extrabold leading-none"
+                    style={{ color: COLORS.text }}
+                  >
+                    {formatPriceEUR(unitPrice)}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* sm+ : boxed tiles */}
-        <div
-          className="mt-1 hidden gap-px overflow-hidden rounded-sm border sm:grid"
-          style={{
-            borderColor: COLORS.border,
-            background: COLORS.border,
-            gridTemplateColumns: hasUnit ? "1fr 1fr" : "1fr",
-          }}
-        >
-          <PriceBlock
-            icon={<Package className="h-3 w-3" strokeWidth={2} />}
-            label="PAR CARTON"
-            price={packPrice}
-            primary
-          />
-          {hasUnit && unitPrice != null && (
-            <PriceBlock
-              icon={<Box className="h-3 w-3" strokeWidth={2} />}
-              label="À L'UNITÉ"
-              price={unitPrice}
-            />
-          )}
-        </div>
+            {/* sm+ : boxed tiles */}
+            <div
+              className="mt-1 hidden gap-px overflow-hidden rounded-sm border sm:grid"
+              style={{
+                borderColor: COLORS.border,
+                background: COLORS.border,
+                gridTemplateColumns: hasUnit ? "1fr 1fr" : "1fr",
+              }}
+            >
+              <PriceBlock
+                icon={<Package className="h-3 w-3" strokeWidth={2} />}
+                label="PAR CARTON"
+                price={packPrice}
+                primary
+              />
+              {hasUnit && unitPrice != null && (
+                <PriceBlock
+                  icon={<Box className="h-3 w-3" strokeWidth={2} />}
+                  label="À L'UNITÉ"
+                  price={unitPrice}
+                />
+              )}
+            </div>
           </>
         )}
 
@@ -155,7 +179,7 @@ export function ProProductCard({
               color: COLORS.muted,
             }}
           >
-            Connectez-vous pour voir le prix
+            <TranslatedText value={"Connectez-vous pour voir le prix"} />{" "}
           </div>
         )}
 
@@ -169,7 +193,7 @@ export function ProProductCard({
               border: `1px solid ${COLORS.primary}`,
             }}
           >
-            Se connecter
+            <TranslatedText value={"Se connecter"} />{" "}
           </Link>
         ) : isOutOfStock ? (
           <button
@@ -178,7 +202,7 @@ export function ProProductCard({
             className="mt-1 grid h-9 cursor-not-allowed place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
             style={{ background: "#999" }}
           >
-            Indisponible
+            <TranslatedText value={"Indisponible"} />{" "}
           </button>
         ) : (
           <Link
@@ -186,7 +210,7 @@ export function ProProductCard({
             className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
             style={{ background: COLORS.primary }}
           >
-            Ajouter au devis
+            <TranslatedText value={"Ajouter au devis"} />{" "}
           </Link>
         )}
       </div>

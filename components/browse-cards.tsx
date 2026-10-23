@@ -72,7 +72,7 @@ export function CategoryCard({
       style={{ borderColor: COLORS.border }}
     >
       <div
-        className="relative h-[90px] w-full overflow-hidden sm:h-[110px]"
+        className="relative aspect-[4/3] w-full overflow-hidden"
         style={{ background: COLORS.beige }}
       >
         <Image
