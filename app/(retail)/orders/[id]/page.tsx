@@ -7,6 +7,7 @@ import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { getTranslator } from "@/lib/server-language";
 import { formatDate } from "@/lib/language";
 import { getLocalizedProductNames } from "@/lib/catalog-navigation-server";
+import { OrderUpdates } from '@/components/order-updates';
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,7 @@ export default async function OrderPage({ params }: { params: Params }) {
         </div>
       </section>
 
+      <OrderUpdates status={order.status} />
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">
         <section className="md:col-span-8 flex flex-col gap-4">
           <div

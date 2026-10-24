@@ -18,6 +18,7 @@ import { ProOrderBillingCard } from "./pro-order-billing-card";
 import { getTranslator } from "@/lib/server-language";
 import { formatDate } from "@/lib/language";
 import { getLocalizedProductNames } from "@/lib/catalog-navigation-server";
+import { OrderUpdates } from '@/components/order-updates';
 
 export const dynamic = "force-dynamic";
 
@@ -145,6 +146,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         </div>
       </header>
 
+      <OrderUpdates status={order.status} />
       <section
         className="mt-5 rounded-sm border bg-white px-5 py-4"
         style={{ borderColor: COLORS.border }}

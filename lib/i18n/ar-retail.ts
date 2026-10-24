@@ -1,5 +1,6 @@
 /** Retail (B2C) shopping journey: cart, checkout, account and orders. */
 export const AR_RETAIL: Record<string, string> = {
+  'Suivi actualisé automatiquement.': 'يتم تحديث حالة الطلب تلقائياً.',
   // Cart
   "Mon panier": "سلتي",
   "Votre panier est vide.": "سلتك فارغة.",
