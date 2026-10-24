@@ -15,6 +15,7 @@ import { useFormStatus } from "react-dom";
 import { Mail, Lock, X, ArrowRight, Sparkles } from "lucide-react";
 import { loginRetail, type LoginState } from "@/actions/retail-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 export type CartIntent = {
   productId: string;
@@ -99,6 +100,7 @@ function AuthModal({
   onClose: () => void;
   redirectTo: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div
       aria-modal
@@ -114,8 +116,8 @@ function AuthModal({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fermer"
-          className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full transition hover:bg-[#FAF8F2]"
+          aria-label={t("Fermer")}
+          className="absolute end-3 top-3 grid h-9 w-9 place-items-center rounded-full transition hover:bg-[#FAF8F2]"
           style={{ color: COLORS.muted }}
         >
           <X className="h-4 w-4" strokeWidth={2} />
@@ -126,16 +128,16 @@ function AuthModal({
           style={{ color: COLORS.primary }}
         >
           <Sparkles className="h-3 w-3" strokeWidth={2.2} />
-          CONNEXION REQUISE
+          {t("CONNEXION REQUISE")}
         </div>
         <h2
           className="mt-3 text-[22px] font-extrabold leading-tight tracking-tight"
           style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
         >
-          Connectez-vous pour ajouter au panier
+          {t("Connectez-vous pour ajouter au panier")}
         </h2>
         <p className="mt-1 text-[12.5px]" style={{ color: COLORS.muted }}>
-          Accédez aux prix et constituez votre panier en quelques clics.
+          {t("Accédez aux prix et constituez votre panier en quelques clics.")}
         </p>
 
         <div className="mt-5">
@@ -146,14 +148,14 @@ function AuthModal({
           className="mt-4 rounded-xl bg-[#F0EBDD] px-4 py-3 text-center text-[12.5px]"
           style={{ color: COLORS.text }}
         >
-          Pas encore membre ?{" "}
+          {t("Pas encore membre ?")}{" "}
           <Link
             href={`/register?next=${encodeURIComponent(redirectTo)}`}
             onClick={onClose}
             className="font-bold underline-offset-2 hover:underline"
             style={{ color: COLORS.primary }}
           >
-            Créer un compte
+            {t("Créer un compte")}
           </Link>
         </div>
       </div>
@@ -164,6 +166,7 @@ function AuthModal({
 const initial: LoginState = null;
 
 function AuthModalForm({ redirectTo }: { redirectTo: string }) {
+  const { t } = useLanguage();
   const [state, formAction] = useActionState<LoginState, FormData>(
     loginRetail,
     initial,
@@ -176,17 +179,17 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
       <input type="hidden" name="redirectTo" value={redirectTo} />
       <ModalField
         icon={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
-        label="Adresse e-mail"
+        label={t("Adresse e-mail")}
         name="email"
         type="email"
         required
         defaultValue={emailVal}
         autoComplete="email"
-        placeholder="vous@exemple.com"
+        placeholder={t("vous@exemple.com")}
       />
       <ModalField
         icon={<Lock className="h-3.5 w-3.5" strokeWidth={2} />}
-        label="Mot de passe"
+        label={t("Mot de passe")}
         name="password"
         type="password"
         required
@@ -195,14 +198,14 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
 
       {state && !state.ok && (
         <div
-          className="rounded-md border-l-4 px-3 py-2 text-[12px]"
+          className="rounded-md border-s-4 px-3 py-2 text-[12px]"
           style={{
             background: "#FCE9E5",
             borderColor: COLORS.red,
             color: "#7A1709",
           }}
         >
-          {state.error}
+          {t(state.error)}
         </div>
       )}
 
@@ -213,6 +216,7 @@ function AuthModalForm({ redirectTo }: { redirectTo: string }) {
 
 function ModalSubmit() {
   const { pending } = useFormStatus();
+  const { t } = useLanguage();
   return (
     <button
       type="submit"
@@ -223,7 +227,7 @@ function ModalSubmit() {
           "linear-gradient(135deg, #3F561F 0%, #5A7A2C 50%, #3F561F 100%)",
       }}
     >
-      {pending ? "Connexion..." : "Se connecter"}
+      {pending ? t("Connexion...") : t("Se connecter")}
       {!pending && <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.4} />}
     </button>
   );

@@ -150,22 +150,22 @@ export function SiteFooter({
             {company.phone && (
               <li className="flex items-start gap-2">
                 <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                {company.phone}
+                <span className="ltr-isolate">{company.phone}</span>
               </li>
             )}
             {company.email && (
               <li className="flex items-start gap-2">
                 <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                {company.email}
+                <span className="ltr-isolate break-all">{company.email}</span>
               </li>
             )}
             {company.address && (
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>
-                  {company.address}
+                  <bdi>{company.address}</bdi>
                   <br />
-                  {company.city}
+                  <bdi>{company.city}</bdi>
                 </span>
               </li>
             )}
@@ -176,7 +176,9 @@ export function SiteFooter({
       <div className="border-t border-white/15">
         <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-2 px-6 py-4 text-[11.5px] opacity-80 md:flex-row">
           <span>
-            © {new Date().getFullYear()} {company.name}
+            <span className="ltr-isolate">
+              © {new Date().getFullYear()} {company.name}
+            </span>
             <TranslatedText value={". Tous droits réservés."} />{" "}
           </span>
           <span className="flex items-center gap-4">

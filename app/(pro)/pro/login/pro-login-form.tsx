@@ -5,10 +5,12 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { loginPro, type ProLoginState } from "@/actions/pro-auth";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 const initial: ProLoginState = null;
 
 export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
+  const { t } = useLanguage();
   const [state, formAction] = useActionState<ProLoginState, FormData>(
     loginPro,
     initial,
@@ -19,7 +21,7 @@ export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
     <form action={formAction} className="flex flex-col gap-5">
       {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
       <ProField
-        label="Adresse e-mail professionnelle"
+        label={t("Adresse e-mail professionnelle")}
         name="email"
         type="email"
         autoComplete="username"
@@ -28,7 +30,7 @@ export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
         placeholder="contact@entreprise.com"
       />
       <ProField
-        label="Mot de passe"
+        label={t("Mot de passe")}
         name="password"
         type="password"
         autoComplete="current-password"
@@ -40,20 +42,20 @@ export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
         className="-mt-1 self-end text-[11.5px] font-semibold uppercase tracking-[0.1em] underline-offset-2 hover:underline"
         style={{ color: COLORS.primary }}
       >
-        Mot de passe oublié ?
+        {t("Mot de passe oublié ?")}
       </Link>
 
       {state && !state.ok && (
         <div
           role="alert"
-          className="border-l-4 px-3 py-2 text-[12.5px]"
+          className="border-s-4 px-3 py-2 text-[12.5px]"
           style={{
             background: "#FDEEEA",
             borderColor: COLORS.red,
             color: "#7A1709",
           }}
         >
-          {state.error}
+          {t(state.error)}
         </div>
       )}
 
@@ -64,6 +66,7 @@ export function ProLoginForm({ redirectTo }: { redirectTo?: string }) {
 
 function Submit() {
   const { pending } = useFormStatus();
+  const { t } = useLanguage();
   return (
     <button
       type="submit"
@@ -71,7 +74,7 @@ function Submit() {
       className="mt-1 grid h-11 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-70"
       style={{ background: COLORS.primary }}
     >
-      {pending ? "Connexion..." : "Accéder au portail"}
+      {pending ? t("Connexion...") : t("Accéder au portail")}
     </button>
   );
 }

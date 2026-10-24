@@ -4,6 +4,8 @@ import { ChevronRight, Package2, ListFilter } from "lucide-react";
 import { getRetailOrders } from "@/actions/retail-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate } from "@/lib/language";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +17,6 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
   CANCELLED: { label: "Annulée", color: "#D52B14", bg: "#FCE9E5" },
 };
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 const STATUS_FILTERS = ["all", "PENDING", "CONFIRMED", "PREPARED", "DELIVERED", "CANCELLED"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
@@ -58,6 +55,7 @@ export default async function RetailOrdersPage({
   const result = await getRetailOrders();
   if (!result.ok) redirect("/login?next=/orders");
 
+  const { t, language } = await getTranslator();
   const cutoff = periodCutoff(period);
   const filtered = result.orders
     .filter((o) => status === "all" || o.status === status)
@@ -70,21 +68,23 @@ export default async function RetailOrdersPage({
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
-        <Link href="/" className="hover:underline">Accueil</Link>{" "}
+        <Link href="/" className="hover:underline">{t("Accueil")}</Link>{" "}
         <span className="mx-1">›</span>
-        <Link href="/account" className="hover:underline">Mon compte</Link>{" "}
+        <Link href="/account" className="hover:underline">{t("Mon compte")}</Link>{" "}
         <span className="mx-1">›</span>
-        <span style={{ color: COLORS.text }}>Mes commandes</span>
+        <span style={{ color: COLORS.text }}>{t("Mes commandes")}</span>
       </nav>
 
       <h1
         className="mt-3 text-[28px] font-extrabold tracking-tight"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
-        Mes commandes
+        {t("Mes commandes")}
       </h1>
       <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
-        Historique complet de vos commandes ({result.orders.length}).
+        {t("Historique complet de vos commandes ({count}).", {
+          count: result.orders.length,
+        })}
       </p>
 
       <section
@@ -93,27 +93,27 @@ export default async function RetailOrdersPage({
       >
         <div className="flex items-center gap-2 text-[11.5px] font-bold tracking-[0.1em]" style={{ color: COLORS.muted }}>
           <ListFilter className="h-3.5 w-3.5" />
-          FILTRES
+          {t("FILTRES")}
         </div>
-        <FilterGroup label="Statut" current={status} param="status">
+        <FilterGroup label={t("Statut")} current={status} param="status">
           {STATUS_FILTERS.map((s) => (
             <FilterChip
               key={s}
               active={status === s}
               href={`/orders?${new URLSearchParams({ status: s, period }).toString()}`}
             >
-              {s === "all" ? "Tous" : STATUS_LABELS[s]?.label ?? s}
+              {s === "all" ? t("Tous") : t(STATUS_LABELS[s]?.label ?? s)}
             </FilterChip>
           ))}
         </FilterGroup>
-        <FilterGroup label="Période" current={period} param="period">
+        <FilterGroup label={t("Période")} current={period} param="period">
           {PERIOD_FILTERS.map((p) => (
             <FilterChip
               key={p}
               active={period === p}
               href={`/orders?${new URLSearchParams({ status, period: p }).toString()}`}
             >
-              {PERIOD_LABEL[p]}
+              {t(PERIOD_LABEL[p])}
             </FilterChip>
           ))}
         </FilterGroup>
@@ -133,12 +133,12 @@ export default async function RetailOrdersPage({
             className="mt-3 text-[16px] font-bold"
             style={{ color: COLORS.text }}
           >
-            Aucune commande
+            {t("Aucune commande")}
           </h2>
           <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
             {result.orders.length === 0
-              ? "Vous n'avez encore passé aucune commande."
-              : "Aucune commande ne correspond à ces filtres."}
+              ? t("Vous n'avez encore passé aucune commande.")
+              : t("Aucune commande ne correspond à ces filtres.")}
           </p>
           {result.orders.length === 0 && (
             <Link
@@ -146,7 +146,7 @@ export default async function RetailOrdersPage({
               className="mt-4 inline-flex rounded-md px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm"
               style={{ background: COLORS.primary }}
             >
-              Voir les produits
+              {t("Voir les produits")}
             </Link>
           )}
         </div>
@@ -176,15 +176,22 @@ export default async function RetailOrdersPage({
                         className="rounded-full px-2.5 py-0.5 text-[10.5px] font-bold tracking-[0.05em]"
                         style={{ background: meta.bg, color: meta.color }}
                       >
-                        {meta.label.toUpperCase()}
+                        {t(meta.label).toLocaleUpperCase("fr")}
                       </span>
                     </div>
                     <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                      {DATE_FMT.format(new Date(o.createdAt))} ·{" "}
-                      {o._count.items} {o._count.items > 1 ? "articles" : "article"}
+                      {formatDate(o.createdAt, language, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}{" "}
+                      ·{" "}
+                      {t(o._count.items > 1 ? "{count} articles" : "{count} article", {
+                        count: o._count.items,
+                      })}
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
                       {formatPriceEUR(o.totalAmount)}
                     </div>

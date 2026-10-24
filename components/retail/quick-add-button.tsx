@@ -7,11 +7,13 @@ import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
 import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
+import { useLanguage } from "@/components/language-provider";
 
 export function QuickAddButton({ item }: { item: AddCartItem }) {
   const { addItem, items } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
+  const { t } = useLanguage();
   const [added, setAdded] = useState(false);
 
   const existingQty = items.find((i) => i.productId === item.productId)?.quantity ?? 0;
@@ -22,10 +24,10 @@ export function QuickAddButton({ item }: { item: AddCartItem }) {
       type="button"
       aria-label={
         atMax
-          ? "Quantité maximale atteinte"
+          ? t("Quantité maximale atteinte")
           : isConnected
-            ? `Ajouter ${item.name} au panier`
-            : "Connectez-vous pour ajouter au panier"
+            ? t("Ajouter {name} au panier", { name: item.name })
+            : t("Connectez-vous pour ajouter au panier")
       }
       disabled={atMax}
       onClick={(e) => {

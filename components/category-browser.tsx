@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { getCatalogNavigation } from "@/lib/catalog-navigation-server";
 import { getLanguage } from "@/lib/server-language";
 import { translate } from "@/lib/translations";
 import type { CatalogAudience } from "@/lib/catalog";
-import { CategoryCard } from "@/components/browse-cards";
+import { CategoryCard, SubcategoryChip } from "@/components/browse-cards";
 export async function CategoryBrowser({
   audience,
 }: {
@@ -24,26 +23,29 @@ export async function CategoryBrowser({
       {categories.length === 0 && (
         <p>{t("Aucune catégorie disponible pour le moment.")}</p>
       )}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
         {categories.map((category) => (
           <section key={category.id} className="min-w-0">
             <CategoryCard
               name={category.label}
               image={category.image}
+              imageFit={category.imageFit}
               href={`${base}?category=${encodeURIComponent(category.value)}`}
             />
-            <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-xs text-[#6B665D]">
-              {category.children.map((child) => (
-                <li key={child.id}>
-                  <Link
-                    className="hover:text-[#3F561F] hover:underline"
-                    href={`${base}?category=${encodeURIComponent(child.value)}`}
-                  >
-                    {child.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {category.children.length > 0 && (
+              <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {category.children.map((child) => (
+                  <li key={child.id} className="min-w-0">
+                    <SubcategoryChip
+                      name={child.label}
+                      image={child.image}
+                      imageFit={child.imageFit}
+                      href={`${base}?category=${encodeURIComponent(child.value)}`}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         ))}
       </div>

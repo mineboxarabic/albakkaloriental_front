@@ -1,4 +1,5 @@
 import type { ProductCard } from "@/lib/catalog";
+import { translate } from "@/lib/translations";
 export function ProductDescription({
   product,
   language,
@@ -14,7 +15,7 @@ export function ProductDescription({
       {product.description && (
         <div className="rounded-lg border border-[#DDD8CC] bg-white p-5">
           <h2 className="mb-2 font-semibold text-[#171717]">
-            {language === "ar" ? "وصف المنتج" : "Description du produit"}
+            {translate("Description du produit", language)}
           </h2>
           <p className="whitespace-pre-line leading-relaxed" dir="auto">
             {product.description}
@@ -23,7 +24,7 @@ export function ProductDescription({
       )}
       {(product.tags?.length ?? 0) > 0 && (
         <ul
-          aria-label={language === "ar" ? "الوسوم" : "Tags"}
+          aria-label={translate("Mots-clés", language)}
           className="mt-3 flex flex-wrap gap-2"
         >
           {product.tags!.map((tag) => (

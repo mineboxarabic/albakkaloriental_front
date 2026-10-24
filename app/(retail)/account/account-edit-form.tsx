@@ -6,6 +6,7 @@ import { Save, CheckCircle2 } from "lucide-react";
 import { updateRetailProfile } from "@/actions/retail-me";
 import { AddressAutocompleteFields } from "@/components/address-autocomplete-fields";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 type Defaults = {
   firstName: string;
@@ -18,8 +19,12 @@ type Defaults = {
 
 export function AccountEditForm({ defaults }: { defaults: Defaults }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [pending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [rawErrors, setErrors] = useState<Record<string, string>>({});
+  const errors = Object.fromEntries(
+    Object.entries(rawErrors).map(([key, message]) => [key, t(message)]),
+  );
   const [success, setSuccess] = useState(false);
   const [values, setValues] = useState(defaults);
 
@@ -56,11 +61,11 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
         style={{ borderColor: COLORS.border }}
       >
         <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.muted }}>
-          INFORMATIONS PERSONNELLES
+          {t("INFORMATIONS PERSONNELLES")}
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field
-            label="Prénom"
+            label={t("Prénom")}
             name="firstName"
             value={values.firstName}
             onChange={onText("firstName")}
@@ -68,7 +73,7 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
             required
           />
           <Field
-            label="Nom"
+            label={t("Nom")}
             name="lastName"
             value={values.lastName}
             onChange={onText("lastName")}
@@ -78,7 +83,7 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
         </div>
         <div className="mt-3">
           <Field
-            label="Téléphone"
+            label={t("Téléphone")}
             name="phone"
             type="tel"
             value={values.phone}
@@ -94,7 +99,7 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
         style={{ borderColor: COLORS.border }}
       >
         <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.muted }}>
-          ADRESSE DE LIVRAISON
+          {t("ADRESSE DE LIVRAISON")}
         </div>
         <div className="mt-4">
           <AddressAutocompleteFields
@@ -116,7 +121,7 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
       {errors.form && (
         <div
           role="alert"
-          className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
         >
           {errors.form}
@@ -125,11 +130,11 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
 
       {success && (
         <div
-          className="flex items-center gap-2 rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="flex items-center gap-2 rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#E5F0D9", borderColor: COLORS.primary, color: "#2E3F17" }}
         >
           <CheckCircle2 className="h-4 w-4" />
-          Informations mises à jour.
+          {t("Informations mises à jour.")}
         </div>
       )}
 
@@ -140,7 +145,7 @@ export function AccountEditForm({ defaults }: { defaults: Defaults }) {
         style={{ background: COLORS.primary }}
       >
         <Save className="h-4 w-4" />
-        {pending ? "Enregistrement..." : "Enregistrer les modifications"}
+        {pending ? t("Enregistrement...") : t("Enregistrer les modifications")}
       </button>
     </form>
   );

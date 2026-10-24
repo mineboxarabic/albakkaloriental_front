@@ -14,6 +14,8 @@ import { logoutPro } from "@/actions/pro-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { ProContactForm } from "./pro-contact-form";
 import { ProChangePasswordForm } from "./pro-change-password-form";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate, intlLocale } from "@/lib/language";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,7 @@ export default async function ProAccountPage() {
   // Authoritative balance computed server-side from unpaid invoices net of
   // avoirs (not re-derived per order, which can't be split for a shared invoice).
   const remainingToPay = c.outstandingBalance;
+  const { t, language } = await getTranslator();
 
   return (
     <main
@@ -44,14 +47,14 @@ export default async function ProAccountPage() {
             style={{ color: "rgba(255,255,255,0.85)" }}
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
-            Catalogue pro
+            {t("Catalogue pro")}
           </Link>
           <span
             className="inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[10.5px] font-bold tracking-[0.18em] text-white"
             style={{ borderColor: "rgba(255,255,255,0.3)" }}
           >
             <Shield className="h-3 w-3" strokeWidth={2.2} />
-            ESPACE PROFESSIONNEL
+            {t("ESPACE PROFESSIONNEL")}
           </span>
         </header>
 
@@ -61,54 +64,62 @@ export default async function ProAccountPage() {
               className="text-[36px] font-extrabold leading-[1.05] tracking-tight text-white"
               style={{ fontFamily: DISPLAY_FONT }}
             >
-              {c.companyName}
+              <bdi>{c.companyName}</bdi>
             </h1>
             <p
               className="mt-2 text-[13px]"
               style={{ color: "rgba(255,255,255,0.7)" }}
             >
-              Compte professionnel · {c.country}
+              {t("Compte professionnel")} · {c.country}
             </p>
 
             <div className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-sm border sm:grid-cols-2" style={{ borderColor: "rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.08)" }}>
-              <Card title="ENTREPRISE">
-                <Row icon={<Building2 className="h-4 w-4" />} label="Raison sociale" value={c.companyName} />
-                {c.companyType && <Row label="Forme juridique" value={c.companyType} />}
-                <Row label="Contact" value={c.contactName} />
+              <Card title={t("ENTREPRISE")}>
+                <Row icon={<Building2 className="h-4 w-4" />} label={t("Raison sociale")} value={c.companyName} />
+                {c.companyType && <Row label={t("Forme juridique")} value={c.companyType} />}
+                <Row label={t("Contact")} value={c.contactName} />
                 {(c.managerFirstName || c.managerLastName) && (
                   <Row
-                    label="Représentant légal"
+                    label={t("Représentant légal")}
                     value={`${c.managerFirstName ?? ""} ${c.managerLastName ?? ""}`.trim()}
                   />
                 )}
               </Card>
 
-              <Card title="INFORMATIONS LÉGALES (KBIS)">
+              <Card title={t("INFORMATIONS LÉGALES (KBIS)")}>
                 {c.siret && (
-                  <Row icon={<FileText className="h-4 w-4" />} label="SIRET" value={c.siret} />
+                  <Row icon={<FileText className="h-4 w-4" />} label={t("SIRET")} value={c.siret} ltr />
                 )}
-                {c.vatNumber && <Row label="N° TVA intracom." value={c.vatNumber} />}
+                {c.vatNumber && <Row label={t("N° TVA intracom.")} value={c.vatNumber} ltr />}
                 {c.shareCapital !== null && c.shareCapital !== undefined && (
-                  <Row label="Capital social" value={`${c.shareCapital.toLocaleString("fr-FR")} €`} />
+                  <Row
+                    label={t("Capital social")}
+                    value={`${c.shareCapital.toLocaleString(intlLocale(language))} €`}
+                    ltr
+                  />
                 )}
-                {c.apeCode && <Row label="Code APE" value={c.apeCode} />}
-                {c.rcsCity && <Row label="RCS" value={c.rcsCity} />}
+                {c.apeCode && <Row label={t("Code APE")} value={c.apeCode} ltr />}
+                {c.rcsCity && <Row label={t("RCS")} value={c.rcsCity} />}
                 {c.incorporationDate && (
                   <Row
-                    label="Date d'immatriculation"
-                    value={new Date(c.incorporationDate).toLocaleDateString("fr-FR")}
+                    label={t("Date d'immatriculation")}
+                    value={formatDate(c.incorporationDate, language, {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
                   />
                 )}
                 {!c.siret && !c.vatNumber && !c.apeCode && !c.rcsCity && (
                   <div className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    Informations légales non renseignées.
+                    {t("Informations légales non renseignées.")}
                   </div>
                 )}
               </Card>
 
-              <Card title="COORDONNÉES" editable>
-                <Row icon={<Mail className="h-4 w-4" />} label="E-mail de connexion" value={user.email} />
-                {c.email && <Row label="E-mail entreprise" value={c.email} />}
+              <Card title={t("COORDONNÉES")} editableLabel={t("ÉDITABLE")}>
+                <Row icon={<Mail className="h-4 w-4" />} label={t("E-mail de connexion")} value={user.email} ltr />
+                {c.email && <Row label={t("E-mail entreprise")} value={c.email} ltr />}
                 <div className="mt-3">
                   <ProContactForm
                     defaults={{ phone: c.phone, mobilePhone: c.mobilePhone ?? "" }}
@@ -116,20 +127,20 @@ export default async function ProAccountPage() {
                 </div>
               </Card>
 
-              <Card title="ADRESSE DE FACTURATION">
-                <Row icon={<MapPin className="h-4 w-4" />} label="Adresse" value={c.address} />
-                {c.addressLine2 && <Row label="Complément" value={c.addressLine2} />}
-                <Row label="Ville" value={`${c.postalCode} ${c.city}`} />
-                <Row label="Pays" value={c.country} />
+              <Card title={t("ADRESSE DE FACTURATION")}>
+                <Row icon={<MapPin className="h-4 w-4" />} label={t("Adresse")} value={c.address} />
+                {c.addressLine2 && <Row label={t("Complément")} value={c.addressLine2} />}
+                <Row label={t("Ville")} value={`${c.postalCode} ${c.city}`} />
+                <Row label={t("Pays")} value={c.country} />
                 <div
                   className="mt-2 text-[11px]"
                   style={{ color: "rgba(255,255,255,0.4)" }}
                 >
-                  Modifications adresse via commercial.
+                  {t("Modifications adresse via commercial.")}
                 </div>
               </Card>
 
-              <Card title="SÉCURITÉ" full>
+              <Card title={t("SÉCURITÉ")} full>
                 <ProChangePasswordForm />
               </Card>
             </div>
@@ -150,7 +161,7 @@ export default async function ProAccountPage() {
                 className="text-[10.5px] font-bold tracking-[0.16em]"
                 style={{ color: "rgba(255,255,255,0.6)" }}
               >
-                RESTE À PAYER
+                {t("RESTE À PAYER")}
               </div>
               <div
                 className="mt-2 text-[32px] font-extrabold leading-none text-white"
@@ -166,8 +177,10 @@ export default async function ProAccountPage() {
                 style={{ color: "rgba(255,255,255,0.65)" }}
               >
                 {remainingToPay > 0
-                  ? "Montant restant dû sur l'ensemble de vos commandes. Réglez via votre interlocuteur commercial."
-                  : "Toutes vos commandes sont réglées."}
+                  ? t(
+                      "Montant restant dû sur l'ensemble de vos commandes. Réglez via votre interlocuteur commercial.",
+                    )
+                  : t("Toutes vos commandes sont réglées.")}
               </p>
             </div>
 
@@ -178,7 +191,7 @@ export default async function ProAccountPage() {
                 style={{ borderColor: "rgba(255,255,255,0.35)" }}
               >
                 <LogOut className="h-4 w-4" strokeWidth={2} />
-                Se déconnecter
+                {t("Se déconnecter")}
               </button>
             </form>
           </aside>
@@ -191,12 +204,12 @@ export default async function ProAccountPage() {
 function Card({
   title,
   full,
-  editable,
+  editableLabel,
   children,
 }: {
   title: string;
   full?: boolean;
-  editable?: boolean;
+  editableLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -211,7 +224,7 @@ function Card({
         >
           {title}
         </div>
-        {editable && (
+        {editableLabel && (
           <span
             className="rounded-sm border px-1.5 py-0.5 text-[9px] font-bold tracking-[0.14em]"
             style={{
@@ -219,7 +232,7 @@ function Card({
               color: "rgba(255,255,255,0.55)",
             }}
           >
-            ÉDITABLE
+            {editableLabel}
           </span>
         )}
       </div>
@@ -232,10 +245,13 @@ function Row({
   icon,
   label,
   value,
+  ltr,
 }: {
   icon?: React.ReactNode;
   label: string;
   value: string;
+  /** Identifiers, e-mails and amounts keep their left-to-right order. */
+  ltr?: boolean;
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -254,7 +270,9 @@ function Row({
         >
           {label}
         </dt>
-        <dd className="mt-1 text-[14px] font-semibold text-white">{value}</dd>
+        <dd className="mt-1 break-words text-[14px] font-semibold text-white">
+          {ltr ? <span className="ltr-isolate">{value}</span> : <bdi>{value}</bdi>}
+        </dd>
       </div>
     </div>
   );

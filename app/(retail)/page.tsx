@@ -21,20 +21,25 @@ import {
 } from "@/lib/catalog";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import { buildCategoryNavigation } from "@/lib/catalog-navigation";
-import { getLanguage } from "@/lib/server-language";
-import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getLanguage, translator } from "@/lib/server-language";
+import type { Language } from "@/lib/language";
+import { COLORS, DISPLAY_FONT, INTER_FONT, MONO_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
+import {
+  ArabicDealsSticker,
+  ArabicPriceSticker,
+} from "@/components/retail/arabic-promo-stickers";
 
-// Match the "Planning de livraison hebdomadaire" typography (Inter + JetBrains Mono).
-const INTER = "var(--font-inter), 'Inter', system-ui, sans-serif";
-const MONO =
-  "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
+// Match the "Planning de livraison hebdomadaire" typography.
+const INTER = INTER_FONT;
+const MONO = MONO_FONT;
 
 export const revalidate = 60;
 
 export default async function Home() {
   const language = await getLanguage();
+  const t = translator(language);
   const [{ products: allProducts, backendDown }, deliveries, categories] =
     await Promise.all([
       getProducts({ audience: "retail", language }),
@@ -111,7 +116,7 @@ export default async function Home() {
               </span>
             </h1>
             <p
-              className="mt-2 max-w-[320px] text-[13px] leading-relaxed"
+              className="mt-2 max-w-[320px] text-[13px] leading-relaxed rtl:max-w-[380px]"
               style={{ color: COLORS.muted }}
             >
               <TranslatedText
@@ -136,19 +141,23 @@ export default async function Home() {
           <div className="relative -mx-6 flex items-end justify-center lg:col-span-7 lg:mx-0">
             <Image
               src="/Assets/img/banner.png"
-              alt="Produits orientaux"
+              alt={t("Produits orientaux")}
               width={780}
               height={520}
               className="relative z-0 block h-auto w-full max-w-[620px] object-contain"
               priority
             />
-            <Image
-              src="/Assets/img/stick.png"
-              alt="Prix justes tous les jours"
-              width={180}
-              height={180}
-              className="absolute right-3 top-2 h-[68px] w-[68px] rotate-[8deg] drop-shadow-md sm:right-2 sm:h-[150px] sm:w-[150px]"
-            />
+            {language === "ar" ? (
+              <ArabicPriceSticker className="absolute end-3 top-2 h-[68px] w-[68px] sm:end-2 sm:h-[150px] sm:w-[150px]" />
+            ) : (
+              <Image
+                src="/Assets/img/stick.png"
+                alt={t("Prix justes tous les jours")}
+                width={180}
+                height={180}
+                className="absolute end-3 top-2 h-[68px] w-[68px] rotate-[8deg] drop-shadow-md sm:end-2 sm:h-[150px] sm:w-[150px]"
+              />
+            )}
           </div>
         </div>
       </section>
@@ -160,22 +169,22 @@ export default async function Home() {
         <Feature
           icon={<Truck className="h-6 w-6" strokeWidth={1.8} />}
           title="LIVRAISON RAPIDE"
-          sub="Partout en France"
+          sub={t("Partout en France")}
         />
         <Feature
           icon={<Store className="h-6 w-6" strokeWidth={1.8} />}
           title="CLICK & COLLECT"
-          sub="Retrait en magasin"
+          sub={t("Retrait en magasin")}
         />
         <Feature
           icon={<Tag className="h-6 w-6" strokeWidth={1.8} />}
           title="PRIX ACCESSIBLES"
-          sub="Toute l'année"
+          sub={t("Toute l'année")}
         />
         <Feature
           icon={<Headphones className="h-6 w-6" strokeWidth={1.8} />}
           title="SERVICE CLIENT"
-          sub="À votre écoute"
+          sub={t("À votre écoute")}
         />
       </section>
 
@@ -213,12 +222,16 @@ export default async function Home() {
                   alt=""
                   width={320}
                   height={220}
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                  className={
+                    category.imageFit === "contain"
+                      ? "h-full w-full bg-white object-contain p-3 transition duration-300 group-hover:scale-[1.03]"
+                      : "h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                  }
                 />
               </div>
               <div className="w-full px-2 py-2.5 text-center">
                 <div
-                  className="text-[10px] font-bold tracking-wide"
+                  className="text-[10px] font-bold tracking-wide rtl:text-[12.5px]"
                   style={{ color: COLORS.text }}
                 >
                   {category.label}
@@ -234,15 +247,19 @@ export default async function Home() {
         style={{ background: COLORS.beige }}
       >
         <div className="hidden items-center justify-center lg:col-span-3 lg:flex">
-          <Image
-            src="/Assets/img/stick1.png"
-            alt="Les bons plans"
-            width={320}
-            height={220}
-            className="h-auto w-full max-w-[240px] object-contain"
-          />
+          {language === "ar" ? (
+            <ArabicDealsSticker />
+          ) : (
+            <Image
+              src="/Assets/img/stick1.png"
+              alt={t("Les bons plans")}
+              width={320}
+              height={220}
+              className="h-auto w-full max-w-[240px] object-contain"
+            />
+          )}
         </div>
-        <div className="text-center lg:col-span-3 lg:text-left">
+        <div className="text-center lg:col-span-3 lg:text-start">
           <h3
             className="text-[26px] font-extrabold leading-[1.1] tracking-tight sm:text-[34px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
@@ -272,7 +289,7 @@ export default async function Home() {
         <div className="hidden items-center justify-end lg:col-span-3 lg:flex">
           <Image
             src="/Assets/img/products.png"
-            alt="Panier de courses"
+            alt={t("Panier de courses")}
             width={480}
             height={380}
             className="h-auto w-full max-w-[360px] object-contain"
@@ -356,13 +373,13 @@ export default async function Home() {
                 className="mt-3.5 text-[16px] font-bold leading-snug tracking-tight"
                 style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
               >
-                {card.title}
+                {t(card.title)}
               </h3>
               <p
                 className="mt-2 text-[13.5px] leading-relaxed"
                 style={{ color: COLORS.muted }}
               >
-                {card.text}
+                {t(card.text)}
               </p>
             </div>
           ))}
@@ -400,7 +417,7 @@ export default async function Home() {
                   strokeWidth={2.4}
                   style={{ color: COLORS.primary }}
                 />
-                {item}
+                {t(item)}
               </li>
             ))}
           </ul>
@@ -431,15 +448,17 @@ export default async function Home() {
 
       <ProductSection
         title="Les meilleures ventes"
-        linkLabel="Voir tous les produits"
+        linkLabel={t("Voir tous les produits")}
         items={bestSellers}
-        emptyLabel="Aucun produit disponible pour le moment."
+        emptyLabel={t("Aucun produit disponible pour le moment.")}
+        language={language}
       />
       <ProductSection
         title="Nouveautés"
-        linkLabel="Voir toutes les nouveautés"
+        linkLabel={t("Voir toutes les nouveautés")}
         items={newArrivals}
-        emptyLabel="Les nouveautés arriveront bientôt."
+        emptyLabel={t("Les nouveautés arriveront bientôt.")}
+        language={language}
       />
     </main>
   );
@@ -482,11 +501,13 @@ function ProductSection({
   linkLabel,
   items,
   emptyLabel,
+  language,
 }: {
   title: string;
   linkLabel: string;
   items: ProductCardData[];
   emptyLabel: string;
+  language: Language;
 }) {
   return (
     <section className="mt-9">
@@ -515,7 +536,7 @@ function ProductSection({
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {items.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} language={language} />
           ))}
         </div>
       )}

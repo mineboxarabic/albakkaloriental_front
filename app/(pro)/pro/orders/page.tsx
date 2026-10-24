@@ -4,14 +4,11 @@ import { FileText, ShieldCheck, Truck, XCircle, ChevronRight, Package } from "lu
 import { getProMe, getProOrders } from "@/actions/pro-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate } from "@/lib/language";
 
 export const dynamic = "force-dynamic";
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 const STATUS_META: Record<
   string,
@@ -70,6 +67,10 @@ export default async function ProOrdersPage() {
     createdAt: new Date(o.createdAt),
   }));
 
+  const { t, language } = await getTranslator();
+  const shortDate = (d: Date) =>
+    formatDate(d, language, { day: "2-digit", month: "short", year: "numeric" });
+
   const pendingCount = orders.filter((o) => o.status === "PENDING").length;
   const confirmedCount = orders.filter(
     (o) => o.status === "CONFIRMED" || o.status === "DELIVERED",
@@ -81,28 +82,28 @@ export default async function ProOrdersPage() {
         <div>
           <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
             <Link href="/pro/products" className="hover:underline">
-              Catalogue pro
+              {t("Catalogue pro")}
             </Link>{" "}
             <span className="mx-1">›</span>
-            <span style={{ color: COLORS.text }}>Mes commandes</span>
+            <span style={{ color: COLORS.text }}>{t("Mes commandes")}</span>
           </nav>
           <h1
             className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Mes commandes
+            {t("Mes commandes")}
           </h1>
           <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
             {orders.length === 0
-              ? "Aucune commande pour le moment."
-              : `${orders.length} ${orders.length > 1 ? "commandes" : "commande"} · ${session.companyName}`}
+              ? t("Aucune commande pour le moment.")
+              : `${t(orders.length > 1 ? "{count} commandes" : "{count} commande", { count: orders.length })} · ${session.companyName}`}
           </p>
         </div>
 
         {orders.length > 0 && (
           <div className="mt-4 flex flex-wrap items-center gap-3 lg:mt-0">
-            <StatPill label="Devis ouverts" value={pendingCount} accent="#7A5409" bg="#FFF1D6" />
-            <StatPill label="Validées" value={confirmedCount} accent={COLORS.primary} bg="#E5F0D9" />
+            <StatPill label={t("Devis ouverts")} value={pendingCount} accent="#7A5409" bg="#FFF1D6" />
+            <StatPill label={t("Validées")} value={confirmedCount} accent={COLORS.primary} bg="#E5F0D9" />
           </div>
         )}
       </header>
@@ -122,17 +123,17 @@ export default async function ProOrdersPage() {
             className="mt-4 text-[17px] font-bold"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Aucune commande
+            {t("Aucune commande")}
           </div>
           <p className="mt-1 max-w-[380px] text-[13px]" style={{ color: COLORS.muted }}>
-            Générez votre premier devis depuis le catalogue professionnel.
+            {t("Générez votre premier devis depuis le catalogue professionnel.")}
           </p>
           <Link
             href="/pro/products"
             className="mt-5 inline-flex items-center rounded-sm px-5 py-2.5 text-[12.5px] font-bold uppercase tracking-[0.1em] text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
-            Voir le catalogue
+            {t("Voir le catalogue")}
           </Link>
         </div>
       ) : (
@@ -144,11 +145,11 @@ export default async function ProOrdersPage() {
             className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
             style={{ color: COLORS.muted, background: "#FAF8F2" }}
           >
-            <div className="col-span-3">N° COMMANDE</div>
-            <div className="col-span-2">DATE</div>
-            <div className="col-span-2 text-center">ARTICLES</div>
-            <div className="col-span-3">STATUT</div>
-            <div className="col-span-2 text-right">TOTAL HT</div>
+            <div className="col-span-3">{t("N° COMMANDE")}</div>
+            <div className="col-span-2">{t("DATE")}</div>
+            <div className="col-span-2 text-center">{t("ARTICLES")}</div>
+            <div className="col-span-3">{t("STATUT")}</div>
+            <div className="col-span-2 text-end">{t("TOTAL HT")}</div>
           </div>
 
           <ul>
@@ -180,8 +181,10 @@ export default async function ProOrdersPage() {
                               {o.orderNumber}
                             </div>
                             <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                              {DATE_FMT.format(new Date(o.createdAt))} · {o._count.items}{" "}
-                              {o._count.items > 1 ? "articles" : "article"}
+                              {shortDate(o.createdAt)} ·{" "}
+                              {t(o._count.items > 1 ? "{count} articles" : "{count} article", {
+                                count: o._count.items,
+                              })}
                             </div>
                           </div>
                         </div>
@@ -197,7 +200,7 @@ export default async function ProOrdersPage() {
                         style={{ background: meta.bg, color: meta.color }}
                       >
                         <Icon className="h-3 w-3" strokeWidth={2.2} />
-                        {meta.label}
+                        {t(meta.label)}
                       </span>
                     </div>
 
@@ -215,7 +218,7 @@ export default async function ProOrdersPage() {
                         </span>
                       </div>
                       <div className="col-span-2" style={{ color: COLORS.muted }}>
-                        {DATE_FMT.format(new Date(o.createdAt))}
+                        {shortDate(o.createdAt)}
                       </div>
                       <div className="col-span-2 text-center" style={{ color: COLORS.text }}>
                         {o._count.items}
@@ -226,7 +229,7 @@ export default async function ProOrdersPage() {
                           style={{ background: meta.bg, color: meta.color }}
                         >
                           <Icon className="h-3 w-3" strokeWidth={2.2} />
-                          {meta.label}
+                          {t(meta.label)}
                         </span>
                       </div>
                       <div className="col-span-2 flex items-center justify-end gap-2">
@@ -276,7 +279,7 @@ function StatPill({
         className="text-[10.5px] font-bold tracking-[0.12em]"
         style={{ color: COLORS.muted }}
       >
-        {label.toUpperCase()}
+        {label.toLocaleUpperCase("fr")}
       </span>
     </div>
   );

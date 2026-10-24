@@ -11,7 +11,7 @@ import { CartDrawer } from "@/components/retail/cart-drawer";
 import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getRetailSession } from "@/lib/session";
-import { getCatalogNavigation } from "@/lib/catalog-navigation-server";
+import { getCatalogShell } from "@/lib/catalog-navigation-server";
 import { getLanguage } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 import { company } from "@/lib/company";
@@ -22,9 +22,9 @@ export default async function RetailLayout({
   children: ReactNode;
 }) {
   const language = await getLanguage();
-  const [session, categories] = await Promise.all([
+  const [session, { navigation: categories, productNames }] = await Promise.all([
     getRetailSession(),
-    getCatalogNavigation("retail", language),
+    getCatalogShell("retail", language),
   ]);
   const isRetail = session !== null;
   const sessionValue: ClientSession = {
@@ -35,7 +35,7 @@ export default async function RetailLayout({
 
   return (
     <SessionProvider value={sessionValue}>
-      <CartProvider audience="retail">
+      <CartProvider audience="retail" productNames={productNames}>
         <AuthModalProvider>
           <div
             className="flex min-h-screen flex-col overflow-x-clip"

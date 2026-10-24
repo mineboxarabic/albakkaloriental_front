@@ -16,12 +16,14 @@ import { useCart } from "@/components/cart-context";
 import { checkoutPro } from "@/actions/pro-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 const TAX_RATE = 20;
 
 export default function ProCartPage() {
   const { items, updateQty, removeItem, clearCart, total, itemCount } = useCart();
   const router = useRouter();
+  const { t, isRtl } = useLanguage();
   const [pending, startTransition] = useTransition();
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +35,13 @@ export default function ProCartPage() {
   const onGenerate = () => {
     setError(null);
     if (items.length === 0) {
-      setError("Votre panier est vide.");
+      setError(t("Votre panier est vide."));
       return;
     }
     startTransition(async () => {
       const res = await checkoutPro({ notes: notes || undefined });
       if (!res.ok) {
-        setError(res.error);
+        setError(t(res.error));
         return;
       }
       clearCart();
@@ -50,20 +52,25 @@ export default function ProCartPage() {
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
-        <Link href="/pro/products" className="hover:underline">Catalogue pro</Link>{" "}
+        <Link href="/pro/products" className="hover:underline">{t("Catalogue pro")}</Link>{" "}
         <span className="mx-1">›</span>
-        <span style={{ color: COLORS.text }}>Mon panier</span>
+        <span style={{ color: COLORS.text }}>{t("Mon panier")}</span>
       </nav>
       <h1
         className="mt-2 text-[24px] font-extrabold tracking-tight sm:text-[28px]"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
-        Mon panier professionnel
+        {t("Mon panier professionnel")}
       </h1>
       <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
         {itemCount === 0
-          ? "Votre panier est vide."
-          : `${itemCount} ${itemCount > 1 ? "articles" : "article"} dans votre panier.`}
+          ? t("Votre panier est vide.")
+          : t(
+              itemCount > 1
+                ? "{count} articles dans votre panier."
+                : "{count} article dans votre panier.",
+              { count: itemCount },
+            )}
       </p>
 
       {items.length === 0 ? (
@@ -81,18 +88,19 @@ export default function ProCartPage() {
             className="mt-4 text-[17px] font-bold"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Aucun article dans votre devis
+            {t("Aucun article dans votre devis")}
           </div>
           <p className="mt-1 max-w-[380px] text-[13px]" style={{ color: COLORS.muted }}>
-            Parcourez le catalogue professionnel et ajoutez les références dont
-            vous avez besoin.
+            {t(
+              "Parcourez le catalogue professionnel et ajoutez les références dont vous avez besoin.",
+            )}
           </p>
           <Link
             href="/pro/products"
             className="mt-5 inline-flex items-center rounded-sm px-5 py-2.5 text-[12.5px] font-bold uppercase tracking-[0.1em] text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
-            Voir le catalogue
+            {t("Voir le catalogue")}
           </Link>
         </div>
       ) : (
@@ -106,10 +114,12 @@ export default function ProCartPage() {
                 className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
                 style={{ color: COLORS.muted, background: "#FAF8F2" }}
               >
-                <div className="col-span-6">PRODUIT</div>
-                <div className="col-span-2 text-center">UNITÉ</div>
-                <div className="col-span-2 text-center">QUANTITÉ</div>
-                <div className="col-span-2 text-right">TOTAL HT</div>
+                <div className="col-span-6">{t("PRODUIT")}</div>
+                <div className="col-span-2 text-center">
+                  {isRtl ? "وحدة البيع" : "UNITÉ"}
+                </div>
+                <div className="col-span-2 text-center">{t("QUANTITÉ")}</div>
+                <div className="col-span-2 text-end">{t("TOTAL HT")}</div>
               </div>
 
               <ul>
@@ -130,7 +140,7 @@ export default function ProCartPage() {
                       ) : (
                         <Box className="h-3 w-3" strokeWidth={2} />
                       )}
-                      {saleUnit === "PACK" ? "Carton" : "Unité"}
+                      {saleUnit === "PACK" ? t("Carton") : t("Unité")}
                     </span>
                   );
                   const stepper = (
@@ -140,7 +150,7 @@ export default function ProCartPage() {
                     >
                       <button
                         type="button"
-                        aria-label="Diminuer"
+                        aria-label={t("Diminuer la quantité")}
                         onClick={() => updateQty(it.lineId, it.quantity - 1)}
                         className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                         style={{ color: COLORS.text }}
@@ -155,7 +165,7 @@ export default function ProCartPage() {
                       </div>
                       <button
                         type="button"
-                        aria-label="Augmenter"
+                        aria-label={t("Augmenter la quantité")}
                         onClick={() => updateQty(it.lineId, it.quantity + 1)}
                         className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                         style={{ color: COLORS.text }}
@@ -193,7 +203,12 @@ export default function ProCartPage() {
                             {it.name}
                           </Link>
                           <div className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
-                            {formatPriceEUR(it.unitPrice)} HT / {saleUnit === "PACK" ? "carton" : "unité"}
+                            {t(
+                              saleUnit === "PACK"
+                                ? "{price} HT / carton"
+                                : "{price} HT / unité",
+                              { price: formatPriceEUR(it.unitPrice) },
+                            )}
                           </div>
                           <div className="mt-1.5 md:hidden">{unitBadge}</div>
                         </div>
@@ -204,7 +219,7 @@ export default function ProCartPage() {
                           </span>
                           <button
                             type="button"
-                            aria-label={`Supprimer ${it.name}`}
+                            aria-label={t("Supprimer {name}", { name: it.name })}
                             onClick={() => removeItem(it.lineId)}
                             className="grid h-9 w-9 place-items-center rounded-sm transition hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.muted }}
@@ -226,7 +241,7 @@ export default function ProCartPage() {
                         </span>
                         <button
                           type="button"
-                          aria-label={`Supprimer ${it.name}`}
+                          aria-label={t("Supprimer {name}", { name: it.name })}
                           onClick={() => removeItem(it.lineId)}
                           className="grid h-8 w-8 place-items-center rounded-sm transition hover:bg-[#FAF8F2]"
                           style={{ color: COLORS.muted }}
@@ -246,7 +261,7 @@ export default function ProCartPage() {
                 className="inline-flex items-center rounded-sm border px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em]"
                 style={{ borderColor: COLORS.border, color: COLORS.text }}
               >
-                Continuer mes achats
+                {t("Continuer mes achats")}
               </Link>
               <button
                 type="button"
@@ -254,7 +269,7 @@ export default function ProCartPage() {
                 className="text-[12px] font-bold uppercase tracking-[0.1em] underline-offset-2 hover:underline"
                 style={{ color: COLORS.muted }}
               >
-                Vider le panier
+                {t("Vider le panier")}
               </button>
             </div>
 
@@ -263,14 +278,16 @@ export default function ProCartPage() {
               style={{ borderColor: COLORS.border }}
             >
               <label className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.text }}>
-                NOTES POUR LE DEVIS (OPTIONNEL)
+                {t("NOTES POUR LE DEVIS (OPTIONNEL)")}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 maxLength={500}
                 rows={3}
-                placeholder="Demandes particulières, délai souhaité, instructions de livraison…"
+                placeholder={t(
+                  "Demandes particulières, délai souhaité, instructions de livraison…",
+                )}
                 className="mt-2 w-full rounded-sm border p-3 text-[13.5px] outline-none focus:border-[#3F561F]"
                 style={{ borderColor: COLORS.border, color: COLORS.text }}
               />
@@ -286,12 +303,15 @@ export default function ProCartPage() {
                 className="text-[11px] font-bold tracking-[0.14em]"
                 style={{ color: COLORS.text }}
               >
-                RÉCAPITULATIF
+                {t("RÉCAPITULATIF")}
               </div>
 
               <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
-                <Row label="Sous-total HT" value={formatPriceEUR(totalHT)} />
-                <Row label={`TVA ${TAX_RATE}%`} value={formatPriceEUR(totalTVA)} />
+                <Row label={t("Sous-total HT")} value={formatPriceEUR(totalHT)} />
+                <Row
+                  label={t("TVA {rate}%", { rate: TAX_RATE })}
+                  value={formatPriceEUR(totalTVA)}
+                />
               </dl>
 
               <div
@@ -299,7 +319,7 @@ export default function ProCartPage() {
                 style={{ borderColor: COLORS.border }}
               >
                 <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-                  Total TTC
+                  {t("Total TTC")}
                 </span>
                 <span
                   className="text-[22px] font-extrabold"
@@ -311,7 +331,7 @@ export default function ProCartPage() {
 
               {error && (
                 <div
-                  className="mt-4 rounded-sm border-l-4 px-3 py-2 text-[12px]"
+                  className="mt-4 rounded-sm border-s-4 px-3 py-2 text-[12px]"
                   style={{
                     background: "#FCE9E5",
                     borderColor: COLORS.red,
@@ -329,17 +349,18 @@ export default function ProCartPage() {
                 className="mt-5 grid h-11 w-full place-items-center rounded-sm text-[12.5px] font-bold uppercase tracking-[0.12em] text-white shadow-md disabled:opacity-70"
                 style={{ background: COLORS.primary }}
               >
-                {pending ? "Envoi de la commande..." : (
+                {pending ? t("Envoi de la commande...") : (
                   <span className="inline-flex items-center gap-2">
                     <ShoppingBag className="h-4 w-4" strokeWidth={2} />
-                    Commander
+                    {t("Commander")}
                   </span>
                 )}
               </button>
 
               <p className="mt-3 text-center text-[11px]" style={{ color: COLORS.muted }}>
-                Votre commande sera transmise pour validation. Un devis vous sera
-                ensuite envoyé à signer avant la livraison.
+                {t(
+                  "Votre commande sera transmise pour validation. Un devis vous sera ensuite envoyé à signer avant la livraison.",
+                )}
               </p>
             </div>
           </aside>

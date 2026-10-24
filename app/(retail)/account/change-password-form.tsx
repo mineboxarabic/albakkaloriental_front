@@ -4,10 +4,15 @@ import { useState, useTransition } from "react";
 import { KeyRound, CheckCircle2 } from "lucide-react";
 import { changeRetailPassword } from "@/actions/retail-me";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 export function ChangePasswordForm() {
+  const { t } = useLanguage();
   const [pending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [rawErrors, setErrors] = useState<Record<string, string>>({});
+  const errors = Object.fromEntries(
+    Object.entries(rawErrors).map(([key, message]) => [key, t(message)]),
+  );
   const [success, setSuccess] = useState(false);
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState({
@@ -55,7 +60,7 @@ export function ChangePasswordForm() {
             </div>
             <div>
               <div className="text-[14px] font-semibold" style={{ color: COLORS.text }}>
-                Mot de passe
+                {t("Mot de passe")}
               </div>
               <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
                 ••••••••
@@ -68,7 +73,7 @@ export function ChangePasswordForm() {
             className="rounded-md border px-4 py-2 text-[12.5px] font-semibold"
             style={{ borderColor: COLORS.border, color: COLORS.text }}
           >
-            Changer le mot de passe
+            {t("Changer le mot de passe")}
           </button>
         </div>
       </div>
@@ -82,11 +87,11 @@ export function ChangePasswordForm() {
       style={{ borderColor: COLORS.border }}
     >
       <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.muted }}>
-        CHANGER LE MOT DE PASSE
+        {t("CHANGER LE MOT DE PASSE")}
       </div>
       <div className="mt-4 flex flex-col gap-3">
         <Field
-          label="Mot de passe actuel"
+          label={t("Mot de passe actuel")}
           name="currentPassword"
           value={values.currentPassword}
           onChange={onText("currentPassword")}
@@ -94,16 +99,16 @@ export function ChangePasswordForm() {
           autoComplete="current-password"
         />
         <Field
-          label="Nouveau mot de passe"
+          label={t("Nouveau mot de passe")}
           name="newPassword"
           value={values.newPassword}
           onChange={onText("newPassword")}
           error={errors.newPassword}
           autoComplete="new-password"
-          hint="8 caractères minimum."
+          hint={t("8 caractères minimum.")}
         />
         <Field
-          label="Confirmer le nouveau mot de passe"
+          label={t("Confirmer le nouveau mot de passe")}
           name="confirmPassword"
           value={values.confirmPassword}
           onChange={onText("confirmPassword")}
@@ -115,7 +120,7 @@ export function ChangePasswordForm() {
       {errors.form && (
         <div
           role="alert"
-          className="mt-3 rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="mt-3 rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
         >
           {errors.form}
@@ -124,11 +129,11 @@ export function ChangePasswordForm() {
 
       {success && (
         <div
-          className="mt-3 flex items-center gap-2 rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="mt-3 flex items-center gap-2 rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#E5F0D9", borderColor: COLORS.primary, color: "#2E3F17" }}
         >
           <CheckCircle2 className="h-4 w-4" />
-          Mot de passe mis à jour.
+          {t("Mot de passe mis à jour.")}
         </div>
       )}
 
@@ -139,7 +144,7 @@ export function ChangePasswordForm() {
           className="rounded-md px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm disabled:opacity-70"
           style={{ background: COLORS.primary }}
         >
-          {pending ? "Enregistrement..." : "Enregistrer"}
+          {pending ? t("Enregistrement...") : t("Enregistrer")}
         </button>
         <button
           type="button"
@@ -152,7 +157,7 @@ export function ChangePasswordForm() {
           className="rounded-md border px-5 py-2.5 text-[13px] font-semibold"
           style={{ borderColor: COLORS.border, color: COLORS.text }}
         >
-          Annuler
+          {t("Annuler")}
         </button>
       </div>
     </form>

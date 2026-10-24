@@ -12,9 +12,11 @@ import {
   MAX_QTY_PER_PRODUCT,
   deliveryFee,
 } from "@/lib/order-rules";
+import { useLanguage } from "@/components/language-provider";
 
 export default function CartPage() {
   const { items, updateQty, removeItem, clearCart, total, itemCount } = useCart();
+  const { t } = useLanguage();
 
   const fee = deliveryFee(total);
   const grandTotal = total + fee;
@@ -25,20 +27,25 @@ export default function CartPage() {
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <header className="mb-6">
         <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
-          <Link href="/" className="hover:underline">Accueil</Link>{" "}
+          <Link href="/" className="hover:underline">{t("Accueil")}</Link>{" "}
           <span className="mx-1">›</span>
-          <span style={{ color: COLORS.text }}>Mon panier</span>
+          <span style={{ color: COLORS.text }}>{t("Mon panier")}</span>
         </nav>
         <h1
           className="mt-2 text-[28px] font-extrabold tracking-tight"
           style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
         >
-          Mon panier
+          {t("Mon panier")}
         </h1>
         <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
           {itemCount === 0
-            ? "Votre panier est vide."
-            : `${itemCount} ${itemCount > 1 ? "articles" : "article"} dans votre panier.`}
+            ? t("Votre panier est vide.")
+            : t(
+                itemCount > 1
+                  ? "{count} articles dans votre panier."
+                  : "{count} article dans votre panier.",
+                { count: itemCount },
+              )}
         </p>
       </header>
 
@@ -57,17 +64,17 @@ export default function CartPage() {
             className="mt-4 text-[17px] font-bold"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Votre panier est vide
+            {t("Votre panier est vide")}
           </div>
           <p className="mt-1 max-w-[340px] text-[13px]" style={{ color: COLORS.muted }}>
-            Parcourez le catalogue pour trouver vos produits orientaux préférés.
+            {t("Parcourez le catalogue pour trouver vos produits orientaux préférés.")}
           </p>
           <Link
             href="/products"
             className="mt-5 inline-flex items-center rounded-md px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm"
             style={{ background: COLORS.primary }}
           >
-            Voir nos produits
+            {t("Voir nos produits")}
           </Link>
         </div>
       ) : (
@@ -110,7 +117,7 @@ export default function CartPage() {
                           {it.name}
                         </Link>
                         <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                          {formatPriceEUR(it.unitPrice)} l&apos;unité
+                          {t("{price} l'unité", { price: formatPriceEUR(it.unitPrice) })}
                         </div>
                       </div>
 
@@ -121,7 +128,7 @@ export default function CartPage() {
                         >
                           <button
                             type="button"
-                            aria-label="Diminuer la quantité"
+                            aria-label={t("Diminuer la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity - 1)}
                             className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.text }}
@@ -136,7 +143,7 @@ export default function CartPage() {
                           </div>
                           <button
                             type="button"
-                            aria-label="Augmenter la quantité"
+                            aria-label={t("Augmenter la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity + 1)}
                             disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
                             className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
@@ -147,7 +154,7 @@ export default function CartPage() {
                         </div>
 
                         <div
-                          className="ml-auto text-right text-[14px] font-extrabold sm:ml-0 sm:w-24"
+                          className="ms-auto text-end text-[14px] font-extrabold sm:ms-0 sm:w-24"
                           style={{ color: COLORS.text }}
                         >
                           {formatPriceEUR(it.unitPrice * it.quantity)}
@@ -155,7 +162,7 @@ export default function CartPage() {
 
                         <button
                           type="button"
-                          aria-label={`Supprimer ${it.name} du panier`}
+                          aria-label={t("Supprimer {name} du panier", { name: it.name })}
                           onClick={() => removeItem(it.lineId)}
                           className="grid h-9 w-9 shrink-0 place-items-center rounded-md transition hover:bg-[#FAF8F2]"
                           style={{ color: COLORS.muted }}
@@ -175,7 +182,7 @@ export default function CartPage() {
                 className="inline-flex items-center rounded-md border px-4 py-2 text-[13px] font-semibold"
                 style={{ borderColor: COLORS.border, color: COLORS.text }}
               >
-                Continuer mes achats
+                {t("Continuer mes achats")}
               </Link>
               <button
                 type="button"
@@ -183,7 +190,7 @@ export default function CartPage() {
                 className="text-[12.5px] font-semibold underline-offset-2 hover:underline"
                 style={{ color: COLORS.muted }}
               >
-                Vider le panier
+                {t("Vider le panier")}
               </button>
             </div>
           </section>
@@ -197,21 +204,21 @@ export default function CartPage() {
                 className="text-[12px] font-bold tracking-wide"
                 style={{ color: COLORS.text }}
               >
-                RÉCAPITULATIF
+                {t("RÉCAPITULATIF")}
               </div>
 
               <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
                 <div className="flex items-center justify-between">
-                  <dt style={{ color: COLORS.muted }}>Sous-total</dt>
+                  <dt style={{ color: COLORS.muted }}>{t("Sous-total")}</dt>
                   <dd className="font-semibold">{formatPriceEUR(total)}</dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt style={{ color: COLORS.muted }}>Livraison</dt>
+                  <dt style={{ color: COLORS.muted }}>{t("Livraison")}</dt>
                   <dd
                     className="font-semibold"
                     style={{ color: fee === 0 ? COLORS.primary : COLORS.text }}
                   >
-                    {fee === 0 ? "Gratuite" : formatPriceEUR(fee)}
+                    {fee === 0 ? t("Gratuite") : formatPriceEUR(fee)}
                   </dd>
                 </div>
               </dl>
@@ -221,7 +228,9 @@ export default function CartPage() {
                   className="mt-3 rounded-md px-3 py-2 text-[11.5px]"
                   style={{ background: "#FEF9C3", color: "#854D0E" }}
                 >
-                  Plus {formatPriceEUR(FREE_DELIVERY_THRESHOLD_EUR - total)} pour la livraison gratuite
+                  {t("Plus {amount} pour la livraison gratuite", {
+                    amount: formatPriceEUR(FREE_DELIVERY_THRESHOLD_EUR - total),
+                  })}
                 </div>
               )}
 
@@ -230,7 +239,9 @@ export default function CartPage() {
                   className="mt-3 rounded-md px-3 py-2 text-[11.5px]"
                   style={{ background: "#FCE9E5", color: "#7A1709" }}
                 >
-                  Minimum de commande&nbsp;: {formatPriceEUR(MIN_ORDER_EUR)}
+                  {t("Minimum de commande : {amount}", {
+                    amount: formatPriceEUR(MIN_ORDER_EUR),
+                  })}
                 </div>
               )}
 
@@ -239,7 +250,7 @@ export default function CartPage() {
                 style={{ borderColor: COLORS.border }}
               >
                 <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-                  Total
+                  {t("Total")}
                 </span>
                 <span className="text-[20px] font-extrabold" style={{ color: COLORS.primary }}>
                   {formatPriceEUR(grandTotal)}
@@ -253,7 +264,7 @@ export default function CartPage() {
                   className="mt-5 grid h-11 w-full cursor-not-allowed place-items-center rounded-md text-[14px] font-semibold text-white opacity-40 shadow-sm"
                   style={{ background: COLORS.primary }}
                 >
-                  Valider mon panier
+                  {t("Valider mon panier")}
                 </button>
               ) : (
                 <Link
@@ -261,12 +272,12 @@ export default function CartPage() {
                   className="mt-5 grid h-11 place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm"
                   style={{ background: COLORS.primary }}
                 >
-                  Valider mon panier
+                  {t("Valider mon panier")}
                 </Link>
               )}
 
               <p className="mt-3 text-center text-[11.5px]" style={{ color: COLORS.muted }}>
-                Paiement à la livraison disponible.
+                {t("Paiement à la livraison disponible.")}
               </p>
             </div>
           </aside>

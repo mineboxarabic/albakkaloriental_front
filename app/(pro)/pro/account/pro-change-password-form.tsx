@@ -4,10 +4,15 @@ import { useState, useTransition } from "react";
 import { KeyRound, CheckCircle2 } from "lucide-react";
 import { changeProPassword } from "@/actions/pro-me";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 export function ProChangePasswordForm() {
+  const { t } = useLanguage();
   const [pending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [rawErrors, setErrors] = useState<Record<string, string>>({});
+  const errors = Object.fromEntries(
+    Object.entries(rawErrors).map(([key, message]) => [key, t(message)]),
+  );
   const [success, setSuccess] = useState(false);
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState({
@@ -44,7 +49,7 @@ export function ProChangePasswordForm() {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-white">
           <KeyRound className="h-4 w-4" strokeWidth={2} />
-          <span className="text-[12.5px] font-semibold">Mot de passe</span>
+          <span className="text-[12.5px] font-semibold">{t("Mot de passe")}</span>
           <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>
             ••••••••
           </span>
@@ -55,7 +60,7 @@ export function ProChangePasswordForm() {
           className="rounded-sm border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition hover:bg-white/10"
           style={{ borderColor: "rgba(255,255,255,0.35)" }}
         >
-          Changer
+          {t("Changer")}
         </button>
       </div>
     );
@@ -64,7 +69,7 @@ export function ProChangePasswordForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <PwField
-        label="Mot de passe actuel"
+        label={t("Mot de passe actuel")}
         name="currentPassword"
         value={values.currentPassword}
         onChange={onText("currentPassword")}
@@ -72,7 +77,7 @@ export function ProChangePasswordForm() {
         autoComplete="current-password"
       />
       <PwField
-        label="Nouveau mot de passe"
+        label={t("Nouveau mot de passe")}
         name="newPassword"
         value={values.newPassword}
         onChange={onText("newPassword")}
@@ -80,7 +85,7 @@ export function ProChangePasswordForm() {
         autoComplete="new-password"
       />
       <PwField
-        label="Confirmer"
+        label={t("Confirmer")}
         name="confirmPassword"
         value={values.confirmPassword}
         onChange={onText("confirmPassword")}
@@ -91,7 +96,7 @@ export function ProChangePasswordForm() {
       {errors.form && (
         <div
           role="alert"
-          className="rounded-sm border-l-2 px-3 py-2 text-[12px]"
+          className="rounded-sm border-s-2 px-3 py-2 text-[12px]"
           style={{ background: "rgba(213,43,20,0.18)", borderColor: COLORS.red, color: "#FFD7D2" }}
         >
           {errors.form}
@@ -100,11 +105,11 @@ export function ProChangePasswordForm() {
 
       {success && (
         <div
-          className="flex items-center gap-2 rounded-sm border-l-2 px-3 py-2 text-[12px]"
+          className="flex items-center gap-2 rounded-sm border-s-2 px-3 py-2 text-[12px]"
           style={{ background: "rgba(63,86,31,0.22)", borderColor: COLORS.primary, color: "#D9E5C0" }}
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
-          Mot de passe mis à jour.
+          {t("Mot de passe mis à jour.")}
         </div>
       )}
 
@@ -115,7 +120,7 @@ export function ProChangePasswordForm() {
           className="rounded-sm border px-4 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em] text-white transition hover:bg-white/10 disabled:opacity-60"
           style={{ borderColor: "rgba(255,255,255,0.35)" }}
         >
-          {pending ? "..." : "Enregistrer"}
+          {pending ? "..." : t("Enregistrer")}
         </button>
         <button
           type="button"
@@ -128,7 +133,7 @@ export function ProChangePasswordForm() {
           className="rounded-sm border px-4 py-2 text-[11.5px] font-bold uppercase tracking-[0.1em]"
           style={{ borderColor: "rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)" }}
         >
-          Annuler
+          {t("Annuler")}
         </button>
       </div>
     </form>

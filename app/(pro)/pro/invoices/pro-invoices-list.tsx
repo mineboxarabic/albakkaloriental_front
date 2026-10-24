@@ -2,12 +2,9 @@ import Link from "next/link";
 import { Download, ChevronRight } from "lucide-react";
 import { COLORS } from "@/lib/ui";
 import type { ProInvoice } from "@/actions/pro-me";
+import { translate, type TranslationParams } from "@/lib/translations";
+import { formatDate, type Language } from "@/lib/language";
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 function formatPrice(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
@@ -33,7 +30,17 @@ function displayStatus(invoice: ProInvoice): "UNPAID" | "PAID" | "OVERDUE" | "PA
   return invoice.status;
 }
 
-export function ProInvoicesList({ invoices }: { invoices: ProInvoice[] }) {
+export function ProInvoicesList({
+  invoices,
+  language = "fr",
+}: {
+  invoices: ProInvoice[];
+  language?: Language;
+}) {
+  const t = (text: string, params?: TranslationParams) =>
+    translate(text, language, params);
+  const shortDate = (value: string | Date) =>
+    formatDate(value, language, { day: "2-digit", month: "short", year: "numeric" });
   return (
     <ul
       className="mt-6 overflow-hidden rounded-sm border bg-white divide-y"
@@ -57,16 +64,18 @@ export function ProInvoicesList({ invoices }: { invoices: ProInvoice[] }) {
                     className="rounded-sm px-2 py-0.5 text-[10.5px] font-bold tracking-[0.05em]"
                     style={{ background: meta.bg, color: meta.color }}
                   >
-                    {meta.label.toUpperCase()}
+                    {t(meta.label).toLocaleUpperCase("fr")}
                   </span>
                 </div>
                 <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                  Émise le {DATE_FMT.format(new Date(inv.invoiceDate))} · Échéance{" "}
-                  {DATE_FMT.format(new Date(inv.dueDate))}
+                  {t("Émise le {date}", { date: shortDate(inv.invoiceDate) })} ·{" "}
+                  {t("Échéance {date}", { date: shortDate(inv.dueDate) })}
                 </div>
                 {inv.orders.length > 0 && (
                   <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                    {inv.orders.length > 1 ? `${inv.orders.length} commandes : ` : null}
+                    {inv.orders.length > 1
+                      ? `${t("{count} commandes", { count: inv.orders.length })} : `
+                      : null}
                     {visibleOrders.map((order, idx) => (
                       <span key={order.id}>
                         {idx > 0 && ", "}
@@ -79,16 +88,18 @@ export function ProInvoicesList({ invoices }: { invoices: ProInvoice[] }) {
                   </div>
                 )}
                 <div className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
-                  Payé : {formatPrice(inv.paidAmount)}
+                  {t("Payé : {amount}", { amount: formatPrice(inv.paidAmount) })}
                 </div>
                 {inv.remainingAmount > 0 && (
                   <div className="text-[11.5px] font-semibold" style={{ color: "#7A5409" }}>
-                    Reste à payer : {formatPrice(inv.remainingAmount)}
+                    {t("Reste à payer : {amount}", {
+                      amount: formatPrice(inv.remainingAmount),
+                    })}
                   </div>
                 )}
               </div>
               <div className="flex items-center justify-between gap-3 sm:justify-end">
-                <div className="text-right">
+                <div className="text-end">
                   <div className="text-[15px] font-extrabold" style={{ color: COLORS.primary }}>
                     {formatPrice(inv.totalAmount)}
                   </div>
@@ -98,7 +109,9 @@ export function ProInvoicesList({ invoices }: { invoices: ProInvoice[] }) {
                   prefetch={false}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`PDF de la facture ${inv.invoiceNumber}`}
+                  aria-label={t("PDF de la facture {number}", {
+                    number: inv.invoiceNumber,
+                  })}
                   className="inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
                   style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
                 >

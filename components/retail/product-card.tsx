@@ -5,10 +5,18 @@ import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import { COLORS, buildUnitLabel, productImage } from "@/lib/ui";
 import { QuickAddButton } from "@/components/retail/quick-add-button";
 import { PriceTag } from "@/components/retail/price-tag";
+import { translate } from "@/lib/translations";
+import type { Language } from "@/lib/language";
 
-export function ProductCard({ product }: { product: ProductCardData }) {
+export function ProductCard({
+  product,
+  language = "fr",
+}: {
+  product: ProductCardData;
+  language?: Language;
+}) {
   const oos = product.isOutOfStock;
-  const unitLabel = buildUnitLabel(product.baseUnit);
+  const unitLabel = buildUnitLabel(product.baseUnit, false, language);
   return (
     <article
       className="relative flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
@@ -19,7 +27,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
     >
       {oos && (
         <span
-          className="absolute right-2 top-2 z-10 rounded-sm px-2 py-0.5 text-[10px] font-extrabold tracking-[0.1em]"
+          className="absolute end-2 top-2 z-10 rounded-sm px-2 py-0.5 text-[10px] font-extrabold tracking-[0.1em]"
           style={{ background: "#D52B14", color: "#FFFFFF" }}
         >
           <TranslatedText value={"RUPTURE"} />{" "}
@@ -64,8 +72,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
                 color: "#999",
                 cursor: "not-allowed",
               }}
-              aria-label="Indisponible"
-              title="Indisponible"
+              aria-label={translate("Indisponible", language)}
+              title={translate("Indisponible", language)}
             >
               —
             </button>

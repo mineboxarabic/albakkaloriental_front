@@ -48,7 +48,7 @@ export function CatalogSearchInput({
   return (
     <div className={`relative ${className}`}>
       <Search
-        className="absolute left-3 top-2.5 h-4 w-4"
+        className="absolute start-3 top-2.5 h-4 w-4"
         style={{ color: isDark ? "rgba(255,255,255,0.55)" : COLORS.muted }}
         strokeWidth={2}
       />
@@ -59,7 +59,7 @@ export function CatalogSearchInput({
         placeholder={t(placeholder)}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="h-9 w-full rounded-md border pl-9 pr-9 text-[13px] outline-none transition focus:border-[#3F561F]"
+        className="h-9 w-full rounded-md border ps-9 pe-9 text-[13px] outline-none transition focus:border-[#3F561F]"
         style={{
           background: isDark ? "rgba(255,255,255,0.08)" : "#FFFFFF",
           borderColor: isDark ? "rgba(255,255,255,0.2)" : COLORS.border,
@@ -71,7 +71,7 @@ export function CatalogSearchInput({
           type="button"
           aria-label={t("Effacer la recherche")}
           onClick={() => setValue("")}
-          className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full"
+          className="absolute end-2 top-2 grid h-5 w-5 place-items-center rounded-full"
           style={{ color: isDark ? "rgba(255,255,255,0.6)" : COLORS.muted }}
         >
           <X className="h-3.5 w-3.5" />

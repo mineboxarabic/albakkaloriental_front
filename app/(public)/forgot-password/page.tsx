@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { ForgotPasswordForm } from "./forgot-password-form";
+import { getTranslator } from "@/lib/server-language";
+import { StandaloneLanguageBar } from "@/components/standalone-language-bar";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Mot de passe oublié",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: t("Mot de passe oublié") };
+}
 
 export default async function ForgotPasswordPage({
   searchParams,
@@ -14,14 +17,18 @@ export default async function ForgotPasswordPage({
 }) {
   const { role } = await searchParams;
   const isPro = role === "pro";
+  const { t } = await getTranslator();
 
   return (
+    <>
+    <StandaloneLanguageBar />
     <div className="mx-auto max-w-md py-16 px-4">
       <div className="rounded-2xl border bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold">Mot de passe oublié</h1>
+        <h1 className="mb-2 text-2xl font-semibold">{t("Mot de passe oublié")}</h1>
         <p className="mb-6 text-sm text-muted-foreground">
-          Saisissez votre adresse e-mail. Si un compte existe, vous recevrez un
-          lien de réinitialisation valable 1 heure.
+          {t(
+            "Saisissez votre adresse e-mail. Si un compte existe, vous recevrez un lien de réinitialisation valable 1 heure.",
+          )}
         </p>
 
         <ForgotPasswordForm />
@@ -32,10 +39,11 @@ export default async function ForgotPasswordPage({
             className="text-sm font-semibold underline-offset-2 hover:underline"
             style={{ color: "#3F561F" }}
           >
-            Retour à la connexion
+            {t("Retour à la connexion")}
           </Link>
         </div>
       </div>
     </div>
+    </>
   );
 }

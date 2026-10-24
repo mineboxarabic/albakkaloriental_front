@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Truck, CheckCircle, Search, MessageSquare, XCircle, MapPin, ChevronDown } from "lucide-react";
 import type { UpcomingDelivery } from "@/lib/catalog";
+import { useLanguage } from "@/components/language-provider";
+import { formatDate } from "@/lib/language";
+import { INTER_FONT, MONO_FONT } from "@/lib/ui";
 
 /**
  * "Quantum Systems" (Neuform Featured) design system applied to the weekly
@@ -25,14 +28,8 @@ const QS = {
   borderStrong: "#CFC8B8",
 } as const;
 
-const DISPLAY = "var(--font-inter), 'Inter', system-ui, sans-serif";
-const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
-
-const DELIVERY_DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
+const DISPLAY = INTER_FONT;
+const MONO = MONO_FONT;
 
 interface DeliveryCheckerProps {
   deliveries: UpcomingDelivery[];
@@ -42,6 +39,7 @@ interface DeliveryCheckerProps {
 export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const { t, language } = useLanguage();
 
   const today = new Date(serverDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -83,7 +81,7 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
-          className="flex w-full items-center justify-between gap-4 border-b pb-5 text-left md:items-end lg:cursor-default"
+          className="flex w-full items-center justify-between gap-4 border-b pb-5 text-start md:items-end lg:cursor-default"
           style={{ borderColor: QS.border }}
         >
           <div>
@@ -91,13 +89,13 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
               className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase"
               style={{ fontFamily: MONO, color: QS.accent, letterSpacing: "0.18em" }}
             >
-              <span style={{ color: QS.textMuted }}>LOGISTIQUE</span>
+              <span style={{ color: QS.textMuted }}>{t("LOGISTIQUE")}</span>
             </div>
             <h2 className="text-[20px] font-medium leading-[1.04] tracking-tight sm:text-[24px]" style={{ color: QS.textPrimary }}>
-              Planning de livraison hebdomadaire
+              {t("Planning de livraison hebdomadaire")}
             </h2>
             <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: QS.textSecondary }}>
-              Indiquez votre ville pour connaître votre jour de livraison et commander à temps.
+              {t("Indiquez votre ville pour connaître votre jour de livraison et commander à temps.")}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -106,7 +104,7 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
               style={{ fontFamily: MONO, letterSpacing: "0.12em", borderColor: QS.borderStrong, color: QS.textPrimary, background: QS.surfaceElevated }}
             >
               <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: QS.accent }} />
-              Livraisons ouvertes
+              {t("Livraisons ouvertes")}
             </span>
             <ChevronDown
               className={`h-5 w-5 shrink-0 transition-transform duration-200 lg:hidden ${open ? "rotate-180" : ""}`}
@@ -137,43 +135,43 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                   >
                     {isToday && !isMatchedDay && (
                       <span
-                        className="absolute -top-2 left-2.5 rounded px-1.5 py-0.5 text-[8.5px] font-bold uppercase"
+                        className="absolute -top-2 start-2.5 rounded px-1.5 py-0.5 text-[8.5px] font-bold uppercase"
                         style={{ fontFamily: MONO, letterSpacing: "0.1em", background: QS.accent, color: QS.accentText }}
                       >
-                        Aujourd&apos;hui
+                        {t("Aujourd'hui")}
                       </span>
                     )}
                     {isMatchedDay && (
                       <span
-                        className="absolute -top-2 left-2.5 rounded px-1.5 py-0.5 text-[8.5px] font-bold uppercase"
+                        className="absolute -top-2 start-2.5 rounded px-1.5 py-0.5 text-[8.5px] font-bold uppercase"
                         style={{ fontFamily: MONO, letterSpacing: "0.1em", background: QS.accent, color: QS.accentText }}
                       >
-                        Chez vous
+                        {t("Chez vous")}
                       </span>
                     )}
 
                     <div className="leading-tight">
                       <div className="text-[10px] font-semibold uppercase" style={{ fontFamily: MONO, letterSpacing: "0.12em", color: QS.textMuted }}>
-                        {day.toLocaleDateString("fr-FR", { weekday: "short" })}
+                        {formatDate(day, language, { weekday: "short" })}
                       </div>
                       <div className="text-[15px] font-semibold" style={{ color: QS.textPrimary }}>
-                        {day.getDate()} {day.toLocaleDateString("fr-FR", { month: "short" })}
+                        {formatDate(day, language, { day: "numeric", month: "short" })}
                       </div>
                     </div>
 
                     {delivery ? (
-                      <div className="mt-2 text-left">
+                      <div className="mt-2 text-start">
                         <div className="flex items-center gap-1 text-[10px] font-semibold uppercase" style={{ fontFamily: MONO, letterSpacing: "0.08em", color: QS.accent }}>
                           <Truck className="h-3 w-3 shrink-0" />
-                          <span>Tournée</span>
+                          <span>{t("Tournée")}</span>
                         </div>
-                        <div className="mt-1 truncate text-[10px] font-medium" style={{ color: QS.textSecondary }}>
+                        <div dir="ltr" className="mt-1 truncate text-start text-[10px] font-medium rtl:text-end" style={{ color: QS.textSecondary }}>
                           {delivery.cities.map((c) => c.name).join(", ")}
                         </div>
                       </div>
                     ) : (
                       <div className="mt-2 text-[9.5px] font-medium uppercase" style={{ fontFamily: MONO, letterSpacing: "0.08em", color: QS.textMuted }}>
-                        Aucune tournée
+                        {t("Aucune tournée")}
                       </div>
                     )}
                   </div>
@@ -194,17 +192,17 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                 style={{ fontFamily: MONO, letterSpacing: "0.12em", color: QS.textSecondary }}
               >
                 <MapPin className="h-3.5 w-3.5" style={{ color: QS.accent }} />
-                Où souhaitez-vous être livré ?
+                {t("Où souhaitez-vous être livré ?")}
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4" style={{ color: QS.textMuted }} />
+                <Search className="absolute start-3 top-2.5 h-4 w-4" style={{ color: QS.textMuted }} />
                 <input
                   id="city-search"
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Saisissez votre ville..."
-                  className="w-full rounded-lg border py-2.5 pl-9 pr-4 text-[12.5px] outline-none transition-colors placeholder:text-[#9A968C] focus:border-[#3F561F]"
+                  placeholder={t("Saisissez votre ville...")}
+                  className="w-full rounded-lg border py-2.5 ps-9 pe-4 text-[12.5px] outline-none transition-colors placeholder:text-[#9A968C] focus:border-[#3F561F]"
                   style={{ background: QS.surfaceInput, borderColor: QS.borderStrong, color: QS.textPrimary }}
                 />
               </div>
@@ -218,13 +216,18 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                     >
                       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase" style={{ fontFamily: MONO, letterSpacing: "0.1em", color: QS.accent }}>
                         <CheckCircle className="h-4 w-4 shrink-0" />
-                        <span>Livraison disponible</span>
+                        <span>{t("Livraison disponible")}</span>
                       </div>
                       <p className="mt-1.5 text-[11.5px] leading-relaxed" style={{ color: QS.textSecondary }}>
-                        Notre camion passe à{" "}
-                        <strong style={{ color: QS.textPrimary }}>{matchedCity.name}</strong> le{" "}
+                        {t("Notre camion passe à")}{" "}
+                        <strong style={{ color: QS.textPrimary }}>{matchedCity.name}</strong>{" "}
+                        {t("le")}{" "}
                         <strong style={{ color: QS.textPrimary }}>
-                          {DELIVERY_DATE_FMT.format(new Date(matchedDelivery.scheduledDate))}
+                          {formatDate(matchedDelivery.scheduledDate, language, {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
                         </strong>
                         .
                       </p>
@@ -232,7 +235,7 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                         className="mt-2.5 border-t pt-2 text-[10px] font-semibold uppercase"
                         style={{ fontFamily: MONO, letterSpacing: "0.08em", borderColor: "rgba(63,86,31,0.22)", color: QS.textMuted }}
                       >
-                        Limite de commande : veille à 21h00
+                        {t("Limite de commande : veille à 21h00")}
                       </div>
                     </div>
                   ) : (
@@ -242,11 +245,12 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                     >
                       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase" style={{ fontFamily: MONO, letterSpacing: "0.1em", color: QS.danger }}>
                         <XCircle className="h-4 w-4 shrink-0" />
-                        <span>Ville non planifiée</span>
+                        <span>{t("Ville non planifiée")}</span>
                       </div>
                       <p className="mt-1.5 text-[11px] leading-relaxed" style={{ color: QS.textSecondary }}>
-                        Nous ne passons pas encore à{" "}
-                        <strong style={{ color: QS.textPrimary }}>{searchQuery}</strong> cette semaine.
+                        {t("Nous ne passons pas encore à")}{" "}
+                        <strong style={{ color: QS.textPrimary }}>{searchQuery}</strong>{" "}
+                        {t("cette semaine.")}
                       </p>
                       <a
                         href={`https://wa.me/33766301339?text=Bonjour,%20j'aimerais%20proposer%20une%20tournée%20de%20livraison%20à%20${encodeURIComponent(searchQuery)}`}
@@ -256,7 +260,7 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                         style={{ fontFamily: MONO, letterSpacing: "0.08em", background: QS.accent, color: QS.accentText }}
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
-                        Demander un arrêt
+                        {t("Demander un arrêt")}
                       </a>
                     </div>
                   )}
@@ -266,7 +270,7 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
 
             {!searchQuery && (
               <div className="mt-4 text-[11px] leading-relaxed" style={{ color: QS.textMuted }}>
-                Entrez le nom de votre ville pour voir si notre camion passe près de chez vous cette semaine.
+                {t("Entrez le nom de votre ville pour voir si notre camion passe près de chez vous cette semaine.")}
               </div>
             )}
           </div>
