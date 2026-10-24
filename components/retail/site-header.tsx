@@ -99,7 +99,8 @@ export function SiteHeader({
           <div className="flex items-center gap-6">
             {phone && (
               <span>
-                <TranslatedText value={"Besoin d'aide ?"} /> {phone}
+                <TranslatedText value={"Besoin d'aide ?"} />{" "}
+                <span className="ltr-isolate">{phone}</span>
               </span>
             )}
             <Link className="hover:underline" href="/pro">
@@ -183,7 +184,7 @@ export function SiteHeader({
                 aria-hidden
               />
               <div
-                className={`absolute right-0 top-full z-50 pt-2 transition-all duration-200 ease-out ${
+                className={`absolute end-0 top-full z-50 pt-2 transition-all duration-200 ease-out ${
                   userMenuOpen
                     ? "opacity-100 visible translate-y-0"
                     : "pointer-events-none opacity-0 invisible translate-y-1"
@@ -226,7 +227,7 @@ export function SiteHeader({
                   <form action={logoutRetail}>
                     <button
                       type="submit"
-                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-medium transition-colors hover:bg-[#FCE9E5]"
+                      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-start text-[13px] font-medium transition-colors hover:bg-[#FCE9E5]"
                       style={{ color: COLORS.red }}
                     >
                       <LogOut className="h-4 w-4" strokeWidth={2} />
@@ -262,7 +263,7 @@ export function SiteHeader({
               />
               {itemCount > 0 && (
                 <span
-                  className="absolute -right-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white"
+                  className="absolute -end-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white"
                   style={{ background: COLORS.red }}
                 >
                   {itemCount}
@@ -302,7 +303,7 @@ export function SiteHeader({
                 <Menu className="h-4 w-4" strokeWidth={2.4} />
                 <TranslatedText value={"TOUS LES RAYONS"} />{" "}
               </Link>
-              <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/rayons:opacity-100 group-hover/rayons:visible group-hover/rayons:translate-y-0 transition-all duration-200 ease-out">
+              <div className="absolute start-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/rayons:opacity-100 group-hover/rayons:visible group-hover/rayons:translate-y-0 transition-all duration-200 ease-out">
                 <div
                   className="w-[280px] rounded-lg border bg-white p-2 shadow-xl"
                   style={{ borderColor: COLORS.border }}
@@ -347,7 +348,7 @@ export function SiteHeader({
                     ▼
                   </span>
                 </button>
-                <div className="absolute right-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/plus:opacity-100 group-hover/plus:visible group-hover/plus:translate-y-0 transition-all duration-200 ease-out">
+                <div className="absolute end-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 group-hover/plus:opacity-100 group-hover/plus:visible group-hover/plus:translate-y-0 transition-all duration-200 ease-out">
                   <div
                     className="w-[260px] rounded-lg border bg-white p-2 shadow-xl"
                     style={{ borderColor: COLORS.border }}
@@ -385,8 +386,8 @@ export function SiteHeader({
           aria-hidden
         />
         <div
-          className={`absolute left-0 top-0 flex h-full w-[300px] max-w-[85%] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
-            menuOpen ? "translate-x-0" : "-translate-x-full"
+          className={`absolute start-0 top-0 flex h-full w-[300px] max-w-[85%] flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
           }`}
         >
           <div
@@ -443,7 +444,7 @@ export function SiteHeader({
                 <form action={logoutRetail}>
                   <button
                     type="submit"
-                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-[14px] font-medium hover:bg-[#FCE9E5]"
+                    className="flex w-full items-center gap-2.5 rounded-md px-3 py-2.5 text-start text-[14px] font-medium hover:bg-[#FCE9E5]"
                     style={{ color: COLORS.red }}
                   >
                     <LogOut className="h-4 w-4" strokeWidth={2} />

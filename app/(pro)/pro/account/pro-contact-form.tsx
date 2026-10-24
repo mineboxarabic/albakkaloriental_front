@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Save, CheckCircle2 } from "lucide-react";
 import { updateProProfile } from "@/actions/pro-me";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 export function ProContactForm({
   defaults,
@@ -12,8 +13,12 @@ export function ProContactForm({
   defaults: { phone: string; mobilePhone: string };
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [pending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [rawErrors, setErrors] = useState<Record<string, string>>({});
+  const errors = Object.fromEntries(
+    Object.entries(rawErrors).map(([key, message]) => [key, t(message)]),
+  );
   const [success, setSuccess] = useState(false);
   const [values, setValues] = useState(defaults);
 
@@ -39,7 +44,7 @@ export function ProContactForm({
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <DarkField
-        label="Téléphone"
+        label={t("Téléphone")}
         name="phone"
         type="tel"
         value={values.phone}
@@ -47,7 +52,7 @@ export function ProContactForm({
         error={errors.phone}
       />
       <DarkField
-        label="Mobile (optionnel)"
+        label={t("Mobile (optionnel)")}
         name="mobilePhone"
         type="tel"
         value={values.mobilePhone}
@@ -58,7 +63,7 @@ export function ProContactForm({
       {errors.form && (
         <div
           role="alert"
-          className="rounded-sm border-l-2 px-3 py-2 text-[12px]"
+          className="rounded-sm border-s-2 px-3 py-2 text-[12px]"
           style={{ background: "rgba(213,43,20,0.18)", borderColor: COLORS.red, color: "#FFD7D2" }}
         >
           {errors.form}
@@ -67,11 +72,11 @@ export function ProContactForm({
 
       {success && (
         <div
-          className="flex items-center gap-2 rounded-sm border-l-2 px-3 py-2 text-[12px]"
+          className="flex items-center gap-2 rounded-sm border-s-2 px-3 py-2 text-[12px]"
           style={{ background: "rgba(63,86,31,0.22)", borderColor: COLORS.primary, color: "#D9E5C0" }}
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
-          Coordonnées mises à jour.
+          {t("Coordonnées mises à jour.")}
         </div>
       )}
 
@@ -82,7 +87,7 @@ export function ProContactForm({
         style={{ borderColor: "rgba(255,255,255,0.35)" }}
       >
         <Save className="h-3.5 w-3.5" />
-        {pending ? "Enregistrement..." : "Enregistrer"}
+        {pending ? t("Enregistrement...") : t("Enregistrer")}
       </button>
     </form>
   );

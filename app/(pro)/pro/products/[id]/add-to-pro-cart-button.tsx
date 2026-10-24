@@ -21,6 +21,7 @@ import {
   type ProPriceInput,
 } from "@/lib/catalog-pricing";
 import { COLORS, buildQuantityLabel } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 type Props = {
   productId: string;
@@ -53,6 +54,7 @@ export function AddToProCartButton({
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
+  const { t, language } = useLanguage();
 
   const unitPrice = useMemo(
     () => resolveProPrice(pricing, saleUnit, pricingLevel),
@@ -69,8 +71,15 @@ export function AddToProCartButton({
   );
   const stockLabel =
     saleUnit === "PACK"
-      ? `${maxQtyForUnit} carton${maxQtyForUnit > 1 ? "s" : ""} disponible${maxQtyForUnit > 1 ? "s" : ""}`
-      : `${buildQuantityLabel(maxQtyForUnit, baseUnit, true)} disponible${maxQtyForUnit > 1 ? "s" : ""}`;
+      ? t(
+          maxQtyForUnit > 1
+            ? "{count} cartons disponibles"
+            : "{count} carton disponible",
+          { count: maxQtyForUnit },
+        )
+      : t(maxQtyForUnit > 1 ? "{quantity} disponibles" : "{quantity} disponible", {
+          quantity: buildQuantityLabel(maxQtyForUnit, baseUnit, true, language),
+        });
 
   if (!authenticated) {
     return (
@@ -114,15 +123,15 @@ export function AddToProCartButton({
             active={saleUnit === "PACK"}
             onClick={() => setSaleUnit("PACK")}
             icon={<Package className="h-4 w-4" strokeWidth={2} />}
-            label="Par carton"
-            sub={`${unitsPerPack} unités / carton`}
+            label={t("Par carton")}
+            sub={t("{count} unités / carton", { count: unitsPerPack })}
           />
           <ToggleButton
             active={saleUnit === "UNIT"}
             onClick={() => setSaleUnit("UNIT")}
             icon={<Box className="h-4 w-4" strokeWidth={2} />}
-            label="À l'unité"
-            sub="Vente au détail"
+            label={t("À l'unité")}
+            sub={t("Vente au détail")}
           />
         </div>
       )}
@@ -134,7 +143,7 @@ export function AddToProCartButton({
             style={{ color: COLORS.muted }}
           >
             <TranslatedText value={"Prix"} />{" "}
-            {saleUnit === "PACK" ? "par carton" : "à l'unité"}
+            {saleUnit === "PACK" ? t("par carton") : t("à l'unité")}
           </div>
           <div
             className="mt-1 text-[24px] font-extrabold"
@@ -150,7 +159,7 @@ export function AddToProCartButton({
         >
           <button
             type="button"
-            aria-label="Diminuer la quantité"
+            aria-label={t("Diminuer la quantité")}
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
             style={{ color: COLORS.text }}
@@ -166,7 +175,7 @@ export function AddToProCartButton({
           </div>
           <button
             type="button"
-            aria-label="Augmenter la quantité"
+            aria-label={t("Augmenter la quantité")}
             onClick={() =>
               setQty((q) => Math.min(Math.max(maxQtyForUnit, 1), q + 1))
             }
@@ -226,7 +235,7 @@ export function AddToProCartButton({
               setConfirmed(true);
               window.setTimeout(() => setConfirmed(false), 1400);
             } else {
-              setError(res.error || "Une erreur est survenue.");
+              setError(t(res.error || "Une erreur est survenue."));
             }
           }}
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
@@ -274,7 +283,7 @@ function ToggleButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-1 items-center gap-3 px-4 py-3 text-left transition"
+      className="flex flex-1 items-center gap-3 px-4 py-3 text-start transition"
       style={{
         background: active ? COLORS.primary : "#FFFFFF",
         color: active ? "#FFFFFF" : COLORS.text,

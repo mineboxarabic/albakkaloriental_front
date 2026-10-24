@@ -1,5 +1,10 @@
 import type { Language } from "@/lib/language";
-const ARABIC: Record<string, string> = {
+import { AR_AUTH } from "@/lib/i18n/ar-auth";
+import { AR_RETAIL } from "@/lib/i18n/ar-retail";
+import { AR_PRO } from "@/lib/i18n/ar-pro";
+import { AR_SHARED } from "@/lib/i18n/ar-shared";
+
+const AR_CATALOG: Record<string, string> = {
   "Bandeau de consentement aux cookies": "إشعار ملفات تعريف الارتباط",
   Fermer: "إغلاق",
   "Nous utilisons uniquement des cookies techniques (session, panier). Aucun traceur publicitaire ou statistique tiers. Consultez notre":
@@ -64,7 +69,7 @@ const ARABIC: Record<string, string> = {
   Services: "خدماتنا",
   "À propos": "من نحن",
   CONTACT: "تواصل معنا",
-  ". Tous droits réservés.": ". جميع الحقوق محفوظة.",
+  ". Tous droits réservés.": "، جميع الحقوق محفوظة.",
   CGV: "شروط البيع",
   Confidentialité: "الخصوصية",
   Contact: "تواصل معنا",
@@ -141,14 +146,53 @@ const ARABIC: Record<string, string> = {
   "Bienvenue chez Le Bakkal Oriental, votre référence en matière d'épicerie orientale et de produits authentiques du bassin méditerranéen. Nous sélectionnons avec soin une large gamme de produits orientaux halal, d'épices, de conserves, de boissons, de douceurs traditionnelles et d'ingrédients indispensables à la préparation de recettes familiales riches en saveurs. Notre mission est de permettre à chacun de retrouver facilement les goûts authentiques de l'Orient grâce à une plateforme de courses halal en ligne simple, rapide et accessible partout en France.":
     "أهلاً بك في البقال الشرقي، وجهتك للمنتجات الشرقية والمتوسطية الأصيلة. نختار بعناية تشكيلة واسعة من البهارات والمعلبات والمشروبات والحلويات التقليدية ومكونات وصفاتك المفضلة. تسوق بسهولة واستمتع بالنكهات الشرقية مع التوصيل في فرنسا.",
 };
+export type TranslationParams = Record<string, string | number>;
+
+const normalizeKey = (text: string) => text.replace(/\s+/g, " ").trim();
+
+const ARABIC: Record<string, string> = Object.fromEntries(
+  Object.entries({
+    ...AR_CATALOG,
+    ...AR_SHARED,
+    ...AR_AUTH,
+    ...AR_RETAIL,
+    ...AR_PRO,
+  }).map(([key, value]) => [normalizeKey(key), value]),
+);
+
 const LOWERCASE_ARABIC = Object.fromEntries(
   Object.entries(ARABIC).map(([key, value]) => [
     key.toLocaleLowerCase("fr"),
     value,
   ]),
 );
-export function translate(text: string, language: Language): string {
-  return language === "ar"
-    ? (ARABIC[text] ?? LOWERCASE_ARABIC[text.toLocaleLowerCase("fr")] ?? text)
-    : text;
+
+function interpolate(text: string, params?: TranslationParams): string {
+  if (!params) return text;
+  return text.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in params ? String(params[key]) : match,
+  );
+}
+
+/** True when the French source string has an Arabic entry. */
+export function hasArabicTranslation(text: string): boolean {
+  const key = normalizeKey(text);
+  return key in ARABIC || key.toLocaleLowerCase("fr") in LOWERCASE_ARABIC;
+}
+
+/**
+ * Translates a French UI string. French is the source language: unknown
+ * strings (product names, backend data, brand names) are returned untouched.
+ * `{name}` placeholders are filled from `params` in both languages.
+ */
+export function translate(
+  text: string,
+  language: Language,
+  params?: TranslationParams,
+): string {
+  if (language !== "ar") return interpolate(text, params);
+  const key = normalizeKey(text);
+  const arabic =
+    ARABIC[key] ?? LOWERCASE_ARABIC[key.toLocaleLowerCase("fr")] ?? text;
+  return interpolate(arabic, params);
 }

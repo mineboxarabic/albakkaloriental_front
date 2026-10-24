@@ -15,15 +15,19 @@ import {
   buildUnitLabel,
   productImage,
 } from "@/lib/ui";
+import { translate } from "@/lib/translations";
+import type { Language } from "@/lib/language";
 
 export function ProProductCard({
   product,
   pricingLevel,
   authenticated = true,
+  language = "fr",
 }: {
   product: ProductCardData;
   pricingLevel: PricingLevel | null;
   authenticated?: boolean;
+  language?: Language;
 }) {
   const packPrice = resolveProPrice(product, "PACK", pricingLevel);
   const hasUnit = supportsUnitSale(product);
@@ -33,8 +37,15 @@ export function ProProductCard({
   const isOutOfStock = product.isOutOfStock;
   const packagingLabel =
     product.unitsPerPack > 1
-      ? `Carton de ${buildQuantityLabel(product.unitsPerPack, product.baseUnit, true)}`
-      : buildUnitLabel(product.baseUnit, true);
+      ? translate("Carton de {quantity}", language, {
+          quantity: buildQuantityLabel(
+            product.unitsPerPack,
+            product.baseUnit,
+            true,
+            language,
+          ),
+        })
+      : buildUnitLabel(product.baseUnit, true, language);
 
   return (
     <article
@@ -43,7 +54,7 @@ export function ProProductCard({
     >
       {isOutOfStock && (
         <span
-          className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-bold tracking-[0.1em] text-white"
+          className="absolute start-2 top-2 z-10 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-bold tracking-[0.1em] text-white"
           style={{ background: COLORS.red }}
         >
           <AlertCircle className="h-3 w-3" strokeWidth={2.4} />
@@ -98,6 +109,7 @@ export function ProProductCard({
               product.availableStock,
               product.unitsPerPack,
               product.baseUnit,
+              language,
             )}
           </div>
         )}
@@ -155,14 +167,14 @@ export function ProProductCard({
             >
               <PriceBlock
                 icon={<Package className="h-3 w-3" strokeWidth={2} />}
-                label="PAR CARTON"
+                label={translate("PAR CARTON", language)}
                 price={packPrice}
                 primary
               />
               {hasUnit && unitPrice != null && (
                 <PriceBlock
                   icon={<Box className="h-3 w-3" strokeWidth={2} />}
-                  label="À L'UNITÉ"
+                  label={translate("À L'UNITÉ", language)}
                   price={unitPrice}
                 />
               )}
@@ -255,10 +267,19 @@ export function formatAvailableStock(
   availableStock: number,
   unitsPerPack: number,
   baseUnit: string,
+  language: Language = "fr",
 ): string {
   if (unitsPerPack > 1) {
     const cartons = Math.floor(availableStock / unitsPerPack);
-    return `${cartons} carton${cartons > 1 ? "s" : ""} disponible${cartons > 1 ? "s" : ""}`;
+    return translate(
+      cartons > 1 ? "{count} cartons disponibles" : "{count} carton disponible",
+      language,
+      { count: cartons },
+    );
   }
-  return `${buildQuantityLabel(availableStock, baseUnit, true)} disponible${availableStock > 1 ? "s" : ""}`;
+  return translate(
+    availableStock > 1 ? "{quantity} disponibles" : "{quantity} disponible",
+    language,
+    { quantity: buildQuantityLabel(availableStock, baseUnit, true, language) },
+  );
 }

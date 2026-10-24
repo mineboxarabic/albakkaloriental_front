@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Truck, Heart, Tag, ChevronRight } from "lucide-react";
 import { LoginForm } from "./login-form";
+import { getTranslator } from "@/lib/server-language";
+import { INTER_FONT, MONO_FONT } from "@/lib/ui";
 
 /**
  * "Quantum Systems" design language recolored to the Le Bakkal brand palette:
@@ -20,10 +22,11 @@ const QS = {
   border: "#DDD8CC",
 } as const;
 
-const DISPLAY = "var(--font-inter), 'Inter', system-ui, sans-serif";
-const MONO = "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
+const DISPLAY = INTER_FONT;
+const MONO = MONO_FONT;
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const { t } = await getTranslator();
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-10 pb-16">
       <div
@@ -41,32 +44,33 @@ export default function LoginPage() {
                 className="flex items-center gap-2 text-[11px] font-semibold uppercase"
                 style={{ fontFamily: MONO, letterSpacing: "0.18em", color: QS.accentTextDim }}
               >
-                <span style={{ color: QS.accentText }}>ACCÈS CLIENT</span>
-                <span>/ PARTICULIER</span>
+                <span style={{ color: QS.accentText }}>{t("ACCÈS CLIENT")}</span>
+                <span>/ {t("PARTICULIER")}</span>
               </div>
 
               <h1
                 className="mt-5 text-[40px] font-medium leading-[1.05] tracking-tight"
                 style={{ color: QS.accentText }}
               >
-                Bon retour
+                {t("Bon retour")}
                 <br />
-                à la maison
+                {t("à la maison")}
               </h1>
               <p className="mt-3 max-w-[400px] text-[14px] leading-relaxed" style={{ color: QS.accentTextDim }}>
-                Connectez-vous et retrouvez vos produits orientaux préférés en
-                quelques clics.
+                {t(
+                  "Connectez-vous et retrouvez vos produits orientaux préférés en quelques clics.",
+                )}
               </p>
 
               <ul className="mt-9 space-y-3.5">
                 <Feature icon={<Truck className="h-4 w-4" strokeWidth={2} />}>
-                  Livraison rapide partout en France
+                  {t("Livraison rapide partout en France")}
                 </Feature>
                 <Feature icon={<Heart className="h-4 w-4" strokeWidth={2} />}>
-                  Vos favoris et adresses sauvegardés
+                  {t("Vos favoris et adresses sauvegardés")}
                 </Feature>
                 <Feature icon={<Tag className="h-4 w-4" strokeWidth={2} />}>
-                  Promotions exclusives chaque semaine
+                  {t("Promotions exclusives chaque semaine")}
                 </Feature>
               </ul>
             </div>
@@ -88,16 +92,16 @@ export default function LoginPage() {
               className="text-[11px] font-semibold uppercase"
               style={{ fontFamily: MONO, letterSpacing: "0.16em", color: QS.accent }}
             >
-              Connexion
+              {t("Connexion")}
             </div>
             <h2
               className="mt-2 text-[26px] font-medium leading-tight tracking-tight"
               style={{ color: QS.textPrimary }}
             >
-              Se connecter
+              {t("Se connecter")}
             </h2>
             <p className="mt-1 text-[13px]" style={{ color: QS.textSecondary }}>
-              Accédez à votre compte particulier.
+              {t("Accédez à votre compte particulier.")}
             </p>
 
             <div className="mt-7">
@@ -108,13 +112,13 @@ export default function LoginPage() {
               className="mt-6 rounded-lg border px-4 py-3 text-center text-[12.5px]"
               style={{ background: QS.surfacePanel, borderColor: QS.border, color: QS.textPrimary }}
             >
-              Pas encore membre ?{" "}
+              {t("Pas encore membre ?")}{" "}
               <Link
                 href="/register"
                 className="font-semibold underline-offset-2 hover:underline"
                 style={{ color: QS.accent }}
               >
-                Créer un compte
+                {t("Créer un compte")}
               </Link>
             </div>
 
@@ -123,7 +127,7 @@ export default function LoginPage() {
               className="mt-3 flex items-center justify-center gap-1 text-[11px] font-semibold uppercase transition-opacity hover:opacity-80"
               style={{ fontFamily: MONO, letterSpacing: "0.1em", color: QS.textMuted }}
             >
-              Espace professionnel
+              {t("Espace professionnel")}
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </section>

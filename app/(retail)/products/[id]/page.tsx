@@ -6,15 +6,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { XCircle } from "lucide-react";
 import { getProduct, getProducts } from "@/lib/catalog";
-import { COLORS, buildUnitLabel, productImage } from "@/lib/ui";
+import {
+  COLORS,
+  INTER_FONT,
+  MONO_FONT,
+  buildUnitLabel,
+  productImage,
+} from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { PriceTag } from "@/components/retail/price-tag";
 import { AddToCartButton } from "./add-to-cart-button";
 
-// Match the "Planning de livraison hebdomadaire" typography (Inter + JetBrains Mono).
-const INTER = "var(--font-inter), 'Inter', system-ui, sans-serif";
-const MONO =
-  "var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace";
+// Match the "Planning de livraison hebdomadaire" typography.
+const INTER = INTER_FONT;
+const MONO = MONO_FONT;
 
 export const revalidate = 60;
 
@@ -29,7 +34,7 @@ export default async function ProductDetailPage({
   const { id } = await params;
   const product = await getProduct(id, "retail", language);
   if (!product) notFound();
-  const unitLabel = buildUnitLabel(product.baseUnit);
+  const unitLabel = buildUnitLabel(product.baseUnit, false, language);
 
   // Suggestions: same category first, exclude self, then top up from the rest
   // of the catalogue so the "Vous aimerez aussi" row is always well filled.
@@ -118,7 +123,8 @@ export default async function ProductDetailPage({
             {product.name}
           </h1>
           <div className="mt-1 text-[12.5px]" style={{ color: COLORS.muted }}>
-            <TranslatedText value={"Réf :"} /> {product.sku}
+            <TranslatedText value={"Réf :"} />{" "}
+            <span className="ltr-isolate">{product.sku}</span>
             {unitLabel && <> · {unitLabel}</>}
           </div>
 
@@ -201,7 +207,7 @@ export default async function ProductDetailPage({
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} language={language} />
             ))}
           </div>
         </section>

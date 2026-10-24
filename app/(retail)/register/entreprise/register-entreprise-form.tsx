@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
+import type { Language } from "@/lib/language";
 
 const WHATSAPP_NUMBER = "33766301339";
 
@@ -37,7 +39,21 @@ function isComplete(f: Fields) {
   );
 }
 
-function buildMessage(f: Fields) {
+function buildMessage(f: Fields, language: Language) {
+  if (language === "ar") {
+    return [
+      "مرحباً، أرغب في فتح حساب مهني على موقع البقال الشرقي.",
+      "",
+      `الاسم العائلي: ${f.lastName}`,
+      `الاسم: ${f.firstName}`,
+      `الشركة: ${f.companyName}`,
+      `البريد الإلكتروني: ${f.email}`,
+      `الهاتف: ${f.phone}`,
+      `العنوان: ${f.address}`,
+      "",
+      "أرفقت مستخرج السجل التجاري (KBIS) مع هذه الرسالة. يرجى التواصل معي لإكمال إنشاء حسابي.",
+    ].join("\n");
+  }
   return [
     "Bonjour, je souhaite ouvrir un compte professionnel sur Le Bakkal Oriental.",
     "",
@@ -53,24 +69,25 @@ function buildMessage(f: Fields) {
 }
 
 export function RegisterEntrepriseForm() {
+  const { t, language } = useLanguage();
   const [f, setF] = useState<Fields>(initial);
   const valid = isComplete(f);
 
-  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(f))}`;
+  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(f, language))}`;
 
   const update = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setF((prev) => ({ ...prev, [key]: e.target.value }));
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Prénom" name="firstName" value={f.firstName} onChange={update("firstName")} />
-        <Field label="Nom" name="lastName" value={f.lastName} onChange={update("lastName")} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field label={t("Prénom")} name="firstName" value={f.firstName} onChange={update("firstName")} />
+        <Field label={t("Nom")} name="lastName" value={f.lastName} onChange={update("lastName")} />
       </div>
-      <Field label="Nom de l'entreprise" name="companyName" value={f.companyName} onChange={update("companyName")} />
-      <Field label="Adresse e-mail" name="email" value={f.email} onChange={update("email")} type="email" placeholder="contact@entreprise.com" />
-      <Field label="Téléphone" name="phone" value={f.phone} onChange={update("phone")} type="tel" placeholder="06 12 34 56 78" />
-      <Field label="Adresse de l'entreprise" name="address" value={f.address} onChange={update("address")} />
+      <Field label={t("Nom de l'entreprise")} name="companyName" value={f.companyName} onChange={update("companyName")} />
+      <Field label={t("Adresse e-mail")} name="email" value={f.email} onChange={update("email")} type="email" placeholder="contact@entreprise.com" />
+      <Field label={t("Téléphone")} name="phone" value={f.phone} onChange={update("phone")} type="tel" placeholder="06 12 34 56 78" />
+      <Field label={t("Adresse de l'entreprise")} name="address" value={f.address} onChange={update("address")} />
 
       <a
         href={valid ? waUrl : undefined}
@@ -89,19 +106,19 @@ export function RegisterEntrepriseForm() {
       >
         <span className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5" strokeWidth={1.8} />
-          Envoyer mon KBIS via WhatsApp
+          {t("Envoyer mon KBIS via WhatsApp")}
         </span>
       </a>
 
       {!valid && (
         <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
-          Renseignez tous les champs pour activer le bouton WhatsApp.
+          {t("Renseignez tous les champs pour activer le bouton WhatsApp.")}
         </p>
       )}
       {valid && (
         <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
-          Le bouton ouvre WhatsApp avec un message pré-rempli adressé au{" "}
-          <strong>+33 7 66 30 13 39</strong>.
+          {t("Le bouton ouvre WhatsApp avec un message pré-rempli adressé au")}{" "}
+          <strong className="ltr-isolate">+33 7 66 30 13 39</strong>.
         </p>
       )}
     </div>

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { User, Building2, ChevronRight } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
 
-export default function RegisterChoicePage() {
+export default async function RegisterChoicePage() {
+  const { t } = await getTranslator();
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-12 pb-16">
       <header className="mx-auto max-w-[720px] text-center">
@@ -10,38 +12,42 @@ export default function RegisterChoicePage() {
           className="text-[32px] font-extrabold tracking-tight"
           style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
         >
-          Créer un compte
+          {t("Créer un compte")}
         </h1>
         <p className="mt-2 text-[14px]" style={{ color: COLORS.muted }}>
-          Choisissez le type de compte qui vous correspond.
+          {t("Choisissez le type de compte qui vous correspond.")}
         </p>
       </header>
 
-      <div className="mx-auto mt-10 grid max-w-[820px] grid-cols-2 gap-4">
+      <div className="mx-auto mt-10 grid max-w-[820px] grid-cols-1 gap-4 sm:grid-cols-2">
         <ChoiceCard
           href="/register/particulier"
           icon={<User className="h-6 w-6" strokeWidth={1.8} />}
-          title="Je suis un particulier"
-          description="Créez un compte personnel pour commander en quelques clics et suivre vos livraisons."
-          cta="Continuer en particulier"
+          title={t("Je suis un particulier")}
+          description={t(
+            "Créez un compte personnel pour commander en quelques clics et suivre vos livraisons.",
+          )}
+          cta={t("Continuer en particulier")}
         />
         <ChoiceCard
           href="/register/entreprise"
           icon={<Building2 className="h-6 w-6" strokeWidth={1.8} />}
-          title="Je suis une entreprise"
-          description="Accès au catalogue professionnel avec tarifs négociés. Validation par notre équipe."
-          cta="Continuer en entreprise"
+          title={t("Je suis une entreprise")}
+          description={t(
+            "Accès au catalogue professionnel avec tarifs négociés. Validation par notre équipe.",
+          )}
+          cta={t("Continuer en entreprise")}
         />
       </div>
 
       <p className="mt-8 text-center text-[13px]" style={{ color: COLORS.muted }}>
-        Vous avez déjà un compte ?{" "}
+        {t("Vous avez déjà un compte ?")}{" "}
         <Link
           href="/login"
           className="font-semibold hover:underline"
           style={{ color: COLORS.primary }}
         >
-          Se connecter
+          {t("Se connecter")}
         </Link>
       </p>
     </main>

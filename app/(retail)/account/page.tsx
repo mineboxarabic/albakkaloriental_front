@@ -6,14 +6,11 @@ import { logoutRetail } from "@/actions/retail-auth";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { AccountEditForm } from "./account-edit-form";
 import { ChangePasswordForm } from "./change-password-form";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate } from "@/lib/language";
 
 export const dynamic = "force-dynamic";
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 
 function splitName(name: string): { firstName: string; lastName: string } {
   const trimmed = name.trim();
@@ -37,13 +34,14 @@ export default async function AccountPage() {
   const email = meResult.user.email;
   const { firstName, lastName } = splitName(customer.name);
   const orderCount = ordersResult.ok ? ordersResult.orders.length : 0;
+  const { t, language } = await getTranslator();
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-10 pb-16">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
-        <Link href="/" className="hover:underline">Accueil</Link>{" "}
+        <Link href="/" className="hover:underline">{t("Accueil")}</Link>{" "}
         <span className="mx-1">›</span>
-        <span style={{ color: COLORS.text }}>Mon compte</span>
+        <span style={{ color: COLORS.text }}>{t("Mon compte")}</span>
       </nav>
 
       <header className="mt-4 flex items-center gap-4">
@@ -58,10 +56,17 @@ export default async function AccountPage() {
             className="text-[28px] font-extrabold leading-tight tracking-tight"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Bonjour, {customer.name} <span aria-hidden>👋</span>
+            {t("Bonjour, {name}", { name: customer.name })}{" "}
+            <span aria-hidden>👋</span>
           </h1>
           <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
-            Membre depuis le {DATE_FMT.format(new Date(customer.createdAt))}
+            {t("Membre depuis le {date}", {
+              date: formatDate(customer.createdAt, language, {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              }),
+            })}
           </p>
         </div>
       </header>
@@ -88,7 +93,7 @@ export default async function AccountPage() {
             style={{ borderColor: COLORS.border }}
           >
             <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.muted }}>
-              ADRESSE E-MAIL
+              {t("ADRESSE E-MAIL")}
             </div>
             <div className="mt-4 flex items-center gap-3">
               <div
@@ -99,11 +104,12 @@ export default async function AccountPage() {
               </div>
               <div className="flex-1 leading-tight">
                 <div className="text-[14px] font-semibold" style={{ color: COLORS.text }}>
-                  {email}
+                  <span className="ltr-isolate">{email}</span>
                 </div>
                 <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                  Pour modifier votre adresse e-mail, contactez le support
-                  (re-vérification requise — bientôt disponible).
+                  {t(
+                    "Pour modifier votre adresse e-mail, contactez le support (re-vérification requise — bientôt disponible).",
+                  )}
                 </div>
               </div>
             </div>
@@ -125,14 +131,15 @@ export default async function AccountPage() {
               </div>
               <div className="flex-1">
                 <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                  Commandes passées
+                  {t("Commandes passées")}
                 </div>
                 <div className="text-[22px] font-extrabold" style={{ color: COLORS.text }}>
                   {orderCount}
                 </div>
               </div>
               <span className="text-[11.5px] font-semibold" style={{ color: COLORS.primary }}>
-                Voir tout →
+                {t("Voir tout")}{" "}
+                <span aria-hidden className="inline-block rtl:-scale-x-100">→</span>
               </span>
             </div>
           </Link>
@@ -144,7 +151,7 @@ export default async function AccountPage() {
               style={{ borderColor: COLORS.border, color: COLORS.red, background: "#FFFFFF" }}
             >
               <LogOut className="h-4 w-4" strokeWidth={2} />
-              Se déconnecter
+              {t("Se déconnecter")}
             </button>
           </form>
         </aside>

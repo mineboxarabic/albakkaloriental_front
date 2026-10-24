@@ -3,6 +3,7 @@ import { Receipt, AlertTriangle } from "lucide-react";
 import { listProInvoices } from "@/actions/pro-me";
 import { ProInvoicesList } from "./pro-invoices-list";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export default async function ProInvoicesPage() {
 
   const invoices = result.invoices;
   const totalOutstanding = invoices.reduce((sum, invoice) => sum + invoice.remainingAmount, 0);
+  const { t, language } = await getTranslator();
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -26,25 +28,27 @@ export default async function ProInvoicesPage() {
         className="text-[24px] font-extrabold tracking-tight sm:text-[28px]"
         style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
       >
-        Mes factures
+        {t("Mes factures")}
       </h1>
       <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
-        Historique de vos factures professionnelles ({invoices.length}).
+        {t("Historique de vos factures professionnelles ({count}).", {
+          count: invoices.length,
+        })}
       </p>
 
       {totalOutstanding > 0 && (
         <div
-          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border-l-4 bg-white px-5 py-4"
+          className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border-s-4 bg-white px-5 py-4"
           style={{ borderColor: "#7A5409", background: "#FFF8EA" }}
         >
           <div className="flex items-center gap-3">
             <AlertTriangle className="h-5 w-5" style={{ color: "#7A5409" }} />
             <div>
               <div className="text-[13px] font-bold" style={{ color: "#5C3F06" }}>
-                Solde en attente
+                {t("Solde en attente")}
               </div>
               <div className="text-[11.5px]" style={{ color: "#7A5409" }}>
-                Total des factures non réglées.
+                {t("Total des factures non réglées.")}
               </div>
             </div>
           </div>
@@ -61,14 +65,14 @@ export default async function ProInvoicesPage() {
         >
           <Receipt className="mx-auto h-10 w-10" style={{ color: COLORS.muted }} strokeWidth={1.5} />
           <h2 className="mt-3 text-[16px] font-bold" style={{ color: COLORS.text }}>
-            Aucune facture
+            {t("Aucune facture")}
           </h2>
           <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
-            Vos factures apparaîtront ici dès qu&apos;une commande est livrée et facturée.
+            {t("Vos factures apparaîtront ici dès qu'une commande est livrée et facturée.")}
           </p>
         </div>
       ) : (
-        <ProInvoicesList invoices={invoices} />
+        <ProInvoicesList invoices={invoices} language={language} />
       )}
     </main>
   );

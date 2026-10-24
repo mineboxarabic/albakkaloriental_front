@@ -35,7 +35,7 @@ export function CatalogSortSelect({
   return (
     <div className={`relative ${className}`}>
       <ArrowUpDown
-        className="pointer-events-none absolute left-3 top-2.5 h-4 w-4"
+        className="pointer-events-none absolute start-3 top-2.5 h-4 w-4"
         style={{ color: isDark ? "rgba(255,255,255,0.55)" : COLORS.muted }}
         strokeWidth={2}
       />
@@ -43,7 +43,7 @@ export function CatalogSortSelect({
         aria-label={t("Trier les produits")}
         value={current}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 w-full appearance-none rounded-md border pl-9 pr-8 text-[13px] outline-none transition focus:border-[#3F561F]"
+        className="h-9 w-full appearance-none rounded-md border ps-9 pe-8 text-[13px] outline-none transition focus:border-[#3F561F]"
         style={{
           background: isDark ? "rgba(255,255,255,0.08)" : "#FFFFFF",
           borderColor: isDark ? "rgba(255,255,255,0.2)" : COLORS.border,

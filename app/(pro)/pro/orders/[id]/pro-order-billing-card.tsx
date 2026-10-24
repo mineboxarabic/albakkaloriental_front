@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Clock, Download } from "lucide-react";
 import { COLORS } from "@/lib/ui";
 import type { ProInvoice } from "@/actions/pro-me";
+import { translate, type TranslationParams } from "@/lib/translations";
+import type { Language } from "@/lib/language";
 
 function formatPrice(amount: number): string {
   return new Intl.NumberFormat("fr-FR", {
@@ -18,10 +20,14 @@ type OrderBilling = {
 export function ProOrderBillingCard({
   billing,
   orderStatus,
+  language = "fr",
 }: {
   billing: OrderBilling;
   orderStatus: string;
+  language?: Language;
 }) {
+  const t = (text: string, params?: TranslationParams) =>
+    translate(text, language, params);
   if (billing.invoices.length === 0) {
     if (billing.state !== "UNINVOICED" || orderStatus !== "DELIVERED") return null;
     return (
@@ -31,10 +37,10 @@ export function ProOrderBillingCard({
       >
         <div className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: COLORS.text }}>
           <Clock className="h-4 w-4" style={{ color: COLORS.muted }} />
-          Facturation en préparation
+          {t("Facturation en préparation")}
         </div>
         <p className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
-          Cette commande sera bientôt ajoutée à une facture.
+          {t("Cette commande sera bientôt ajoutée à une facture.")}
         </p>
       </div>
     );
@@ -51,24 +57,30 @@ export function ProOrderBillingCard({
             style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
           >
             <p className="text-[13px]" style={{ color: COLORS.text }}>
-              Cette commande est incluse dans la facture {invoice.invoiceNumber}
-              {otherOrders > 0 ? ` avec ${otherOrders} autres commandes` : ""}
+              {t("Cette commande est incluse dans la facture {number}", {
+                number: invoice.invoiceNumber,
+              })}
+              {otherOrders > 1
+                ? t(" avec {count} autres commandes", { count: otherOrders })
+                : otherOrders === 1
+                  ? t(" avec 1 autre commande")
+                  : ""}
             </p>
             <p className="mt-1 text-[11.5px]" style={{ color: COLORS.muted }}>
-              Paiements suivis au niveau de la facture.
+              {t("Paiements suivis au niveau de la facture.")}
             </p>
             <div className="mt-3 flex items-center justify-between gap-3">
               <div className="text-[13px]" style={{ color: COLORS.muted }}>
                 {invoice.remainingAmount > 0 ? (
                   <>
-                    Reste à payer sur la facture :{" "}
+                    {t("Reste à payer sur la facture :")}{" "}
                     <span className="font-semibold" style={{ color: "#7A5409" }}>
                       {formatPrice(invoice.remainingAmount)}
                     </span>
                   </>
                 ) : (
                   <span className="font-semibold" style={{ color: COLORS.primary }}>
-                    Facture réglée
+                    {t("Facture réglée")}
                   </span>
                 )}
               </div>
@@ -76,12 +88,14 @@ export function ProOrderBillingCard({
                 href={`/pro/invoices/${invoice.id}/pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`PDF de la facture ${invoice.invoiceNumber}`}
+                aria-label={t("PDF de la facture {number}", {
+                  number: invoice.invoiceNumber,
+                })}
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-3 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em]"
                 style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
               >
                 <Download className="h-3.5 w-3.5" />
-                Télécharger la facture
+                {t("Télécharger la facture")}
               </Link>
             </div>
           </div>

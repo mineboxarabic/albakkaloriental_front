@@ -1,5 +1,12 @@
 "use client";
 import { useLanguage } from "@/components/language-provider";
-export function TranslatedText({ value }: { value: string }) {
-  return useLanguage().t(value);
+import type { TranslationParams } from "@/lib/translations";
+export function TranslatedText({
+  value,
+  params,
+}: {
+  value: string;
+  params?: TranslationParams;
+}) {
+  return useLanguage().t(value, params);
 }

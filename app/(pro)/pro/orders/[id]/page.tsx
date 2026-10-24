@@ -15,6 +15,9 @@ import { getProOrderById } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { ProOrderBillingCard } from "./pro-order-billing-card";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate } from "@/lib/language";
+import { getLocalizedProductNames } from "@/lib/catalog-navigation-server";
 
 export const dynamic = "force-dynamic";
 
@@ -68,11 +71,6 @@ const STATUS_FALLBACK = {
   description: "Statut non reconnu, contactez le support.",
 } satisfies (typeof STATUS_META)[string];
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 
 const TAX_RATE = 20;
 
@@ -92,16 +90,20 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   // order.billing, never split back onto the order (see ProOrderBillingCard).
   const total = order.totalAmount;
   const tva = Number((total * (TAX_RATE / 100)).toFixed(2));
+  const { t, language } = await getTranslator();
+  const productNames = await getLocalizedProductNames("pro", language);
+  const longDate = (d: string | Date) =>
+    formatDate(d, language, { day: "2-digit", month: "long", year: "numeric" });
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
         <Link href="/pro/products" className="hover:underline">
-          Catalogue pro
+          {t("Catalogue pro")}
         </Link>{" "}
         <span className="mx-1">›</span>
         <Link href="/pro/orders" className="hover:underline">
-          Mes commandes
+          {t("Mes commandes")}
         </Link>{" "}
         <span className="mx-1">›</span>
         <span style={{ color: COLORS.text }}>{order.orderNumber}</span>
@@ -114,7 +116,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           style={{ color: COLORS.muted }}
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Retour
+          {t("Retour")}
         </Link>
       </div>
 
@@ -124,11 +126,11 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             className="text-[22px] font-extrabold tracking-tight sm:text-[28px]"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Commande {order.orderNumber}
+            {t("Commande {number}", { number: order.orderNumber })}
           </h1>
           <p className="mt-1 text-[12.5px] flex items-center gap-1" style={{ color: COLORS.muted }}>
             <Calendar className="h-3.5 w-3.5" />
-            {DATE_FMT.format(new Date(order.orderDate))}
+            {longDate(order.orderDate)}
           </p>
         </div>
 
@@ -138,7 +140,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             style={{ background: meta.bg, color: meta.color }}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
-            {meta.label.toUpperCase()}
+            {t(meta.label).toLocaleUpperCase("fr")}
           </span>
         </div>
       </header>
@@ -148,21 +150,23 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         style={{ borderColor: COLORS.border }}
       >
         <p className="text-[13px]" style={{ color: COLORS.muted }}>
-          {meta.description}
+          {t(meta.description)}
         </p>
         <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
             <div className="flex-1">
               <div className="font-semibold" style={{ color: COLORS.text }}>
-                {order.status === "PENDING" ? "Devis" : "Bon de commande"}
+                {order.status === "PENDING" ? t("Devis") : t("Bon de commande")}
               </div>
               <div className="text-[11.5px]" style={{ color: COLORS.muted }}>
-                Récapitulatif de votre commande {order.orderNumber}
+                {t("Récapitulatif de votre commande {number}", {
+                  number: order.orderNumber,
+                })}
               </div>
             </div>
           </div>
-          <div className="flex gap-2 sm:ml-auto">
+          <div className="flex gap-2 sm:ms-auto">
             <a
               href={`/pro/orders/${order.id}/pdf`}
               target="_blank"
@@ -171,7 +175,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
               style={{ borderColor: COLORS.border, color: COLORS.text, background: "#FFFFFF" }}
             >
               <Download className="h-3 w-3" />
-              Télécharger le PDF
+              {t("Télécharger le PDF")}
             </a>
           </div>
         </div>
@@ -186,10 +190,10 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
             style={{ color: COLORS.muted, background: "#FAF8F2" }}
           >
-            <div className="col-span-6">PRODUIT</div>
-            <div className="col-span-2 text-center">QTÉ</div>
-            <div className="col-span-2 text-right">PU HT</div>
-            <div className="col-span-2 text-right">TOTAL HT</div>
+            <div className="col-span-6">{t("PRODUIT")}</div>
+            <div className="col-span-2 text-center">{t("QTÉ")}</div>
+            <div className="col-span-2 text-end">{t("PU HT")}</div>
+            <div className="col-span-2 text-end">{t("TOTAL HT")}</div>
           </div>
 
           <ul>
@@ -206,7 +210,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                   >
                     <Image
                       src={productImage(it.product.imageUrl)}
-                      alt={it.product.name}
+                      alt={productNames[it.productId] ?? it.product.name}
                       width={80}
                       height={80}
                       className="h-full w-full object-cover"
@@ -214,14 +218,14 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                   </div>
                   <div className="min-w-0 flex-1 leading-tight">
                     <div className="font-semibold" style={{ color: COLORS.text }}>
-                      {it.product.name}
+                      {productNames[it.productId] ?? it.product.name}
                     </div>
                     <div className="text-[11px]" style={{ color: COLORS.muted }}>
-                      Réf {it.product.sku}
+                      {t("Réf")} <span className="ltr-isolate">{it.product.sku}</span>
                     </div>
                   </div>
                   {/* Mobile line total */}
-                  <div className="text-right font-bold md:hidden" style={{ color: COLORS.text }}>
+                  <div className="text-end font-bold md:hidden" style={{ color: COLORS.text }}>
                     {formatPriceEUR(it.totalPrice)}
                   </div>
                 </div>
@@ -231,19 +235,22 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
                   className="mt-2 flex items-center gap-1.5 text-[12px] md:hidden"
                   style={{ color: COLORS.muted }}
                 >
-                  <span className="font-semibold" style={{ color: COLORS.text }}>
-                    {it.quantity}
-                  </span>
-                  × {formatPriceEUR(it.unitPrice)} HT
+                  <span className="ltr-isolate">
+                    <span className="font-semibold" style={{ color: COLORS.text }}>
+                      {it.quantity}
+                    </span>{" "}
+                    × {formatPriceEUR(it.unitPrice)}
+                  </span>{" "}
+                  {t("HT")}
                 </div>
 
                 <div className="hidden text-center font-semibold md:col-span-2 md:block" style={{ color: COLORS.text }}>
                   {it.quantity}
                 </div>
-                <div className="hidden text-right md:col-span-2 md:block" style={{ color: COLORS.muted }}>
+                <div className="hidden text-end md:col-span-2 md:block" style={{ color: COLORS.muted }}>
                   {formatPriceEUR(it.unitPrice)}
                 </div>
-                <div className="hidden text-right font-bold md:col-span-2 md:block" style={{ color: COLORS.text }}>
+                <div className="hidden text-end font-bold md:col-span-2 md:block" style={{ color: COLORS.text }}>
                   {formatPriceEUR(it.totalPrice)}
                 </div>
               </li>
@@ -256,18 +263,21 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           style={{ borderColor: COLORS.border }}
         >
           <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.text }}>
-            RÉCAPITULATIF
+            {t("RÉCAPITULATIF")}
           </div>
           <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
-            <Row label="Sous-total HT" value={formatPriceEUR(total)} />
-            <Row label={`dont TVA ${TAX_RATE}%`} value={formatPriceEUR(tva)} />
+            <Row label={t("Sous-total HT")} value={formatPriceEUR(total)} />
+            <Row
+              label={t("dont TVA {rate}%", { rate: TAX_RATE })}
+              value={formatPriceEUR(tva)}
+            />
           </dl>
           <div
             className="mt-4 flex items-center justify-between border-t pt-4"
             style={{ borderColor: COLORS.border }}
           >
             <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-              Total
+              {t("Total")}
             </span>
             <span className="text-[22px] font-extrabold" style={{ color: COLORS.primary }}>
               {formatPriceEUR(total)}
@@ -275,19 +285,23 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           </div>
           {order.deliveryCity && (
             <div
-              className="mt-5 rounded-sm border-l-2 px-3 py-2 text-[11.5px]"
+              className="mt-5 rounded-sm border-s-2 px-3 py-2 text-[11.5px]"
               style={{ borderColor: COLORS.primary, background: "#FAF8F2", color: COLORS.muted }}
             >
               <div className="flex items-center gap-1.5 font-bold" style={{ color: COLORS.text }}>
                 <Package className="h-3 w-3" />
-                Livraison
+                {t("Livraison")}
               </div>
               {order.deliveryCity.name} ·{" "}
-              {DATE_FMT.format(new Date(order.deliveryCity.delivery.scheduledDate))}
+              {longDate(order.deliveryCity.delivery.scheduledDate)}
             </div>
           )}
 
-          <ProOrderBillingCard billing={order.billing} orderStatus={order.status} />
+          <ProOrderBillingCard
+            billing={order.billing}
+            orderStatus={order.status}
+            language={language}
+          />
         </aside>
       </section>
     </main>

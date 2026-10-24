@@ -1,5 +1,6 @@
 import { TranslatedText } from "@/components/translated-text";
 import { getLanguage } from "@/lib/server-language";
+import { translate } from "@/lib/translations";
 import { ProductDescription } from "@/components/product-description";
 import Image from "next/image";
 import Link from "next/link";
@@ -40,8 +41,15 @@ export default async function ProProductDetailPage({
   if (!product) notFound();
   const packagingLabel =
     product.unitsPerPack > 1
-      ? `Carton de ${buildQuantityLabel(product.unitsPerPack, product.baseUnit, true)}`
-      : buildUnitLabel(product.baseUnit, true);
+      ? translate("Carton de {quantity}", language, {
+          quantity: buildQuantityLabel(
+            product.unitsPerPack,
+            product.baseUnit,
+            true,
+            language,
+          ),
+        })
+      : buildUnitLabel(product.baseUnit, true, language);
 
   const firstCategory = product.categoryCode || product.category;
   const { products: relatedRaw } = await getProducts({
@@ -124,7 +132,8 @@ export default async function ProProductDetailPage({
             style={{ color: COLORS.muted }}
           >
             <span>
-              <TranslatedText value={"Réf :"} /> {product.sku}
+              <TranslatedText value={"Réf :"} />{" "}
+              <span className="ltr-isolate">{product.sku}</span>
             </span>
             {packagingLabel && (
               <>
@@ -178,6 +187,7 @@ export default async function ProProductDetailPage({
                 product={p}
                 pricingLevel={session?.pricingLevel ?? null}
                 authenticated={authenticated}
+                language={language}
               />
             ))}
           </div>

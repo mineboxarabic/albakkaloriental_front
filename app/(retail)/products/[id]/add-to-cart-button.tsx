@@ -8,11 +8,13 @@ import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
 import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
+import { useLanguage } from "@/components/language-provider";
 
 export function AddToCartButton({ item }: { item: AddCartItem }) {
   const { addItem, items } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
+  const { t } = useLanguage();
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
         >
           <button
             type="button"
-            aria-label="Diminuer la quantité"
+            aria-label={t("Diminuer la quantité")}
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
             style={{ color: COLORS.text }}
@@ -47,7 +49,7 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
           </div>
           <button
             type="button"
-            aria-label="Augmenter la quantité"
+            aria-label={t("Augmenter la quantité")}
             onClick={() => setQty((q) => Math.min(remainingQty, q + 1))}
             disabled={effectiveQty >= remainingQty}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
@@ -70,7 +72,7 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
               setConfirmed(true);
               window.setTimeout(() => setConfirmed(false), 1400);
             } else {
-              setError(res.error || "Une erreur est survenue.");
+              setError(t(res.error || "Une erreur est survenue."));
             }
           }}
           disabled={remainingQty === 0}
@@ -78,7 +80,7 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
           style={{ background: confirmed ? "#2E3F17" : COLORS.primary }}
         >
           {remainingQty === 0 ? (
-            "Quantité maximale atteinte"
+            t("Quantité maximale atteinte")
           ) : !isConnected ? (
             <>
               <Lock className="h-4 w-4" strokeWidth={2} />

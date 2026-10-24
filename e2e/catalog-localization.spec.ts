@@ -227,7 +227,8 @@ test("Arabic category navigation fits a phone", async ({ page }) => {
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  await expect(page.getByRole("main").locator("img")).toHaveCount(6);
+  // Six parent category photos plus one thumbnail per subcategory shortcut.
+  await expect(page.getByRole("main").locator("img")).toHaveCount(7);
   const dismissCookies = page.getByRole("button", { name: "فهمت" });
   await dismissCookies.click();
   for (const image of await page.getByRole("main").locator("img").all()) {

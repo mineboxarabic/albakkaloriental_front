@@ -18,6 +18,7 @@ import { ProductCard } from "@/components/retail/product-card";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
 import { CatalogSortSelect } from "@/components/catalog-sort-select";
+import { SubcategoryChip } from "@/components/browse-cards";
 export type CatalogSearchParams = {
   category?: string;
   marque?: string;
@@ -46,6 +47,15 @@ export async function CatalogBrowser({
     ...navigation,
     ...navigation.flatMap((c) => c.children),
   ].find((c) => c.value === params.category || c.name === params.category);
+  // Subcategory shortcuts: the children of the selected category, or its
+  // siblings when a subcategory is selected.
+  const parentOfSelected = category
+    ? (navigation.find((parent) => parent.id === category.id) ??
+      navigation.find((parent) =>
+        parent.children.some((child) => child.id === category.id),
+      ))
+    : undefined;
+  const subcategoryShortcuts = parentOfSelected?.children ?? [];
   const filtered = products.filter(
     (p) =>
       (!params.category || matchesCategory(p, params.category)) &&
@@ -148,7 +158,28 @@ export async function CatalogBrowser({
             </details>
           )}
         </aside>
-        <section aria-label={t("Produits")}>
+        <section aria-label={t("Produits")} className="min-w-0">
+          {subcategoryShortcuts.length > 0 && (
+            <nav
+              aria-label={t("Sous-catégories")}
+              className="-mx-1 mb-5 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-none"
+            >
+              {subcategoryShortcuts.map((child) => (
+                <div key={child.id} className="w-[180px] shrink-0">
+                  <SubcategoryChip
+                    name={child.label}
+                    image={child.image}
+                    imageFit={child.imageFit}
+                    href={`${base}?${new URLSearchParams({
+                      category: child.value,
+                      ...(params.sort ? { sort: params.sort } : {}),
+                    }).toString()}`}
+                    active={child.id === category?.id}
+                  />
+                </div>
+              ))}
+            </nav>
+          )}
           {sorted.length === 0 ? (
             <p className="rounded-lg border border-[#DDD8CC] bg-white p-8 text-center text-sm">
               {t("Aucun produit trouvé.")}
@@ -162,9 +193,14 @@ export async function CatalogBrowser({
                     product={product}
                     authenticated={Boolean(me?.ok)}
                     pricingLevel={me?.ok ? me.customer.pricingLevel : null}
+                    language={language}
                   />
                 ) : (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    language={language}
+                  />
                 ),
               )}
             </div>

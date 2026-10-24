@@ -9,6 +9,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useLanguage } from "@/components/language-provider";
+import { translate } from "@/lib/translations";
+import { parseLanguage } from "@/lib/language";
 import {
   addRetailCartItem,
   clearRetailCart,
@@ -119,9 +122,12 @@ function getActions(audience: CartAudience) {
 export function CartProvider({
   audience,
   isAuthenticated,
+  productNames,
   children,
 }: {
   audience: CartAudience;
+  /** Localized product names by id (Arabic); the cart API only sends French. */
+  productNames?: Record<string, string>;
   /** Pro audience only: whether a B2B session exists. Pro pages are now public,
    *  so the cart must not call the auth-required endpoint for guests. */
   isAuthenticated?: boolean;
@@ -130,6 +136,7 @@ export function CartProvider({
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const openCart = useCallback(() => setIsCartOpen(true), []);
   const closeCart = useCallback(() => setIsCartOpen(false), []);
@@ -153,7 +160,14 @@ export function CartProvider({
           const clone = response.clone();
           const text = await clone.text();
           if (text.includes('"isUnauthorized":true')) {
-            alert("Votre session a expiré. Veuillez vous reconnecter.");
+            // Read the live <html lang> so a language switch made after this
+            // one-time interceptor was installed is still honoured.
+            alert(
+              translate(
+                "Votre session a expiré. Veuillez vous reconnecter.",
+                parseLanguage(document.documentElement.lang),
+              ),
+            );
             window.location.href = window.location.pathname.startsWith("/pro")
               ? "/pro/login"
               : "/login";
@@ -181,12 +195,12 @@ export function CartProvider({
       setItems([]);
       setError(result.error);
       if (result.isUnauthorized) {
-        alert("Votre session a expiré. Veuillez vous reconnecter.");
+        alert(t("Votre session a expiré. Veuillez vous reconnecter."));
         window.location.href = audience === "retail" ? "/login" : "/pro/login";
       }
     }
     setLoading(false);
-  }, [actions, audience, isConnected, isLoginPage]);
+  }, [actions, audience, isConnected, isLoginPage, t]);
 
   useEffect(() => {
     refresh();
@@ -194,15 +208,21 @@ export function CartProvider({
 
   const addItem = useCallback(
     async (item: AddCartItem, quantity = 1) => {
-      if (quantity <= 0) return { ok: false, error: "La quantité doit être positive." };
+      if (quantity <= 0)
+        return { ok: false, error: t("La quantité doit être positive.") };
       const existingQty =
         items.find((i) => i.productId === item.productId)?.quantity ?? 0;
       const maxQty = audience === "retail" ? MAX_QTY_PER_PRODUCT : 999;
       if (existingQty + quantity > maxQty) {
         const errMsg =
           audience === "retail"
-            ? `Vous ne pouvez pas commander plus de ${MAX_QTY_PER_PRODUCT} unités du même produit.`
-            : `Vous ne pouvez pas commander plus de 999 unités/cartons du même produit.`;
+            ? t(
+                "Vous ne pouvez pas commander plus de {max} unités du même produit.",
+                { max: MAX_QTY_PER_PRODUCT },
+              )
+            : t(
+                "Vous ne pouvez pas commander plus de 999 unités/cartons du même produit.",
+              );
         setError(errMsg);
         return { ok: false, error: errMsg };
       }
@@ -214,7 +234,7 @@ export function CartProvider({
       if (!result.ok) {
         setError(result.error);
         if (result.isUnauthorized) {
-          alert("Votre session a expiré. Veuillez vous reconnecter.");
+          alert(t("Votre session a expiré. Veuillez vous reconnecter."));
           window.location.href = audience === "retail" ? "/login" : "/pro/login";
         }
         return { ok: false, error: result.error };
@@ -222,7 +242,7 @@ export function CartProvider({
       await refresh();
       return { ok: true };
     },
-    [actions, refresh, items, audience],
+    [actions, refresh, items, audience, t],
   );
 
   const updateQty = useCallback(
@@ -233,7 +253,7 @@ export function CartProvider({
       if (!result.ok) {
         setError(result.error);
         if (result.isUnauthorized) {
-          alert("Votre session a expiré. Veuillez vous reconnecter.");
+          alert(t("Votre session a expiré. Veuillez vous reconnecter."));
           window.location.href = audience === "retail" ? "/login" : "/pro/login";
         }
         return { ok: false, error: result.error };
@@ -241,7 +261,7 @@ export function CartProvider({
       await refresh();
       return { ok: true };
     },
-    [actions, refresh, audience],
+    [actions, refresh, audience, t],
   );
 
   const removeItem = useCallback(
@@ -250,7 +270,7 @@ export function CartProvider({
       if (!result.ok) {
         setError(result.error);
         if (result.isUnauthorized) {
-          alert("Votre session a expiré. Veuillez vous reconnecter.");
+          alert(t("Votre session a expiré. Veuillez vous reconnecter."));
           window.location.href = audience === "retail" ? "/login" : "/pro/login";
         }
         return { ok: false, error: result.error };
@@ -258,7 +278,7 @@ export function CartProvider({
       await refresh();
       return { ok: true };
     },
-    [actions, refresh, audience],
+    [actions, refresh, audience, t],
   );
 
   const clearCart = useCallback(async () => {
@@ -266,20 +286,25 @@ export function CartProvider({
     if (!result.ok) {
       setError(result.error);
       if (result.isUnauthorized) {
-        alert("Votre session a expiré. Veuillez vous reconnecter.");
+        alert(t("Votre session a expiré. Veuillez vous reconnecter."));
         window.location.href = audience === "retail" ? "/login" : "/pro/login";
       }
       return { ok: false, error: result.error };
     }
     await refresh();
     return { ok: true };
-  }, [actions, refresh, audience]);
+  }, [actions, refresh, audience, t]);
 
   const value = useMemo<CartContextValue>(() => {
     const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
     const itemCount = items.reduce((s, it) => s + it.quantity, 0);
     return {
-      items,
+      items: productNames
+        ? items.map((it) => ({
+            ...it,
+            name: productNames[it.productId] ?? it.name,
+          }))
+        : items,
       loading,
       error,
       addItem,
@@ -293,7 +318,7 @@ export function CartProvider({
       openCart,
       closeCart,
     };
-  }, [items, loading, error, addItem, updateQty, removeItem, clearCart, refresh, isCartOpen, openCart, closeCart]);
+  }, [items, productNames, loading, error, addItem, updateQty, removeItem, clearCart, refresh, isCartOpen, openCart, closeCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

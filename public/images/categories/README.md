@@ -14,3 +14,18 @@ Subjects:
 - `maison-hygiene.webp`: olive oil soap, linen towel, wooden brush and cotton shopping bag.
 
 Backend category image URLs take priority. Subcategories inherit their parent's image until a dedicated image is configured. New categories without artwork use the existing product placeholder; categories are never renamed or created by the artwork mapping.
+
+## Subcategories and categories without artwork
+
+Image priority for every category shown on the storefront
+(`lib/catalog-navigation.ts`):
+
+1. the image uploaded in the back office (`Category.imageUrl`);
+2. the artwork above, matched by category `code`;
+3. the photo of an in-stock product sold in that category (shown whole, on
+   white, since it is a packshot);
+4. the parent category's artwork, then the neutral placeholder.
+
+So subcategories (riz-pates, epices, cafes…) and any category created later in
+the back office get their own picture without a code change. Uploading an image
+in the back office overrides the automatic choice.

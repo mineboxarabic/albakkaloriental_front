@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { registerRetail, type RegisterState } from "@/actions/retail-auth";
 import { AddressAutocompleteFields } from "@/components/address-autocomplete-fields";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 
 const initial: RegisterState = null;
 
@@ -15,29 +16,33 @@ export function RegisterParticulierForm() {
     initial,
   );
   const [zoneDenied, setZoneDenied] = useState(false);
+  const { t } = useLanguage();
 
-  const err = (k: string) => (state && !state.ok ? state.errors[k] : undefined);
+  const err = (k: string) => {
+    const message = state && !state.ok ? state.errors[k] : undefined;
+    return message ? t(message) : undefined;
+  };
   const val = (k: string) =>
     state && !state.ok ? (state.values?.[k] ?? "") : "";
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
-        <Field name="firstName" label="Prénom" defaultValue={val("firstName")} error={err("firstName")} autoComplete="given-name" />
-        <Field name="lastName" label="Nom" defaultValue={val("lastName")} error={err("lastName")} autoComplete="family-name" />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Field name="firstName" label={t("Prénom")} defaultValue={val("firstName")} error={err("firstName")} autoComplete="given-name" />
+        <Field name="lastName" label={t("Nom")} defaultValue={val("lastName")} error={err("lastName")} autoComplete="family-name" />
       </div>
       <Field
         name="email"
-        label="Adresse e-mail"
+        label={t("Adresse e-mail")}
         defaultValue={val("email")}
         error={err("email")}
         autoComplete="email"
-        placeholder="vous@exemple.com"
+        placeholder={t("vous@exemple.com")}
         type="email"
       />
       <Field
         name="phone"
-        label="Téléphone"
+        label={t("Téléphone")}
         defaultValue={val("phone")}
         error={err("phone")}
         autoComplete="tel"
@@ -59,28 +64,28 @@ export function RegisterParticulierForm() {
       />
       <Field
         name="password"
-        label="Mot de passe"
+        label={t("Mot de passe")}
         type="password"
         error={err("password")}
         autoComplete="new-password"
-        hint="8 caractères minimum."
+        hint={t("8 caractères minimum.")}
       />
 
       <Consent name="acceptCgv" error={err("acceptCgv")}>
-        J&apos;ai lu et j&apos;accepte les{" "}
+        {t("J'ai lu et j'accepte les")}{" "}
         <Link href="/cgv" target="_blank" className="font-semibold underline">
-          conditions générales de vente
+          {t("conditions générales de vente")}
         </Link>
         .
       </Consent>
       <Consent name="acceptPrivacy" error={err("acceptPrivacy")}>
-        J&apos;ai lu et j&apos;accepte la{" "}
+        {t("J'ai lu et j'accepte la")}{" "}
         <Link
           href="/confidentialite"
           target="_blank"
           className="font-semibold underline"
         >
-          politique de confidentialité
+          {t("politique de confidentialité")}
         </Link>
         .
       </Consent>
@@ -88,14 +93,14 @@ export function RegisterParticulierForm() {
       {state && !state.ok && state.errors.form && (
         <div
           role="alert"
-          className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{
             background: "#FCE9E5",
             borderColor: COLORS.red,
             color: "#7A1709",
           }}
         >
-          {state.errors.form}
+          {t(state.errors.form)}
         </div>
       )}
 
@@ -148,6 +153,7 @@ function Consent({
 
 function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
+  const { t } = useLanguage();
   return (
     <button
       type="submit"
@@ -155,7 +161,7 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
       className="grid h-11 place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm disabled:opacity-70"
       style={{ background: COLORS.primary }}
     >
-      {pending ? "Création..." : "Créer mon compte"}
+      {pending ? t("Création...") : t("Créer mon compte")}
     </button>
   );
 }

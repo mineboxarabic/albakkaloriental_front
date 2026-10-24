@@ -2,17 +2,21 @@ import { Mail, MessageCircle, MapPin, Phone } from "lucide-react";
 import { InfoPage } from "@/components/info-page";
 import { company } from "@/lib/company";
 import { COLORS } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
 
-export const metadata = {
-  title: "Contact",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: t("Contact") };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { t } = await getTranslator();
   return (
     <InfoPage title="Contact">
       <p className="mb-6 text-sm" style={{ color: COLORS.muted }}>
-        Une question, une commande, une suggestion ? Choisissez le canal qui
-        vous convient le mieux.
+        {t(
+          "Une question, une commande, une suggestion ? Choisissez le canal qui vous convient le mieux.",
+        )}
       </p>
 
       <div className="space-y-3">
@@ -22,8 +26,10 @@ export default function ContactPage() {
         >
           <Mail className="mt-0.5 h-5 w-5 text-[#3F561F]" />
           <div className="flex-1 text-sm">
-            <div className="font-semibold" style={{ color: COLORS.text }}>Email</div>
-            <div style={{ color: COLORS.muted }}>{company.email}</div>
+            <div className="font-semibold" style={{ color: COLORS.text }}>{t("Email")}</div>
+            <div style={{ color: COLORS.muted }}>
+              <span className="ltr-isolate break-all">{company.email}</span>
+            </div>
           </div>
         </a>
 
@@ -34,8 +40,10 @@ export default function ContactPage() {
           >
             <Phone className="mt-0.5 h-5 w-5 text-[#3F561F]" />
             <div className="flex-1 text-sm">
-              <div className="font-semibold" style={{ color: COLORS.text }}>Téléphone</div>
-              <div style={{ color: COLORS.muted }}>{company.phone}</div>
+              <div className="font-semibold" style={{ color: COLORS.text }}>{t("Téléphone")}</div>
+              <div style={{ color: COLORS.muted }}>
+                <span className="ltr-isolate">{company.phone}</span>
+              </div>
             </div>
           </a>
         )}
@@ -49,8 +57,12 @@ export default function ContactPage() {
           >
             <MessageCircle className="mt-0.5 h-5 w-5 text-[#3F561F]" />
             <div className="flex-1 text-sm">
-              <div className="font-semibold" style={{ color: COLORS.text }}>WhatsApp (commercial pro)</div>
-              <div style={{ color: COLORS.muted }}>{company.phone}</div>
+              <div className="font-semibold" style={{ color: COLORS.text }}>
+                {t("WhatsApp (commercial pro)")}
+              </div>
+              <div style={{ color: COLORS.muted }}>
+                <span className="ltr-isolate">{company.phone}</span>
+              </div>
             </div>
           </a>
         )}
@@ -59,10 +71,12 @@ export default function ContactPage() {
           <div className="flex items-start gap-3 rounded-md border px-4 py-3">
             <MapPin className="mt-0.5 h-5 w-5 text-[#3F561F]" />
             <div className="flex-1 text-sm">
-              <div className="font-semibold" style={{ color: COLORS.text }}>Adresse</div>
+              <div className="font-semibold" style={{ color: COLORS.text }}>{t("Adresse")}</div>
               <div style={{ color: COLORS.muted }}>
-                {company.name} — {company.address}, {company.city},{" "}
-                {company.country}
+                <bdi>
+                  {company.name} — {company.address}, {company.city},{" "}
+                  {company.country}
+                </bdi>
               </div>
             </div>
           </div>

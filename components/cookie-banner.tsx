@@ -35,7 +35,7 @@ export function CookieBanner() {
     <div
       role="dialog"
       aria-label={t("Bandeau de consentement aux cookies")}
-      className="fixed bottom-3 left-3 right-3 z-50 mx-auto max-w-2xl rounded-xl border bg-white p-4 shadow-2xl sm:bottom-4 sm:left-4 sm:right-4"
+      className="fixed bottom-3 start-3 end-3 z-50 mx-auto max-w-2xl rounded-xl border bg-white p-4 shadow-2xl sm:bottom-4 sm:start-4 sm:end-4"
       style={{ borderColor: COLORS.border }}
     >
       <div className="flex items-start gap-3">

@@ -4,6 +4,9 @@ import { CheckCircle2, Truck } from "lucide-react";
 import { getRetailOrderById } from "@/actions/retail-me";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
+import { getTranslator } from "@/lib/server-language";
+import { formatDate } from "@/lib/language";
+import { getLocalizedProductNames } from "@/lib/catalog-navigation-server";
 
 export const dynamic = "force-dynamic";
 
@@ -15,20 +18,6 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   CANCELLED: { label: "Annulée", color: "#D52B14" },
 };
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-const DAY_FMT = new Intl.DateTimeFormat("fr-FR", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 
 type Params = Promise<{ id: string }>;
 
@@ -40,6 +29,8 @@ export default async function OrderPage({ params }: { params: Params }) {
     redirect("/login");
   }
   const order = result.order;
+  const { t, language } = await getTranslator();
+  const productNames = await getLocalizedProductNames("retail", language);
 
   const statusInfo = STATUS_LABELS[order.status] ?? {
     label: order.status,
@@ -49,9 +40,11 @@ export default async function OrderPage({ params }: { params: Params }) {
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
-        <Link href="/" className="hover:underline">Accueil</Link>{" "}
+        <Link href="/" className="hover:underline">{t("Accueil")}</Link>{" "}
         <span className="mx-1">›</span>
-        <span style={{ color: COLORS.text }}>Commande {order.orderNumber}</span>
+        <span style={{ color: COLORS.text }}>
+          {t("Commande {number}", { number: order.orderNumber })}
+        </span>
       </nav>
 
       <section
@@ -69,10 +62,10 @@ export default async function OrderPage({ params }: { params: Params }) {
             className="text-[22px] font-extrabold tracking-tight"
             style={{ color: COLORS.text, fontFamily: DISPLAY_FONT }}
           >
-            Merci pour votre commande !
+            {t("Merci pour votre commande !")}
           </h1>
           <p className="mt-1 text-[13.5px]" style={{ color: COLORS.muted }}>
-            Nous vous contacterons pour confirmer votre commande.
+            {t("Nous vous contacterons pour confirmer votre commande.")}
           </p>
         </div>
       </section>
@@ -85,20 +78,28 @@ export default async function OrderPage({ params }: { params: Params }) {
           >
             <div>
               <div className="text-[12px]" style={{ color: COLORS.muted }}>
-                Numéro de commande
+                {t("Numéro de commande")}
               </div>
               <div className="text-[16px] font-extrabold" style={{ color: COLORS.text }}>
                 {order.orderNumber}
               </div>
               <div className="mt-1 text-[12px]" style={{ color: COLORS.muted }}>
-                Passée le {DATE_FMT.format(new Date(order.createdAt))}
+                {t("Passée le {date}", {
+                  date: formatDate(order.createdAt, language, {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
+                })}
               </div>
             </div>
             <span
               className="rounded-full px-3 py-1.5 text-[12px] font-bold"
               style={{ background: `${statusInfo.color}1A`, color: statusInfo.color }}
             >
-              {statusInfo.label}
+              {t(statusInfo.label)}
             </span>
           </div>
 
@@ -107,7 +108,7 @@ export default async function OrderPage({ params }: { params: Params }) {
             style={{ borderColor: COLORS.border }}
           >
             <h2 className="text-[14px] font-bold tracking-wide" style={{ color: COLORS.text }}>
-              ARTICLES
+              {t("ARTICLES")}
             </h2>
             <ul className="mt-4 divide-y" style={{ borderColor: COLORS.border }}>
               {order.items.map((it) => (
@@ -118,10 +119,12 @@ export default async function OrderPage({ params }: { params: Params }) {
                 >
                   <div className="flex-1">
                     <div className="font-semibold" style={{ color: COLORS.text }}>
-                      {it.productName}
+                      {productNames[it.productId] ?? it.productName}
                     </div>
                     <div className="text-[12px]" style={{ color: COLORS.muted }}>
-                      {it.quantity} × {formatPriceEUR(it.unitPrice)}
+                      <span className="ltr-isolate">
+                        {it.quantity} × {formatPriceEUR(it.unitPrice)}
+                      </span>
                     </div>
                   </div>
                   <div className="font-extrabold" style={{ color: COLORS.text }}>
@@ -137,12 +140,12 @@ export default async function OrderPage({ params }: { params: Params }) {
             style={{ borderColor: COLORS.border }}
           >
             <h2 className="text-[14px] font-bold tracking-wide" style={{ color: COLORS.text }}>
-              LIVRAISON
+              {t("LIVRAISON")}
             </h2>
 
             {order.deliveryCityRef?.delivery?.scheduledDate && (
               <div
-                className="mt-3 flex items-start gap-3 rounded-md border-l-4 px-3 py-2.5"
+                className="mt-3 flex items-start gap-3 rounded-md border-s-4 px-3 py-2.5"
                 style={{
                   background: "#E5F0D9",
                   borderColor: COLORS.primary,
@@ -151,15 +154,22 @@ export default async function OrderPage({ params }: { params: Params }) {
               >
                 <Truck className="mt-0.5 h-4 w-4 shrink-0" />
                 <div className="text-[13px]">
-                  <div className="font-bold">Livraison prévue</div>
+                  <div className="font-bold">{t("Livraison prévue")}</div>
                   <div className="capitalize">
-                    {DAY_FMT.format(
-                      new Date(order.deliveryCityRef.delivery.scheduledDate),
+                    {formatDate(
+                      order.deliveryCityRef.delivery.scheduledDate,
+                      language,
+                      {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      },
                     )}
                   </div>
                   {order.deliveryCityRef.name && (
                     <div className="text-[12px]" style={{ color: "#3F561F" }}>
-                      Tournée — {order.deliveryCityRef.name}
+                      {t("Tournée — {city}", { city: order.deliveryCityRef.name })}
                     </div>
                   )}
                 </div>
@@ -167,14 +177,23 @@ export default async function OrderPage({ params }: { params: Params }) {
             )}
 
             <div className="mt-3 text-[13.5px] leading-relaxed" style={{ color: COLORS.text }}>
-              <div className="font-semibold">{order.deliveryName}</div>
-              <div style={{ color: COLORS.muted }}>{order.deliveryPhone}</div>
-              <div>{order.deliveryAddress}</div>
-              <div>{order.deliveryCity}</div>
+              <div className="font-semibold">
+                <bdi>{order.deliveryName}</bdi>
+              </div>
+              <div style={{ color: COLORS.muted }}>
+                <span className="ltr-isolate">{order.deliveryPhone}</span>
+              </div>
+              <div>
+                <bdi>{order.deliveryAddress}</bdi>
+              </div>
+              <div>
+                <bdi>{order.deliveryCity}</bdi>
+              </div>
             </div>
             {order.notes && (
               <div className="mt-3 text-[12.5px]" style={{ color: COLORS.muted }}>
-                <strong style={{ color: COLORS.text }}>Note :</strong> {order.notes}
+                <strong style={{ color: COLORS.text }}>{t("Note :")}</strong>{" "}
+                {order.notes}
               </div>
             )}
           </div>
@@ -186,19 +205,19 @@ export default async function OrderPage({ params }: { params: Params }) {
             style={{ borderColor: COLORS.border }}
           >
             <div className="text-[12px] font-bold tracking-wide" style={{ color: COLORS.text }}>
-              RÉCAPITULATIF
+              {t("RÉCAPITULATIF")}
             </div>
 
             <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
               <div className="flex items-center justify-between">
-                <dt style={{ color: COLORS.muted }}>Articles</dt>
+                <dt style={{ color: COLORS.muted }}>{t("Articles")}</dt>
                 <dd>{order.items.length}</dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt style={{ color: COLORS.muted }}>Paiement</dt>
+                <dt style={{ color: COLORS.muted }}>{t("Paiement")}</dt>
                 <dd>
                   {order.paymentMethod === "cash_on_delivery"
-                    ? "À la livraison"
+                    ? t("À la livraison")
                     : order.paymentMethod}
                 </dd>
               </div>
@@ -209,7 +228,7 @@ export default async function OrderPage({ params }: { params: Params }) {
               style={{ borderColor: COLORS.border }}
             >
               <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-                Total
+                {t("Total")}
               </span>
               <span className="text-[20px] font-extrabold" style={{ color: COLORS.primary }}>
                 {formatPriceEUR(order.totalAmount)}
@@ -221,7 +240,7 @@ export default async function OrderPage({ params }: { params: Params }) {
               className="mt-5 grid h-11 place-items-center rounded-md text-[13.5px] font-semibold text-white shadow-sm"
               style={{ background: COLORS.primary }}
             >
-              Continuer mes achats
+              {t("Continuer mes achats")}
             </Link>
           </div>
         </aside>

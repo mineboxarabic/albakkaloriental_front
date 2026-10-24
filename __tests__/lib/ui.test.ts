@@ -16,4 +16,9 @@ describe("product unit labels", () => {
     expect(buildQuantityLabel(5, "KILOGRAM")).toBe("5 kg");
     expect(buildQuantityLabel(2, "LITER")).toBe("2 L");
   });
+  it("uses Arabic unit names in Arabic", () => {
+    expect(buildQuantityLabel(5, "KILOGRAM", false, "ar")).toBe("5 كغ");
+    expect(buildQuantityLabel(12, "PIECE", true, "ar")).toBe("12 قطعة");
+    expect(buildUnitLabel("PIECE", false, "ar")).toBe("");
+  });
 });

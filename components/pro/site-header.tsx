@@ -102,7 +102,9 @@ export function ProSiteHeader({
             </span>
           </Link>
 
-          <LanguageSwitcher />
+          <div className="text-white/90">
+            <LanguageSwitcher />
+          </div>
           <nav className="hidden items-center gap-1 lg:flex">
             {/* Catalogue — dropdown (Tous les produits / Catégories / Marques) */}
             <div className="relative group/cat">
@@ -126,7 +128,7 @@ export function ProSiteHeader({
                   strokeWidth={2.4}
                 />
               </Link>
-              <div className="absolute left-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 transition-all duration-200 ease-out group-hover/cat:opacity-100 group-hover/cat:visible group-hover/cat:translate-y-0">
+              <div className="absolute start-0 top-full z-50 pt-2 opacity-0 invisible translate-y-1 transition-all duration-200 ease-out group-hover/cat:opacity-100 group-hover/cat:visible group-hover/cat:translate-y-0">
                 <div
                   className="w-[210px] rounded-sm border bg-white p-1.5 shadow-xl"
                   style={{ borderColor: COLORS.border }}
@@ -139,7 +141,7 @@ export function ProSiteHeader({
                       style={{ color: COLORS.text }}
                     >
                       <Icon className="h-4 w-4" strokeWidth={2} />
-                      {label}
+                      {t(label)}
                     </Link>
                   ))}
                 </div>
@@ -161,13 +163,13 @@ export function ProSiteHeader({
                   }}
                 >
                   <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-                  {label.toUpperCase()}
+                  {t(label).toLocaleUpperCase("fr")}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <div className="ms-auto flex items-center gap-1 sm:gap-2">
             <Link
               href="/"
               className="hidden h-10 items-center gap-2 rounded-sm px-2.5 text-[12px] font-semibold tracking-wide transition hover:bg-white/10 sm:px-3 lg:flex"
@@ -188,7 +190,7 @@ export function ProSiteHeader({
               </span>
               {itemCount > 0 && (
                 <span
-                  className="absolute -right-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white sm:static sm:right-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
+                  className="absolute -end-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white sm:static sm:end-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
                   style={{ background: COLORS.red }}
                 >
                   {itemCount}
@@ -245,8 +247,8 @@ export function ProSiteHeader({
           aria-hidden
         />
         <div
-          className={`absolute left-0 top-0 flex h-full w-[290px] max-w-[85%] flex-col text-white shadow-2xl transition-transform duration-300 ease-out ${
-            menuOpen ? "translate-x-0" : "-translate-x-full"
+          className={`absolute start-0 top-0 flex h-full w-[290px] max-w-[85%] flex-col text-white shadow-2xl transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
           }`}
           style={{
             background:
@@ -294,7 +296,7 @@ export function ProSiteHeader({
                 <TranslatedText value={"CATALOGUE"} />{" "}
               </Link>
               <div
-                className="ml-4 grid gap-0.5 border-l pl-2"
+                className="ms-4 grid gap-0.5 border-s ps-2"
                 style={{ borderColor: "rgba(255,255,255,0.15)" }}
               >
                 {CATALOGUE_SUBMENU.slice(1).map(
@@ -314,7 +316,7 @@ export function ProSiteHeader({
                         }}
                       >
                         <Icon className="h-4 w-4" strokeWidth={2} />
-                        {label.toUpperCase()}
+                        {t(label).toLocaleUpperCase("fr")}
                       </Link>
                     );
                   },
@@ -337,7 +339,7 @@ export function ProSiteHeader({
                     }}
                   >
                     <Icon className="h-4 w-4" strokeWidth={2} />
-                    {label.toUpperCase()}
+                    {t(label).toLocaleUpperCase("fr")}
                   </Link>
                 );
               })}
@@ -362,7 +364,7 @@ export function ProSiteHeader({
                   <form action={logoutPro}>
                     <button
                       type="submit"
-                      className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-left text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
+                      className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-start text-[13.5px] font-semibold tracking-wide text-white/80 transition hover:bg-white/10"
                     >
                       <LogOut className="h-4 w-4" strokeWidth={2} />
                       <TranslatedText value={"DÉCONNEXION"} />{" "}

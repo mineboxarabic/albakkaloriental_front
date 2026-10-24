@@ -6,6 +6,11 @@ export type CategoryNavigation = CategoryItem & {
   label: string;
   value: string;
   image: string;
+  /**
+   * "cover" for styled category photography, "contain" when the image is a
+   * product packshot borrowed from the category (see representativeImage).
+   */
+  imageFit: "cover" | "contain";
   children: CategoryNavigation[];
 };
 type CategoryProduct = Pick<
@@ -88,6 +93,46 @@ export function categoryImage(
   if (parent) return categoryImage(parent);
   return PRODUCT_PLACEHOLDER;
 }
+
+/**
+ * Photo of a product sold in the category, used when the category has neither
+ * an admin-uploaded image nor dedicated artwork, so every category (including
+ * subcategories and categories created later in the back office) gets its own
+ * picture instead of the parent's photo or the grey placeholder.
+ */
+export function representativeImage(
+  category: CategoryItem,
+  products: Partial<ProductCard>[],
+): string | null {
+  const value = categoryValue(category);
+  const candidates = products.filter(
+    (product) =>
+      typeof product.imageUrl === "string" &&
+      /^(https?:\/\/|\/)/.test(product.imageUrl) &&
+      matchesCategory(product, value),
+  );
+  // Prefer something the customer can actually order.
+  const pick =
+    candidates.find((product) => !product.isOutOfStock) ?? candidates[0];
+  return pick?.imageUrl ?? null;
+}
+
+function navigationImage(
+  category: CategoryItem,
+  products: Partial<ProductCard>[],
+  parent?: CategoryItem,
+): Pick<CategoryNavigation, "image" | "imageFit"> {
+  if (category.imageUrl) return { image: category.imageUrl, imageFit: "cover" };
+  if (category.code && ARTWORK.has(category.code))
+    return {
+      image: `/images/categories/${category.code}.webp`,
+      imageFit: "cover",
+    };
+  const productImage = representativeImage(category, products);
+  if (productImage) return { image: productImage, imageFit: "contain" };
+  const image = categoryImage(category, parent);
+  return { image, imageFit: "cover" };
+}
 export function buildCategoryNavigation(
   categories: CategoryItem[],
   products: Partial<ProductCard>[],
@@ -112,8 +157,9 @@ export function buildCategoryNavigation(
         ...category,
         label: localizedText(category.name, category.nameAr, language),
         value: categoryValue(category),
-        image: categoryImage(
+        ...navigationImage(
           category,
+          products,
           parent === category ? undefined : parent,
         ),
         children: [],

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { COLORS } from "@/lib/ui";
+import { useLanguage } from "@/components/language-provider";
 import { checkDeliveryZone } from "@/actions/delivery-zone";
 
 type ZoneStatus = "idle" | "checking" | "allowed" | "denied";
@@ -104,6 +105,7 @@ export function AddressAutocompleteFields({
   /** Called with the zone verdict: true = in zone, false = out of zone, null = unknown/checking. */
   onZoneStatus?: (allowed: boolean | null) => void;
 }) {
+  const { t } = useLanguage();
   const [address, setAddressRaw] = useState(defaults.address);
   const [postalCode, setPostalCodeRaw] = useState(defaults.postalCode);
   const [city, setCityRaw] = useState(defaults.city);
@@ -208,11 +210,11 @@ export function AddressAutocompleteFields({
       <div ref={wrapperRef} className="relative">
         <label className="flex flex-col gap-1.5">
           <span className="text-[12.5px] font-semibold" style={{ color: COLORS.text }}>
-            Adresse
+            {t("Adresse")}
           </span>
           <div className="relative">
             <Search
-              className="absolute left-3 top-3.5 h-4 w-4"
+              className="absolute start-3 top-3.5 h-4 w-4"
               style={{ color: COLORS.muted }}
               strokeWidth={2}
             />
@@ -228,7 +230,7 @@ export function AddressAutocompleteFields({
               placeholder="13 Rue de la République"
               autoComplete="street-address"
               required
-              className="h-11 w-full rounded-md border pl-9 pr-9 text-[13.5px] outline-none focus:border-[#3F561F]"
+              className="h-11 w-full rounded-md border ps-9 pe-9 text-[13.5px] outline-none focus:border-[#3F561F]"
               style={{
                 borderColor: errors.address ? COLORS.red : COLORS.border,
                 background: "#FFFFFF",
@@ -237,14 +239,14 @@ export function AddressAutocompleteFields({
             />
             {loading && (
               <Loader2
-                className="absolute right-3 top-3.5 h-4 w-4 animate-spin"
+                className="absolute end-3 top-3.5 h-4 w-4 animate-spin"
                 style={{ color: COLORS.muted }}
               />
             )}
           </div>
           {errors.address && (
             <span className="text-[11.5px]" style={{ color: COLORS.red }}>
-              {errors.address}
+              {t(errors.address)}
             </span>
           )}
         </label>
@@ -265,7 +267,7 @@ export function AddressAutocompleteFields({
                   });
                   setOpen(false);
                 }}
-                className="flex w-full items-start gap-2 px-3 py-3 text-left text-[13px] hover:bg-[#FAF8F2]"
+                className="flex w-full items-start gap-2 px-3 py-3 text-start text-[13px] hover:bg-[#FAF8F2]"
               >
                 <MapPin
                   className="mt-0.5 h-4 w-4 shrink-0"
@@ -273,10 +275,12 @@ export function AddressAutocompleteFields({
                 />
                 <div className="flex-1 min-w-0">
                   <div className="truncate font-medium" style={{ color: COLORS.text }}>
-                    {s.label}
+                    <bdi>{s.label}</bdi>
                   </div>
                   <div className="text-[11px]" style={{ color: COLORS.muted }}>
-                    {s.postalCode} {s.city}
+                    <bdi>
+                      {s.postalCode} {s.city}
+                    </bdi>
                   </div>
                 </div>
               </button>
@@ -285,22 +289,22 @@ export function AddressAutocompleteFields({
         )}
       </div>
 
-      <div className="grid grid-cols-[140px_1fr] gap-3">
+      <div className="grid grid-cols-[120px_1fr] gap-3 sm:grid-cols-[140px_1fr]">
         <Field
           name="postalCode"
-          label="Code postal"
+          label={t("Code postal")}
           value={postalCode}
           onChange={setPostalCode}
-          error={errors.postalCode}
+          error={errors.postalCode ? t(errors.postalCode) : undefined}
           placeholder="83300"
           autoComplete="postal-code"
         />
         <Field
           name="city"
-          label="Ville"
+          label={t("Ville")}
           value={city}
           onChange={setCity}
-          error={errors.city}
+          error={errors.city ? t(errors.city) : undefined}
           placeholder="Draguignan"
           autoComplete="address-level2"
         />
@@ -308,20 +312,23 @@ export function AddressAutocompleteFields({
 
       {zoneStatus === "checking" && (
         <p className="text-[12px]" style={{ color: COLORS.muted }}>
-          Vérification de la zone de livraison…
+          {t("Vérification de la zone de livraison…")}
         </p>
       )}
       {zoneStatus === "allowed" && (
         <p className="text-[12px] font-semibold" style={{ color: COLORS.primary }}>
-          ✓ Nous livrons {zoneLabel ? `à ${zoneLabel}` : "chez vous"}.
+          ✓{" "}
+          {zoneLabel
+            ? t("Nous livrons à {zone}.", { zone: zoneLabel })
+            : t("Nous livrons chez vous.")}
         </p>
       )}
       {zoneStatus === "denied" && (
         <p
-          className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+          className="rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
         >
-          Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.
+          {t("Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.")}
         </p>
       )}
     </>

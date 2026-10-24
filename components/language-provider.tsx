@@ -1,7 +1,13 @@
 "use client";
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  type ReactNode,
+} from "react";
 import type { Language } from "@/lib/language";
-import { translate } from "@/lib/translations";
+import { translate, type TranslationParams } from "@/lib/translations";
 const LanguageContext = createContext<Language>("fr");
 export function LanguageProvider({
   language,
@@ -18,5 +24,13 @@ export function LanguageProvider({
 }
 export function useLanguage() {
   const language = useContext(LanguageContext);
-  return { language, t: (text: string) => translate(text, language) };
+  const t = useCallback(
+    (text: string, params?: TranslationParams) =>
+      translate(text, language, params),
+    [language],
+  );
+  return useMemo(
+    () => ({ language, isRtl: language === "ar", t }),
+    [language, t],
+  );
 }

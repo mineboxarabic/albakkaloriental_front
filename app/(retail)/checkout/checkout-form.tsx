@@ -9,6 +9,7 @@ import { checkDeliveryZone } from "@/actions/delivery-zone";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
 import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
+import { useLanguage } from "@/components/language-provider";
 
 export function CheckoutForm({
   defaultDelivery,
@@ -22,6 +23,7 @@ export function CheckoutForm({
   };
 }) {
   const { items, total, clearCart } = useCart();
+  const { t } = useLanguage();
   const fee = deliveryFee(total);
   const grandTotal = total + fee;
   const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
@@ -63,15 +65,17 @@ export function CheckoutForm({
     e.preventDefault();
     setError(null);
     if (items.length === 0) {
-      setError("Votre panier est vide.");
+      setError(t("Votre panier est vide."));
       return;
     }
     if (belowMinimum) {
-      setError(`Commande minimum de ${MIN_ORDER_EUR} €.`);
+      setError(t("Commande minimum de {amount} €.", { amount: MIN_ORDER_EUR }));
       return;
     }
     if (zoneDenied) {
-      setError("Nous ne livrons pas encore à ce code postal (de Nice à Toulon).");
+      setError(
+        t("Nous ne livrons pas encore à ce code postal (de Nice à Toulon)."),
+      );
       return;
     }
     startTransition(async () => {
@@ -84,7 +88,7 @@ export function CheckoutForm({
         notes: notes || undefined,
       });
       if (!res.ok) {
-        setError(res.error);
+        setError(t(res.error));
         return;
       }
       clearCart();
@@ -99,14 +103,14 @@ export function CheckoutForm({
         style={{ borderColor: COLORS.border }}
       >
         <p className="text-[14px]" style={{ color: COLORS.muted }}>
-          Votre panier est vide.
+          {t("Votre panier est vide.")}
         </p>
         <Link
           href="/products"
           className="mt-4 inline-flex items-center rounded-md px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm"
           style={{ background: COLORS.primary }}
         >
-          Voir les produits
+          {t("Voir les produits")}
         </Link>
       </div>
     );
@@ -120,24 +124,24 @@ export function CheckoutForm({
           style={{ borderColor: COLORS.border }}
         >
           <h2 className="text-[15px] font-bold" style={{ color: COLORS.text }}>
-            Informations de livraison
+            {t("Informations de livraison")}
           </h2>
           <div className="mt-4 grid grid-cols-1 gap-3">
-            <Field label="Nom du destinataire" name="deliveryName" value={delivery.name} onChange={onChange("name")} required />
-            <Field label="Téléphone" name="deliveryPhone" type="tel" value={delivery.phone} onChange={onChange("phone")} required />
+            <Field label={t("Nom du destinataire")} name="deliveryName" value={delivery.name} onChange={onChange("name")} required />
+            <Field label={t("Téléphone")} name="deliveryPhone" type="tel" value={delivery.phone} onChange={onChange("phone")} required />
             <div className="grid grid-cols-3 gap-3">
-              <Field label="Code postal" name="deliveryPostalCode" value={delivery.postalCode} onChange={onChange("postalCode")} />
+              <Field label={t("Code postal")} name="deliveryPostalCode" value={delivery.postalCode} onChange={onChange("postalCode")} />
               <div className="col-span-2">
-                <Field label="Ville" name="deliveryCity" value={delivery.city} onChange={onChange("city")} required />
+                <Field label={t("Ville")} name="deliveryCity" value={delivery.city} onChange={onChange("city")} required />
               </div>
             </div>
-            <Field label="Adresse complète" name="deliveryAddress" value={delivery.address} onChange={onChange("address")} required />
+            <Field label={t("Adresse complète")} name="deliveryAddress" value={delivery.address} onChange={onChange("address")} required />
             {zoneDenied && (
               <p
-                className="rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+                className="rounded-md border-s-4 px-3 py-2 text-[12.5px]"
                 style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
               >
-                Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.
+                {t("Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.")}
               </p>
             )}
           </div>
@@ -148,14 +152,14 @@ export function CheckoutForm({
           style={{ borderColor: COLORS.border }}
         >
           <h2 className="text-[15px] font-bold" style={{ color: COLORS.text }}>
-            Note pour le livreur (optionnel)
+            {t("Note pour le livreur (optionnel)")}
           </h2>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={3}
-            placeholder="Code d'entrée, étage, instructions..."
+            placeholder={t("Code d'entrée, étage, instructions...")}
             className="mt-3 w-full rounded-md border p-3 text-[13.5px] outline-none focus:border-[#3F561F]"
             style={{
               borderColor: COLORS.border,
@@ -169,13 +173,13 @@ export function CheckoutForm({
           style={{ borderColor: COLORS.border }}
         >
           <h2 className="text-[15px] font-bold" style={{ color: COLORS.text }}>
-            Mode de paiement
+            {t("Mode de paiement")}
           </h2>
           <p
             className="mt-2 inline-flex items-center rounded-md border px-3 py-1.5 text-[12.5px]"
             style={{ borderColor: COLORS.border, color: COLORS.text, background: COLORS.beige }}
           >
-            Paiement à la livraison
+            {t("Paiement à la livraison")}
           </p>
         </div>
       </section>
@@ -186,7 +190,7 @@ export function CheckoutForm({
           style={{ borderColor: COLORS.border }}
         >
           <div className="text-[12px] font-bold tracking-wide" style={{ color: COLORS.text }}>
-            RÉCAPITULATIF
+            {t("RÉCAPITULATIF")}
           </div>
 
           <ul className="mt-4 space-y-2.5 text-[13px]" style={{ color: COLORS.text }}>
@@ -204,16 +208,16 @@ export function CheckoutForm({
 
           <dl className="mt-4 space-y-2 border-t pt-4 text-[13px]" style={{ borderColor: COLORS.border }}>
             <div className="flex items-center justify-between">
-              <dt style={{ color: COLORS.muted }}>Sous-total</dt>
+              <dt style={{ color: COLORS.muted }}>{t("Sous-total")}</dt>
               <dd className="font-semibold">{formatPriceEUR(total)}</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt style={{ color: COLORS.muted }}>Livraison</dt>
+              <dt style={{ color: COLORS.muted }}>{t("Livraison")}</dt>
               <dd
                 className="font-semibold"
                 style={{ color: fee === 0 ? COLORS.primary : COLORS.text }}
               >
-                {fee === 0 ? "Gratuite" : formatPriceEUR(fee)}
+                {fee === 0 ? t("Gratuite") : formatPriceEUR(fee)}
               </dd>
             </div>
           </dl>
@@ -223,7 +227,7 @@ export function CheckoutForm({
             style={{ borderColor: COLORS.border }}
           >
             <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-              Total
+              {t("Total")}
             </span>
             <span className="text-[20px] font-extrabold" style={{ color: COLORS.primary }}>
               {formatPriceEUR(grandTotal)}
@@ -232,7 +236,7 @@ export function CheckoutForm({
 
           {error && (
             <div
-              className="mt-4 rounded-md border-l-4 px-3 py-2 text-[12.5px]"
+              className="mt-4 rounded-md border-s-4 px-3 py-2 text-[12.5px]"
               style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}
             >
               {error}
@@ -245,11 +249,11 @@ export function CheckoutForm({
             className="mt-5 grid h-11 w-full place-items-center rounded-md text-[14px] font-semibold text-white shadow-sm disabled:opacity-70"
             style={{ background: COLORS.primary }}
           >
-            {pending ? "Envoi de la commande..." : "Confirmer ma commande"}
+            {pending ? t("Envoi de la commande...") : t("Confirmer ma commande")}
           </button>
 
           <p className="mt-3 text-center text-[11.5px]" style={{ color: COLORS.muted }}>
-            Vous serez recontacté pour confirmer la commande et la livraison.
+            {t("Vous serez recontacté pour confirmer la commande et la livraison.")}
           </p>
         </div>
       </aside>
