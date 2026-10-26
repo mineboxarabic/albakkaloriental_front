@@ -65,6 +65,8 @@ export class MockBackend {
   public proCartItems: any[] = [];
   public loggedIn = false;
   public loggedInPro = false;
+  public deliveryZoneChecks = 0;
+  public registeredPostalCode: string | null = null;
 
   constructor(private port: number = 3001) {}
 
@@ -158,6 +160,24 @@ export class MockBackend {
                 }
               ]
             });
+          }
+
+          if (path === "/api/v1/retail/delivery-zone/check") {
+            this.deliveryZoneChecks += 1;
+            return sendJSON(200, { success: true, data: { allowed: false, label: null } });
+          }
+
+          // Registration fixture: addresses outside the delivery area are accepted.
+          if (path === "/api/v1/retail/auth/register" && method === "POST") {
+            this.registeredPostalCode = reqBody.postalCode;
+            return sendJSON(201, { success: true, data: {
+              needsEmailVerification: true,
+              customer: { id: "cust-1", name: reqBody.name, phone: reqBody.phone },
+            } });
+          }
+
+          if (path === "/api/v1/auth/verify-email" && method === "POST") {
+            return sendJSON(200, { success: true, data: { verified: true, userId: "u-1" } });
           }
 
           // Auth
