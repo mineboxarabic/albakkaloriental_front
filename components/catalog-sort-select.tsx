@@ -25,6 +25,7 @@ export function CatalogSortSelect({
 
   function onChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
     if (value && value !== "default") params.set("sort", value);
     else params.delete("sort");
     startTransition(() => {

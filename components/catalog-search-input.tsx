@@ -34,6 +34,7 @@ export function CatalogSearchInput({
       const current = searchParams.get("q") ?? "";
       if (value === current) return;
       const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
       if (value.trim()) params.set("q", value.trim());
       else params.delete("q");
       startTransition(() => {

@@ -57,4 +57,11 @@ describe("CatalogSortSelect", () => {
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "default" } });
     expect(routerPush).toHaveBeenCalledWith("/products?category=Boissons");
   });
+
+  it("returns to page one when sorting and keeps the active filters", () => {
+    setParams({ page: "42", category: "Boissons" });
+    render(<CatalogSortSelect />);
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "price-desc" } });
+    expect(routerPush).toHaveBeenCalledWith("/products?category=Boissons&sort=price-desc");
+  });
 });
