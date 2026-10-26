@@ -3,7 +3,7 @@ import * as jose from "jose";
 
 async function createSignedToken(payload: any): Promise<string> {
   const secret = new TextEncoder().encode(
-    process.env.AUTH_SECRET || "afa4008dc6e5d02542bbceda1e9dc521fd8852a8326b5f9e47ccc484c6eed276c6e4b733a83229e9"
+    process.env.AUTH_SECRET || "isolated-e2e-auth-secret-at-least-32-characters"
   );
   return await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })

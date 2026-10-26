@@ -31,7 +31,7 @@ export type ProSession = {
 };
 
 function getSharedSecret(): Uint8Array {
-  const secret = process.env.AUTH_SECRET;
+  const secret = process.env.AUTH_SECRET || process.env.BACKEND_JWT_SECRET;
   if (!secret) {
     throw new Error("AUTH_SECRET must be set (same value as AlimExpressApp).");
   }
@@ -98,10 +98,14 @@ async function writeCookie(name: string, value: string, maxAge: number): Promise
 export const getRetailSession = () => readSession(RETAIL_COOKIE, toRetailSession);
 export const getProSession = () => readSession(PRO_COOKIE, toProSession);
 
-export const storeRetailToken = (token: string) =>
-  writeCookie(RETAIL_COOKIE, token, SESSION_MAX_AGE);
-export const storeProToken = (token: string) =>
-  writeCookie(PRO_COOKIE, token, SESSION_MAX_AGE);
+export const storeRetailToken = async (token: string) => {
+  if (!token || !(await verify(token, toRetailSession))) throw new Error("Invalid retail session or mismatched AUTH_SECRET.");
+  await writeCookie(RETAIL_COOKIE, token, SESSION_MAX_AGE);
+};
+export const storeProToken = async (token: string) => {
+  if (!token || !(await verify(token, toProSession))) throw new Error("Invalid professional session or mismatched AUTH_SECRET.");
+  await writeCookie(PRO_COOKIE, token, SESSION_MAX_AGE);
+};
 
 export const clearRetailSession = () => writeCookie(RETAIL_COOKIE, "", 0);
 export const clearProSession = () => writeCookie(PRO_COOKIE, "", 0);

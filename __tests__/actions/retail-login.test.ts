@@ -23,8 +23,8 @@ vi.mock("@/lib/api-client", () => ({
 }));
 
 vi.mock("@/lib/session", () => ({
-  storeBackendToken: storeTokenMock,
-  clearSessionCookie: clearMock,
+  storeRetailToken: storeTokenMock,
+  clearRetailSession: clearMock,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -148,6 +148,15 @@ describe("loginRetail", () => {
         makeForm({ email: "test@x.fr", password: "Password!23", redirectTo: "//evil.com" }),
       ),
     ).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith("/");
+  });
+});
+
+describe("safe login redirects", () => {
+  it.each(["/\\evil.example", "/\t/evil.example", "https://evil.example", "//evil.example"])("rejects %s", async (redirectTo) => {
+    backendFetchMock.mockResolvedValue({ token: "token" });
+    redirectMock.mockClear();
+    await expect(loginRetail(null, makeForm({ email: "test@x.fr", password: "Password!23", redirectTo }))).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith("/");
   });
 });

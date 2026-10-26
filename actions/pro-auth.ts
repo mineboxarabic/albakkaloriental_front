@@ -16,7 +16,7 @@ export type ProLoginState =
 
 function sanitizeRedirect(raw: string | null, fallback: string): string {
   if (!raw) return fallback;
-  if (!raw.startsWith("/") || raw.startsWith("//")) return fallback;
+  if (!raw.startsWith("/") || raw.startsWith("//") || /[\\\x00-\x20]/.test(raw)) return fallback;
   return raw;
 }
 

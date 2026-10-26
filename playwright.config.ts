@@ -26,6 +26,7 @@ export default defineConfig({
       : "npx next dev -H 127.0.0.1 -p 3090",
     env: {
       PORT: "3090",
+      AUTH_SECRET: "isolated-e2e-auth-secret-at-least-32-characters",
       BACKEND_URL: "http://localhost:3091",
       NEXT_PUBLIC_BACKEND_URL: "http://localhost:3091",
     },

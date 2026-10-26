@@ -23,8 +23,8 @@ vi.mock("@/lib/api-client", () => ({
 }));
 
 vi.mock("@/lib/session", () => ({
-  storeBackendToken: storeTokenMock,
-  clearSessionCookie: clearMock,
+  storeProToken: storeTokenMock,
+  clearProSession: clearMock,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -126,6 +126,15 @@ describe("loginPro", () => {
       ),
     ).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith("/pro/cart");
+  });
+});
+
+describe("safe login redirects", () => {
+  it.each(["/\\evil.example", "/\t/evil.example", "https://evil.example", "//evil.example"])("rejects %s", async (redirectTo) => {
+    backendFetchMock.mockResolvedValue({ token: "token" });
+    redirectMock.mockClear();
+    await expect(loginPro(null, makeForm({ email: "pro@x.fr", password: "Password!23", redirectTo }))).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith("/pro/account");
   });
 });
 
