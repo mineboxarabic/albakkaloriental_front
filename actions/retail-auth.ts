@@ -53,6 +53,7 @@ export async function registerRetail(
     acceptPrivacy: String(formData.get("acceptPrivacy") ?? ""),
   };
 
+  const values = Object.fromEntries(Object.entries(raw).filter(([key]) => key !== "password"));
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) {
     const errors: Record<string, string> = {};
@@ -60,7 +61,7 @@ export async function registerRetail(
       const key = String(issue.path[0] ?? "form");
       if (!errors[key]) errors[key] = issue.message;
     }
-    return { ok: false, errors, values: raw };
+    return { ok: false, errors, values };
   }
 
   const data = parsed.data;
@@ -90,12 +91,12 @@ export async function registerRetail(
       if (message.includes("email")) errors.email = error.message;
       else if (message.includes("phone")) errors.phone = error.message;
       else errors.form = error.message;
-      return { ok: false, errors, values: raw };
+      return { ok: false, errors, values };
     }
     return {
       ok: false,
       errors: { form: "Inscription impossible pour le moment." },
-      values: raw,
+      values,
     };
   }
 
@@ -117,7 +118,7 @@ export type LoginState =
 
 function sanitizeRedirect(raw: string | null): string {
   if (!raw) return "/";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//") || /[\\\x00-\x20]/.test(raw)) return "/";
   return raw;
 }
 

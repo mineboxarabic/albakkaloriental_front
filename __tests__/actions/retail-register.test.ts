@@ -132,4 +132,9 @@ describe("registerRetail", () => {
     }
     expect(redirectMock).not.toHaveBeenCalled();
   });
+
+  it("never returns a password in failed form state", async () => {
+    const result = await registerRetail(null, makeForm({ ...validValues, email: "invalid" }));
+    expect(result?.values).not.toHaveProperty("password");
+  });
 });
