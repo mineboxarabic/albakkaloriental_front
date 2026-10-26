@@ -98,12 +98,15 @@ export function AddressAutocompleteFields({
   errors,
   onChange,
   onZoneStatus,
+  checkDelivery = true,
 }: {
   defaults: { address: string; postalCode: string; city: string };
   errors: { address?: string; postalCode?: string; city?: string };
   onChange?: (value: { address: string; postalCode: string; city: string }) => void;
   /** Called with the zone verdict: true = in zone, false = out of zone, null = unknown/checking. */
   onZoneStatus?: (allowed: boolean | null) => void;
+  /** Disable delivery checks for account creation, which is available everywhere. */
+  checkDelivery?: boolean;
 }) {
   const { t } = useLanguage();
   const [address, setAddressRaw] = useState(defaults.address);
@@ -161,6 +164,7 @@ export function AddressAutocompleteFields({
   }, [address]);
 
   useEffect(() => {
+    if (!checkDelivery) return;
     const cp = postalCode.replace(/\D/g, "");
     if (cp.length !== 5) {
       setZoneStatus("idle");
@@ -193,7 +197,7 @@ export function AddressAutocompleteFields({
       cancelled = true;
       clearTimeout(handle);
     };
-  }, [postalCode]);
+  }, [postalCode, checkDelivery]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -310,12 +314,12 @@ export function AddressAutocompleteFields({
         />
       </div>
 
-      {zoneStatus === "checking" && (
+      {checkDelivery && zoneStatus === "checking" && (
         <p className="text-[12px]" style={{ color: COLORS.muted }}>
           {t("Vérification de la zone de livraison…")}
         </p>
       )}
-      {zoneStatus === "allowed" && (
+      {checkDelivery && zoneStatus === "allowed" && (
         <p className="text-[12px] font-semibold" style={{ color: COLORS.primary }}>
           ✓{" "}
           {zoneLabel
@@ -323,7 +327,7 @@ export function AddressAutocompleteFields({
             : t("Nous livrons chez vous.")}
         </p>
       )}
-      {zoneStatus === "denied" && (
+      {checkDelivery && zoneStatus === "denied" && (
         <p
           className="rounded-md border-s-4 px-3 py-2 text-[12.5px]"
           style={{ background: "#FCE9E5", borderColor: COLORS.red, color: "#7A1709" }}

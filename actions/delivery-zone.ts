@@ -5,7 +5,7 @@ import { backendFetch } from "@/lib/api-client";
 /**
  * Ask the backend whether a postal code is inside the delivery zone.
  * Used by the address fields to give instant yes/no feedback before submit.
- * The backend enforces the same rule on signup/checkout, so this is UX only.
+ * The backend enforces the same rule on delivery checkout, so this is UX only.
  */
 export async function checkDeliveryZone(
   postalCode: string,
