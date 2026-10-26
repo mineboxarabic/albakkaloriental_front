@@ -63,6 +63,7 @@ export function ProProductCard({
       )}
       <Link
         href={`/pro/products/${product.id}`}
+        prefetch={false}
         className="block h-[140px] w-full"
         style={{ background: COLORS.beige }}
       >
@@ -84,6 +85,7 @@ export function ProProductCard({
         </div>
         <Link
           href={`/pro/products/${product.id}`}
+          prefetch={false}
           className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-tight"
           style={{ color: COLORS.text }}
         >
@@ -219,6 +221,7 @@ export function ProProductCard({
         ) : (
           <Link
             href={`/pro/products/${product.id}`}
+            prefetch={false}
             className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
             style={{ background: COLORS.primary }}
           >

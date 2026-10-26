@@ -48,4 +48,14 @@ describe("CatalogSearchInput", () => {
     expect(input.value).toBe("");
     vi.useRealTimers();
   });
+
+  it("starts a new search on the first page and preserves filters", async () => {
+    searchParamsStore.set("page", "42");
+    searchParamsStore.set("category", "Boissons");
+    render(<CatalogSearchInput />);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "olive" } });
+    await act(async () => { vi.advanceTimersByTime(260); });
+    expect(routerPush).toHaveBeenCalledWith("/products?category=Boissons&q=olive");
+    vi.useRealTimers();
+  });
 });

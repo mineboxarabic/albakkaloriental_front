@@ -5,6 +5,10 @@ import { AR_PRO } from "@/lib/i18n/ar-pro";
 import { AR_SHARED } from "@/lib/i18n/ar-shared";
 
 const AR_CATALOG: Record<string, string> = {
+  "Pagination du catalogue": "صفحات الكتالوج",
+  "Page {page} sur {total}": "الصفحة {page} من {total}",
+  Précédent: "السابق",
+  Suivant: "التالي",
   "Bandeau de consentement aux cookies": "إشعار ملفات تعريف الارتباط",
   Fermer: "إغلاق",
   "Nous utilisons uniquement des cookies techniques (session, panier). Aucun traceur publicitaire ou statistique tiers. Consultez notre":

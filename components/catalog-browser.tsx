@@ -19,13 +19,12 @@ import { ProProductCard } from "@/components/pro/pro-product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
 import { CatalogSortSelect } from "@/components/catalog-sort-select";
 import { SubcategoryChip } from "@/components/browse-cards";
-export type CatalogSearchParams = {
-  category?: string;
-  marque?: string;
-  q?: string;
-  sort?: string;
-  tag?: string;
-};
+import { CatalogPagination } from "@/components/catalog-pagination";
+import {
+  paginateCatalog,
+  type CatalogSearchParams,
+} from "@/lib/catalog-pagination";
+export type { CatalogSearchParams } from "@/lib/catalog-pagination";
 export async function CatalogBrowser({
   audience,
   searchParams,
@@ -64,6 +63,7 @@ export async function CatalogBrowser({
       (!params.tag || p.tags?.includes(params.tag)),
   );
   const sorted = sortProducts(filtered, parseSortKey(params.sort), language);
+  const pagination = paginateCatalog(sorted, params.page);
   const base = audience === "pro" ? "/pro/products" : "/products";
   const t = (text: string) => translate(text, language);
   const link = (value?: string) => ({
@@ -180,13 +180,20 @@ export async function CatalogBrowser({
               ))}
             </nav>
           )}
+          <CatalogPagination
+            base={base}
+            params={params}
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            language={language}
+          />
           {sorted.length === 0 ? (
             <p className="rounded-lg border border-[#DDD8CC] bg-white p-8 text-center text-sm">
               {t("Aucun produit trouvé.")}
             </p>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {sorted.map((product) =>
+              {pagination.items.map((product) =>
                 audience === "pro" ? (
                   <ProProductCard
                     key={product.id}
@@ -205,6 +212,13 @@ export async function CatalogBrowser({
               )}
             </div>
           )}
+          <CatalogPagination
+            base={base}
+            params={params}
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            language={language}
+          />
         </section>
       </div>
     </main>

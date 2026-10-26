@@ -35,6 +35,7 @@ export function ProductCard({
       )}
       <Link
         href={`/products/${product.id}`}
+        prefetch={false}
         className="block h-[140px] w-full"
         style={{ background: COLORS.beige }}
       >
@@ -50,6 +51,7 @@ export function ProductCard({
       <div className="flex flex-1 flex-col gap-1 px-3 pb-3 pt-3">
         <Link
           href={`/products/${product.id}`}
+          prefetch={false}
           className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-tight"
           style={{ color: COLORS.text }}
         >

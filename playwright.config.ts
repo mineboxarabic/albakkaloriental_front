@@ -21,7 +21,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npx next dev -p 3090",
+    command: process.env.PLAYWRIGHT_PRODUCTION
+      ? "npx next start -H 127.0.0.1 -p 3090"
+      : "npx next dev -H 127.0.0.1 -p 3090",
     env: {
       PORT: "3090",
       BACKEND_URL: "http://localhost:3091",
