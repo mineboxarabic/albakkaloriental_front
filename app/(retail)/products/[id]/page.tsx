@@ -16,6 +16,7 @@ import {
 import { ProductCard } from "@/components/retail/product-card";
 import { PriceTag } from "@/components/retail/price-tag";
 import { AddToCartButton } from "./add-to-cart-button";
+import { ProductAdminActions } from "@/components/admin/product-admin-actions";
 
 // Match the "Planning de livraison hebdomadaire" typography.
 const INTER = INTER_FONT;
@@ -85,7 +86,8 @@ export default async function ProductDetailPage({
       </nav>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-5">
+        <div className="group relative lg:col-span-5">
+          <ProductAdminActions productId={product.id} />
           <div
             className="mx-auto grid aspect-square w-full max-w-[400px] place-items-center overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)] lg:max-w-none"
             style={{ borderColor: COLORS.border, background: COLORS.beige }}

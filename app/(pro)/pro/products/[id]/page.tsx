@@ -17,6 +17,7 @@ import {
 } from "@/lib/ui";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { AddToProCartButton } from "./add-to-pro-cart-button";
+import { ProductAdminActions } from "@/components/admin/product-admin-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -98,7 +99,8 @@ export default async function ProProductDetailPage({
       </nav>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-5">
+        <div className="group relative lg:col-span-5">
+          <ProductAdminActions productId={product.id} />
           <div
             className="mx-auto grid aspect-square w-full max-w-[380px] place-items-center overflow-hidden rounded-sm border lg:max-w-none"
             style={{ borderColor: COLORS.border, background: COLORS.beige }}

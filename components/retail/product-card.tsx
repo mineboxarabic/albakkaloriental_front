@@ -7,6 +7,7 @@ import { QuickAddButton } from "@/components/retail/quick-add-button";
 import { PriceTag } from "@/components/retail/price-tag";
 import { translate } from "@/lib/translations";
 import type { Language } from "@/lib/language";
+import { ProductAdminActions } from "@/components/admin/product-admin-actions";
 
 export function ProductCard({
   product,
@@ -19,15 +20,16 @@ export function ProductCard({
   const unitLabel = buildUnitLabel(product.baseUnit, false, language);
   return (
     <article
-      className="relative flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
+      className="group relative flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
       style={{
         borderColor: COLORS.border,
         opacity: oos ? 0.75 : 1,
       }}
     >
+      <ProductAdminActions productId={product.id} />
       {oos && (
         <span
-          className="absolute end-2 top-2 z-10 rounded-sm px-2 py-0.5 text-[10px] font-extrabold tracking-[0.1em]"
+          className="absolute start-2 top-2 z-10 rounded-sm px-2 py-0.5 text-[10px] font-extrabold tracking-[0.1em]"
           style={{ background: "#D52B14", color: "#FFFFFF" }}
         >
           <TranslatedText value={"RUPTURE"} />{" "}

@@ -1,6 +1,7 @@
 export const CATALOG_PAGE_SIZE = 24;
 
 export type CatalogSearchParams = {
+  adminView?: string;
   category?: string;
   marque?: string;
   q?: string;
@@ -30,7 +31,7 @@ export function paginateCatalog<T>(items: T[], rawPage?: unknown) {
 
 export function catalogPageHref(base: string, params: CatalogSearchParams, page: number) {
   const query = new URLSearchParams();
-  for (const key of ["category", "marque", "q", "sort", "tag"] as const) {
+  for (const key of ["category", "marque", "q", "sort", "tag", "adminView"] as const) {
     if (params[key]) query.set(key, params[key]);
   }
   if (page > 1) query.set("page", String(page));
