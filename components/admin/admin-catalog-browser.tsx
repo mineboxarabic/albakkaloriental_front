@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { backendFetch } from '@/lib/api-client';
 import { getCatalogAdmin } from '@/lib/catalog-admin';
 import type { AdminProduct } from '@/lib/catalog-admin-types';
+import type { CatalogAudience } from '@/lib/catalog';
 import { adminText } from '@/lib/catalog-admin-text';
 import { getLanguage } from '@/lib/server-language';
 import { CatalogSearchInput } from '@/components/catalog-search-input';
@@ -10,8 +11,8 @@ import { CatalogPagination } from '@/components/catalog-pagination';
 import type { CatalogSearchParams } from '@/lib/catalog-pagination';
 import { ProductAdminActions } from './product-admin-actions';
 
-export async function AdminCatalogBrowser({ params, base }: { params: CatalogSearchParams; base: string }) {
-  const admin = await getCatalogAdmin();
+export async function AdminCatalogBrowser({ params, base, audience }: { params: CatalogSearchParams; base: string; audience: CatalogAudience }) {
+  const admin = await getCatalogAdmin(audience);
   if (!admin) return null;
   const language = await getLanguage();
   const t = (text: string) => adminText(text, language);

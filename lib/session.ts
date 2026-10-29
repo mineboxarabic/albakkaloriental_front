@@ -109,3 +109,8 @@ export const storeProToken = async (token: string) => {
 
 export const clearRetailSession = () => writeCookie(RETAIL_COOKIE, "", 0);
 export const clearProSession = () => writeCookie(PRO_COOKIE, "", 0);
+
+export async function clearAllPortalSessions(): Promise<void> {
+  await clearRetailSession();
+  await clearProSession();
+}
