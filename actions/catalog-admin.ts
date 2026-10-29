@@ -7,6 +7,7 @@ import { requireCatalogAdmin } from '@/lib/catalog-admin';
 import type { AdminProduct, AdminResult, ImageCandidate } from '@/lib/catalog-admin-types';
 
 const idSchema = z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/);
+const audienceSchema = z.enum(['retail', 'pro']);
 const placementSchema = z.object({
   expectedUpdatedAt: z.string().datetime(), visibility: z.enum(['RETAIL', 'WHOLESALE', 'BOTH']).optional(),
   retailStatus: z.enum(['VISIBLE', 'OUT_OF_STOCK', 'HIDDEN']).optional(), wholesaleStatus: z.enum(['VISIBLE', 'HIDDEN']).optional(),
@@ -19,9 +20,9 @@ const previewSchema = z.discriminatedUnion('kind', [
 function refreshProduct(id: string) {
   for (const path of ['/', '/products', `/products/${id}`, '/pro', '/pro/products', `/pro/products/${id}`]) revalidatePath(path);
 }
-async function run<T>(id: unknown, callback: (id: string, token: string) => Promise<T>): Promise<AdminResult<T>> {
+async function run<T>(id: unknown, audience: unknown, callback: (id: string, token: string) => Promise<T>): Promise<AdminResult<T>> {
   try {
-    const { token } = await requireCatalogAdmin();
+    const { token } = await requireCatalogAdmin(audienceSchema.parse(audience));
     const productId = idSchema.parse(id);
     return { ok: true, data: await callback(productId, token) };
   } catch (error) {
@@ -31,25 +32,32 @@ async function run<T>(id: unknown, callback: (id: string, token: string) => Prom
     return { ok: false, error: message };
   }
 }
-export async function loadAdminProduct(id: unknown) {
-  return run<AdminProduct>(id, (productId, token) => backendFetch(`/api/v1/catalog-admin/products/${productId}`, { bearer: token }));
+export async function loadAdminProduct(id: unknown, audience: unknown) {
+  return run<AdminProduct>(id, audience, (productId, token) => backendFetch(`/api/v1/catalog-admin/products/${productId}`, { bearer: token }));
 }
-export async function updateProductPlacement(id: unknown, input: unknown) {
-  return run<AdminProduct>(id, async (productId, token) => {
+export async function updateProductPlacement(id: unknown, input: unknown, audience: unknown) {
+  return run<AdminProduct>(id, audience, async (productId, token) => {
     const body = placementSchema.parse(input);
     const product = await backendFetch<AdminProduct>(`/api/v1/catalog-admin/products/${productId}`, { method: 'PATCH', body, bearer: token });
     refreshProduct(productId);
     return product;
   });
 }
-export async function prepareProductImage(id: unknown, input: unknown) {
-  return run<{ candidates: ImageCandidate[] }>(id, (productId, token) => backendFetch(`/api/v1/catalog-admin/products/${productId}/image-preview`, { method: 'POST', body: previewSchema.parse(input), bearer: token }));
+export async function prepareProductImage(id: unknown, input: unknown, audience: unknown) {
+  return run<{ candidates: ImageCandidate[] }>(id, audience, (productId, token) => backendFetch(`/api/v1/catalog-admin/products/${productId}/image-preview`, { method: 'POST', body: previewSchema.parse(input), bearer: token }));
 }
-export async function applyProductImage(id: unknown, previewToken: unknown) {
-  return run<AdminProduct>(id, async (productId, token) => {
+export async function applyProductImage(id: unknown, previewToken: unknown, audience: unknown) {
+  return run<AdminProduct>(id, audience, async (productId, token) => {
     const body = { previewToken: z.string().min(1).max(8192).parse(previewToken) };
     const product = await backendFetch<AdminProduct>(`/api/v1/catalog-admin/products/${productId}/image`, { method: 'POST', body, bearer: token });
     refreshProduct(productId);
     return product;
   });
+}
+
+export async function verifyCatalogAdminAccess(audience: unknown): Promise<boolean> {
+  const parsed = audienceSchema.safeParse(audience);
+  if (!parsed.success) return false;
+  try { await requireCatalogAdmin(parsed.data); return true; }
+  catch { return false; }
 }

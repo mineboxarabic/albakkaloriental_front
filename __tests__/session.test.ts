@@ -12,7 +12,7 @@ vi.mock("next/headers", () => ({
     set: setCookie,
   }),
 }));
-import { getRetailSession, getProSession, storeRetailToken, storeProToken, clearRetailSession, clearProSession } from "@/lib/session";
+import { getRetailSession, getProSession, storeRetailToken, storeProToken, clearRetailSession, clearProSession, clearAllPortalSessions } from "@/lib/session";
 
 const secret = "isolated-auth-test-secret-at-least-32-characters";
 const retail = { sub: "retail-1", name: "Test", phone: "0600000000", userId: "user-1" };
@@ -29,6 +29,12 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("portal sessions", () => {
+  it("website logout expires both portal cookies so neither can retain admin access", async () => {
+    await clearAllPortalSessions();
+    expect(setCookie).toHaveBeenCalledTimes(2);
+    expect(setCookie).toHaveBeenCalledWith(expect.objectContaining({ name: 'b2c_session', value: '', maxAge: 0, httpOnly: true }));
+    expect(setCookie).toHaveBeenCalledWith(expect.objectContaining({ name: 'b2b_session', value: '', maxAge: 0, httpOnly: true }));
+  });
   it("supports the legacy BACKEND_JWT_SECRET deployment variable", async () => {
     vi.stubEnv("AUTH_SECRET", "");
     vi.stubEnv("BACKEND_JWT_SECRET", secret);

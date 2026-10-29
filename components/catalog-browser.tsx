@@ -36,8 +36,8 @@ export async function CatalogBrowser({
 }) {
   const language = await getLanguage();
   const params = await searchParams;
-  if (params.adminView === "all" && await getCatalogAdmin()) {
-    return <AdminCatalogBrowser params={params} base={audience === "pro" ? "/pro/products" : "/products"} />;
+  if (params.adminView === "all" && await getCatalogAdmin(audience)) {
+    return <AdminCatalogBrowser params={params} audience={audience} base={audience === "pro" ? "/pro/products" : "/products"} />;
   }
   const [{ products, backendDown }, categoryItems, marques, me] =
     await Promise.all([

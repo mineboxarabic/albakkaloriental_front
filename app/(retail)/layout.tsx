@@ -15,6 +15,8 @@ import { getCatalogShell } from "@/lib/catalog-navigation-server";
 import { getLanguage } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 import { company } from "@/lib/company";
+import { getCatalogAdmin } from "@/lib/catalog-admin";
+import { CatalogAdminProvider } from "@/components/admin/catalog-admin-provider";
 
 export default async function RetailLayout({
   children,
@@ -27,6 +29,7 @@ export default async function RetailLayout({
     getCatalogShell("retail", language),
   ]);
   const isRetail = session !== null;
+  const admin = isRetail ? await getCatalogAdmin('retail') : null;
   const sessionValue: ClientSession = {
     isConnected: !!isRetail,
     type: isRetail ? "retail" : null,
@@ -35,21 +38,23 @@ export default async function RetailLayout({
 
   return (
     <SessionProvider value={sessionValue}>
-      <CartProvider audience="retail" productNames={productNames}>
-        <AuthModalProvider>
-          <div
-            className="flex min-h-screen flex-col overflow-x-clip"
-            style={{ background: COLORS.bg }}
-          >
-            <SiteHeader categories={categories} phone={company.phone} />
-            <CartDrawer />
-            <PendingCartIntentConsumer />
-            <div className="flex-1">{children}</div>
-            <SiteFooter categories={categories} />
-          </div>
-          <CookieBanner />
-        </AuthModalProvider>
-      </CartProvider>
+      <CatalogAdminProvider key={admin?.userId ?? 'guest'} audience="retail" available={Boolean(admin)} editBaseUrl={admin?.editBaseUrl}>
+        <CartProvider audience="retail" productNames={productNames}>
+          <AuthModalProvider>
+            <div
+              className="flex min-h-screen flex-col overflow-x-clip"
+              style={{ background: COLORS.bg }}
+            >
+              <SiteHeader categories={categories} phone={company.phone} />
+              <CartDrawer />
+              <PendingCartIntentConsumer />
+              <div className="flex-1">{children}</div>
+              <SiteFooter categories={categories} />
+            </div>
+            <CookieBanner />
+          </AuthModalProvider>
+        </CartProvider>
+      </CatalogAdminProvider>
     </SessionProvider>
   );
 }

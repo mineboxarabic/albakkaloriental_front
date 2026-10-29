@@ -15,7 +15,7 @@ export function ProductAdminDialog({ productId, operation, onClose }: { productI
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const router = useRouter();
-  const { editBaseUrl } = useCatalogAdmin();
+  const { editBaseUrl, audience } = useCatalogAdmin();
   const { language } = useLanguage();
   const t = (text: string) => adminText(text, language);
   const [product, setProduct] = useState<AdminProduct | null>(null);
@@ -32,13 +32,13 @@ export function ProductAdminDialog({ productId, operation, onClose }: { productI
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const result = await callAdmin(() => loadAdminProduct(productId));
+      const result = await callAdmin(() => loadAdminProduct(productId, audience));
       if (cancelled) return;
       if (!result.ok) { setError(result.error); return; }
       setProduct(result.data);
       if (operation !== 'search' && operation !== 'enhance') return;
       setBusy(true);
-      const prepared = await callAdmin(() => prepareProductImage(productId, { kind: operation }));
+      const prepared = await callAdmin(() => prepareProductImage(productId, { kind: operation }, audience));
       if (cancelled) return;
       if (prepared.ok) setCandidates(prepared.data.candidates);
       else setError(prepared.error);
@@ -46,24 +46,24 @@ export function ProductAdminDialog({ productId, operation, onClose }: { productI
       setBusy(false);
     })();
     return () => { cancelled = true; };
-  }, [productId, operation]);
+  }, [productId, operation, audience]);
   async function save(patch: PlacementPatch) {
     setBusy(true); setError(''); setMessage('');
-    const result = await callAdmin(() => updateProductPlacement(productId, patch));
+    const result = await callAdmin(() => updateProductPlacement(productId, patch, audience));
     if (result.ok) { setProduct(result.data); setMessage(t('Modifications enregistrées.')); router.refresh(); }
     else setError(result.error);
     setBusy(false);
   }
   async function prepare(request: PreviewRequest) {
     setBusy(true); setError(''); setMessage(''); setCandidates([]);
-    const result = await callAdmin(() => prepareProductImage(productId, request));
+    const result = await callAdmin(() => prepareProductImage(productId, request, audience));
     if (result.ok) setCandidates(result.data.candidates);
     else setError(result.error);
     setSearched(request.kind === 'search'); setBusy(false);
   }
   async function apply(candidate: ImageCandidate) {
     setBusy(true); setError(''); setMessage('');
-    const result = await callAdmin(() => applyProductImage(productId, candidate.previewToken));
+    const result = await callAdmin(() => applyProductImage(productId, candidate.previewToken, audience));
     if (result.ok) { setProduct(result.data); setCandidates([]); setSearched(false); setMessage(t('Image appliquée.')); router.refresh(); }
     else setError(result.error);
     setBusy(false);

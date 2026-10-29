@@ -24,7 +24,7 @@ vi.mock("@/lib/api-client", () => ({
 
 vi.mock("@/lib/session", () => ({
   storeRetailToken: storeTokenMock,
-  clearRetailSession: clearMock,
+  clearAllPortalSessions: clearMock,
 }));
 
 vi.mock("next/navigation", () => ({

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
-import { clearProSession, storeProToken } from "@/lib/session";
+import { clearAllPortalSessions, storeProToken } from "@/lib/session";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Adresse e-mail invalide."),
@@ -73,6 +73,6 @@ function mapLoginError(error: unknown): string {
 }
 
 export async function logoutPro() {
-  await clearProSession();
+  await clearAllPortalSessions();
   redirect("/pro/login");
 }

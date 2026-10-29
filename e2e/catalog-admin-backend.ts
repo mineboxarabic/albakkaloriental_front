@@ -66,8 +66,9 @@ export class CatalogAdminBackend {
       if (url.pathname === '/api/v1/public/categories') return send(200, { categories: [{ id: 'cat1', name: 'epicerie', parentId: null }] });
       if (url.pathname === '/api/v1/public/marques') return send(200, { marques: [] });
       if (url.pathname === '/api/v1/public/deliveries/upcoming') return send(200, { deliveries: [] });
-      if (url.pathname.endsWith('/me')) return send(200, { user: { id: sub, name: 'Tester', email: 'tester@isolated.test', isActive: true, emailVerified: 'yes', mustChangePassword: false }, customer: { id: sub, name: 'Tester', phone: '0612345678', city: 'Test', address: 'Test', pricingLevel: 'E', companyName: 'Test' } });
+      if (['/api/v1/retail/me', '/api/v1/b2b/me'].includes(url.pathname)) return send(200, { user: { id: sub, name: 'Tester', email: 'tester@isolated.test', isActive: true, emailVerified: 'yes', mustChangePassword: false }, customer: { id: sub, createdAt: '2026-01-01T00:00:00.000Z', name: 'Tester', phone: '0612345678', city: 'Test', address: 'Test', pricingLevel: 'E', companyName: 'Test' } });
       if (url.pathname.endsWith('/cart')) return send(200, { cart: { items: [], total: 0 } });
+      if (url.pathname.endsWith('/orders/me')) return send(200, { orders: [] });
       send(404, 'Not found');
     });
     await new Promise<void>((resolve) => this.server!.listen(3091, '127.0.0.1', resolve));

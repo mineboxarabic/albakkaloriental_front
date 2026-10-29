@@ -13,6 +13,56 @@ async function session(context: BrowserContext, admin = true, portal: 'retail' |
 async function adminMode(page: Page) { await page.goto('/products'); await page.getByRole('button', { name: 'Mode admin', exact: true }).click(); }
 async function manage(page: Page) { await page.getByText('Rice 1kg', { exact: true }).first().hover(); await page.getByRole('button', { name: 'Gérer le produit', exact: true }).click(); await expect(page.getByLabel('Où vendre')).toBeVisible(); }
 
+test('anonymous browsers never receive the admin toolbar or hidden catalogue', async ({ page }) => {
+  for (const path of ['/products', '/products?adminView=all', '/pro/products', '/pro/products?adminView=all']) {
+    await page.goto(path);
+    await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Gérer le produit', exact: true })).toHaveCount(0);
+    await expect(page.getByText('Hidden tea', { exact: true })).toHaveCount(0);
+  }
+  expect(backend.writes).toBe(0);
+});
+test('a wholesale admin cookie cannot enable administration on a logged-out retail site', async ({ page, context }) => {
+  await session(context, true, 'pro');
+  await page.goto('/products?adminView=all');
+  await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Hidden tea', { exact: true })).toHaveCount(0);
+});
+test('a retail admin cookie cannot enable administration on a logged-out wholesale site', async ({ page, context }) => {
+  await session(context, true, 'retail');
+  await page.goto('/pro/products?adminView=all');
+  await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Hidden tea', { exact: true })).toHaveCount(0);
+});
+test('admin controls disappear after cookies are removed in another tab and the window regains focus', async ({ page, context }) => {
+  await session(context); await adminMode(page);
+  await context.clearCookies();
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Gérer le produit', exact: true })).toHaveCount(0);
+});
+test('a retail customer cannot inherit a different wholesale admin session', async ({ page, context }) => {
+  await session(context, true, 'pro');
+  await session(context, false, 'retail');
+  await page.goto('/products?adminView=all');
+  await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Hidden tea', { exact: true })).toHaveCount(0);
+});
+test('logout removes admin capability and both portal cookies', async ({ page, context }) => {
+  await session(context, true, 'pro');
+  await session(context, true, 'retail');
+  await adminMode(page);
+  await page.getByRole('button', { name: 'Mon compte', exact: true }).click();
+  await page.getByRole('button', { name: 'Déconnexion', exact: true }).click();
+  await expect(page).toHaveURL('/');
+  const names = (await context.cookies()).map((cookie) => cookie.name);
+  expect(names).not.toContain('b2c_session');
+  expect(names).not.toContain('b2b_session');
+  await expect(page.getByRole('button', { name: 'Mode admin', exact: true })).toHaveCount(0);
+  await page.goto('/products?adminView=all');
+  await expect(page.getByText('Hidden tea', { exact: true })).toHaveCount(0);
+});
+
 test('customers cannot see admin controls or hidden products even with an admin query flag or claimed role', async ({ page, context }) => {
   await session(context, false);
   await page.goto('/products?adminView=all');
@@ -97,11 +147,15 @@ test('forged customer and cross-origin direct Server Action requests cannot muta
   expect(captured).toBeDefined();
   const action = captured!;
   const headers = { 'next-action': action.headers()['next-action'], 'content-type': action.headers()['content-type'], origin: 'http://localhost:3090' };
-  const customer = await browser.newContext(); await session(customer, false);
-  const response = await customer.request.post('/products', { headers, data: action.postDataBuffer()!, failOnStatusCode: false });
-  await expect.poll(() => backend.writes).toBe(1);
-  expect(await response.text()).toContain('Accès administrateur requis.');
-  await customer.close();
+  for (const identity of ['anonymous', 'customer', 'mixed-portals']) {
+    const caller = await browser.newContext();
+    if (identity === 'mixed-portals') await session(caller, true, 'pro');
+    if (identity !== 'anonymous') await session(caller, false, 'retail');
+    const response = await caller.request.post('/products', { headers, data: action.postDataBuffer()!, failOnStatusCode: false });
+    expect(await response.text()).toContain('Accès administrateur requis.');
+    expect(backend.writes).toBe(1);
+    await caller.close();
+  }
   const csrf = await context.request.post('/products', { headers: { ...headers, origin: 'https://evil.test' }, data: action.postDataBuffer()!, failOnStatusCode: false });
   expect(csrf.status()).toBeGreaterThanOrEqual(400);
   expect(backend.writes).toBe(1);

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
-import { clearRetailSession, storeRetailToken } from "@/lib/session";
+import { clearAllPortalSessions, storeRetailToken } from "@/lib/session";
 
 const phoneSchema = z
   .string()
@@ -175,6 +175,6 @@ function mapLoginError(error: unknown): string {
 }
 
 export async function logoutRetail() {
-  await clearRetailSession();
+  await clearAllPortalSessions();
   redirect("/");
 }
