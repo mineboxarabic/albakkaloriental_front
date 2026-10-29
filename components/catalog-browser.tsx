@@ -14,6 +14,8 @@ import {
 import { sortProducts, parseSortKey } from "@/lib/catalog-sort";
 import { translate } from "@/lib/translations";
 import { getProMe } from "@/actions/pro-me";
+import { getCatalogAdmin } from "@/lib/catalog-admin";
+import { AdminCatalogBrowser } from "@/components/admin/admin-catalog-browser";
 import { ProductCard } from "@/components/retail/product-card";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import { CatalogSearchInput } from "@/components/catalog-search-input";
@@ -34,6 +36,9 @@ export async function CatalogBrowser({
 }) {
   const language = await getLanguage();
   const params = await searchParams;
+  if (params.adminView === "all" && await getCatalogAdmin()) {
+    return <AdminCatalogBrowser params={params} base={audience === "pro" ? "/pro/products" : "/products"} />;
+  }
   const [{ products, backendDown }, categoryItems, marques, me] =
     await Promise.all([
       getProducts({ audience, language }),

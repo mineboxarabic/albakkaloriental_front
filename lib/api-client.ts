@@ -103,7 +103,9 @@ export async function backendFetch<T>(
       firstErrorMessage ??
       `Request failed: ${response.status}`;
 
-    if (response.status === 401) {
+    // Explicit bearer callers own their session selection (e.g. admin access
+    // can use either portal). Never clear an unrelated portal's cookie here.
+    if (response.status === 401 && !options.bearer) {
       try {
         const { clearRetailSession, clearProSession } = await import("@/lib/session");
         if (isProPath(path)) await clearProSession();

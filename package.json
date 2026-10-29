@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:catalog-admin": "vitest run __tests__/actions/catalog-admin.test.ts __tests__/components/product-admin.test.tsx __tests__/lib/catalog-admin-auth.test.ts",
+    "test:catalog-admin:e2e": "playwright test --config playwright.catalog-admin.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

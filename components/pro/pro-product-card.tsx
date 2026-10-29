@@ -17,6 +17,7 @@ import {
 } from "@/lib/ui";
 import { translate } from "@/lib/translations";
 import type { Language } from "@/lib/language";
+import { ProductAdminActions } from "@/components/admin/product-admin-actions";
 
 export function ProProductCard({
   product,
@@ -49,9 +50,10 @@ export function ProProductCard({
 
   return (
     <article
-      className="relative flex flex-col overflow-hidden rounded-sm border bg-white transition hover:shadow-md"
+      className="group relative flex flex-col overflow-hidden rounded-sm border bg-white transition hover:shadow-md"
       style={{ borderColor: COLORS.border, opacity: isOutOfStock ? 0.85 : 1 }}
     >
+      <ProductAdminActions productId={product.id} />
       {isOutOfStock && (
         <span
           className="absolute start-2 top-2 z-10 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-bold tracking-[0.1em] text-white"

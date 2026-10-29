@@ -5,6 +5,8 @@ import { textDirection } from "@/lib/language";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { getCatalogAdmin } from "@/lib/catalog-admin";
+import { CatalogAdminProvider } from "@/components/admin/catalog-admin-provider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -41,6 +43,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getLanguage();
+  const admin = await getCatalogAdmin();
   return (
     <html
       lang={language}
@@ -80,7 +83,9 @@ export default async function RootLayout({
           fontFamily: BODY_FONT,
         }}
       >
-        <LanguageProvider language={language}>{children}</LanguageProvider>
+        <LanguageProvider language={language}>
+          <CatalogAdminProvider available={Boolean(admin)} editBaseUrl={admin?.editBaseUrl}>{children}</CatalogAdminProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
