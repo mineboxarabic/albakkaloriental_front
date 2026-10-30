@@ -5,8 +5,11 @@ import { MessageCircle } from "lucide-react";
 import { COLORS } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
 import type { Language } from "@/lib/language";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
-const WHATSAPP_NUMBER = "33766301339";
+interface RegisterEntrepriseFormProps {
+  whatsappNumber: string | null;
+}
 
 type Fields = {
   firstName: string;
@@ -68,12 +71,11 @@ function buildMessage(f: Fields, language: Language) {
   ].join("\n");
 }
 
-export function RegisterEntrepriseForm() {
+export function RegisterEntrepriseForm({ whatsappNumber }: RegisterEntrepriseFormProps) {
   const { t, language } = useLanguage();
   const [f, setF] = useState<Fields>(initial);
-  const valid = isComplete(f);
-
-  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(f, language))}`;
+  const waUrl = buildWhatsappUrl(whatsappNumber, buildMessage(f, language));
+  const valid = isComplete(f) && waUrl !== null;
 
   const update = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setF((prev) => ({ ...prev, [key]: e.target.value }));
@@ -90,7 +92,7 @@ export function RegisterEntrepriseForm() {
       <Field label={t("Adresse de l'entreprise")} name="address" value={f.address} onChange={update("address")} />
 
       <a
-        href={valid ? waUrl : undefined}
+        href={valid && waUrl ? waUrl : undefined}
         target="_blank"
         rel="noopener noreferrer"
         aria-disabled={!valid}
@@ -110,7 +112,12 @@ export function RegisterEntrepriseForm() {
         </span>
       </a>
 
-      {!valid && (
+      {!waUrl && (
+        <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
+          {t("Le contact WhatsApp est temporairement indisponible.")}
+        </p>
+      )}
+      {waUrl && !valid && (
         <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
           {t("Renseignez tous les champs pour activer le bouton WhatsApp.")}
         </p>
@@ -118,7 +125,7 @@ export function RegisterEntrepriseForm() {
       {valid && (
         <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
           {t("Le bouton ouvre WhatsApp avec un message pré-rempli adressé au")}{" "}
-          <strong className="ltr-isolate">+33 7 66 30 13 39</strong>.
+          <strong className="ltr-isolate">+{whatsappNumber}</strong>.
         </p>
       )}
     </div>

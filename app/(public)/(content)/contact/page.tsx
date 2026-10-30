@@ -1,6 +1,6 @@
 import { Mail, MessageCircle, MapPin, Phone } from "lucide-react";
 import { InfoPage } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { COLORS } from "@/lib/ui";
 import { getTranslator } from "@/lib/server-language";
 
@@ -10,6 +10,7 @@ export async function generateMetadata() {
 }
 
 export default async function ContactPage() {
+  const company = await getCompany();
   const { t } = await getTranslator();
   return (
     <InfoPage title="Contact">
@@ -20,18 +21,20 @@ export default async function ContactPage() {
       </p>
 
       <div className="space-y-3">
-        <a
-          href={`mailto:${company.email}`}
-          className="flex items-start gap-3 rounded-md border bg-[#FAF8F2] px-4 py-3 transition hover:bg-[#F0EBDD]"
-        >
-          <Mail className="mt-0.5 h-5 w-5 text-[#3F561F]" />
-          <div className="flex-1 text-sm">
-            <div className="font-semibold" style={{ color: COLORS.text }}>{t("Email")}</div>
-            <div style={{ color: COLORS.muted }}>
-              <span className="ltr-isolate break-all">{company.email}</span>
+        {company.email && (
+          <a
+            href={`mailto:${company.email}`}
+            className="flex items-start gap-3 rounded-md border bg-[#FAF8F2] px-4 py-3 transition hover:bg-[#F0EBDD]"
+          >
+            <Mail className="mt-0.5 h-5 w-5 text-[#3F561F]" />
+            <div className="flex-1 text-sm">
+              <div className="font-semibold" style={{ color: COLORS.text }}>{t("Email")}</div>
+              <div style={{ color: COLORS.muted }}>
+                <span className="ltr-isolate break-all">{company.email}</span>
+              </div>
             </div>
-          </div>
-        </a>
+          </a>
+        )}
 
         {company.phone && (
           <a
@@ -61,7 +64,7 @@ export default async function ContactPage() {
                 {t("WhatsApp (commercial pro)")}
               </div>
               <div style={{ color: COLORS.muted }}>
-                <span className="ltr-isolate">{company.phone}</span>
+                <span className="ltr-isolate">+{company.whatsappNumber}</span>
               </div>
             </div>
           </a>

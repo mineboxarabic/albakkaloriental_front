@@ -26,6 +26,7 @@ import type { Language } from "@/lib/language";
 import { COLORS, DISPLAY_FONT, INTER_FONT, MONO_FONT } from "@/lib/ui";
 import { ProductCard } from "@/components/retail/product-card";
 import { DeliveryChecker } from "@/components/retail/delivery-checker";
+import { getCompany } from "@/lib/company";
 import {
   ArabicDealsSticker,
   ArabicPriceSticker,
@@ -40,11 +41,12 @@ export const revalidate = 60;
 export default async function Home() {
   const language = await getLanguage();
   const t = translator(language);
-  const [{ products: allProducts, backendDown }, deliveries, categories] =
+  const [{ products: allProducts, backendDown }, deliveries, categories, company] =
     await Promise.all([
       getProducts({ audience: "retail", language }),
       getUpcomingDeliveries(4),
       getCategoryItems(),
+      getCompany(),
     ]);
 
   const retailProducts = allProducts.slice(0, 12);
@@ -80,7 +82,7 @@ export default async function Home() {
         </div>
       )}
 
-      <DeliveryChecker deliveries={deliveries} serverDate={serverDate} />
+      <DeliveryChecker deliveries={deliveries} serverDate={serverDate} whatsappNumber={company.whatsappNumber} />
 
       <section
         className="relative mt-5 overflow-hidden rounded-lg border shadow-[0_18px_44px_-26px_rgba(23,23,23,0.28)]"

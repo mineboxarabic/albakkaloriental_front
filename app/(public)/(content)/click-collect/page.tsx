@@ -1,5 +1,5 @@
 import { InfoPage, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -9,6 +9,7 @@ export async function generateMetadata() {
 }
 
 export default async function ClickCollectPage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
   const listClass = "mb-4 list-decimal space-y-2 ps-5 text-sm leading-relaxed";
   return (
@@ -27,7 +28,7 @@ export default async function ClickCollectPage() {
           </ol>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>
             لأي سؤال عن الاستلام، تواصل معنا على{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       ) : (
@@ -46,7 +47,7 @@ export default async function ClickCollectPage() {
           </ol>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>
             Pour toute question sur votre retrait, contactez-nous à{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       )}

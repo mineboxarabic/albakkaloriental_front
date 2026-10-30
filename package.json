@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test:catalog-admin": "vitest run __tests__/actions/catalog-admin.test.ts __tests__/components/product-admin.test.tsx __tests__/lib/catalog-admin-auth.test.ts",
-    "test:catalog-admin:e2e": "playwright test --config playwright.catalog-admin.config.ts"
+    "test:catalog-admin:e2e": "playwright test --config playwright.catalog-admin.config.ts",
+    "test:contact": "vitest run __tests__/lib/company-contact.test.ts __tests__/components/whatsapp-contact.test.tsx __tests__/components/company-email.test.tsx",
+    "test:contact:e2e": "playwright test --config playwright.contact.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

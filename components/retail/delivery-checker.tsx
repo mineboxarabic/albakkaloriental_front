@@ -6,6 +6,7 @@ import type { UpcomingDelivery } from "@/lib/catalog";
 import { useLanguage } from "@/components/language-provider";
 import { formatDate } from "@/lib/language";
 import { INTER_FONT, MONO_FONT } from "@/lib/ui";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 /**
  * "Quantum Systems" (Neuform Featured) design system applied to the weekly
@@ -34,12 +35,14 @@ const MONO = MONO_FONT;
 interface DeliveryCheckerProps {
   deliveries: UpcomingDelivery[];
   serverDate: string;
+  whatsappNumber: string | null;
 }
 
-export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps) {
+export function DeliveryChecker({ deliveries, serverDate, whatsappNumber }: DeliveryCheckerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
   const { t, language } = useLanguage();
+  const whatsappUrl = buildWhatsappUrl(whatsappNumber, `Bonjour, j'aimerais proposer une tournée de livraison à ${searchQuery}`);
 
   const today = new Date(serverDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -252,16 +255,18 @@ export function DeliveryChecker({ deliveries, serverDate }: DeliveryCheckerProps
                         <strong style={{ color: QS.textPrimary }}>{searchQuery}</strong>{" "}
                         {t("cette semaine.")}
                       </p>
-                      <a
-                        href={`https://wa.me/33766301339?text=Bonjour,%20j'aimerais%20proposer%20une%20tournée%20de%20livraison%20à%20${encodeURIComponent(searchQuery)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase transition-opacity hover:opacity-90"
-                        style={{ fontFamily: MONO, letterSpacing: "0.08em", background: QS.accent, color: QS.accentText }}
-                      >
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        {t("Demander un arrêt")}
-                      </a>
+                      {whatsappUrl && (
+                        <a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold uppercase transition-opacity hover:opacity-90"
+                          style={{ fontFamily: MONO, letterSpacing: "0.08em", background: QS.accent, color: QS.accentText }}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          {t("Demander un arrêt")}
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
