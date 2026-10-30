@@ -1,5 +1,5 @@
 import { InfoPage, LegalTranslationNote, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -9,6 +9,7 @@ export async function generateMetadata() {
 }
 
 export default async function ConfidentialitePage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
   return (
     <InfoPage title="Politique de confidentialité">
@@ -25,7 +26,7 @@ export default async function ConfidentialitePage() {
           <p className="text-sm leading-relaxed" style={{ color: COLORS.text }}>
             لممارسة حقوقك وفق اللائحة العامة لحماية البيانات (RGPD) في الاطلاع
             على بياناتك أو تصحيحها أو حذفها، تواصل معنا على{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       ) : (
@@ -41,7 +42,7 @@ export default async function ConfidentialitePage() {
           </p>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.text }}>
             Pour exercer vos droits RGPD (accès, rectification, suppression),
-            contactez-nous à <MailLink email={company.supportEmail} />.
+            contactez-nous à <MailLink email={company.email} />.
           </p>
         </>
       )}

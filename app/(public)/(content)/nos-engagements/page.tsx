@@ -1,5 +1,5 @@
 import { InfoPage, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -24,6 +24,7 @@ const ENGAGEMENTS = {
 } as const;
 
 export default async function NosEngagementsPage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
   return (
     <InfoPage title="Nos engagements">
@@ -42,7 +43,7 @@ export default async function NosEngagementsPage() {
         {language === "ar"
           ? "لمعرفة المزيد، تواصل معنا على"
           : "Pour en savoir plus, contactez-nous à"}{" "}
-        <MailLink email={company.supportEmail} />.
+        <MailLink email={company.email} />.
       </p>
     </InfoPage>
   );

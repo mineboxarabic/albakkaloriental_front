@@ -1,5 +1,5 @@
 import { InfoPage, LegalTranslationNote, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -9,6 +9,7 @@ export async function generateMetadata() {
 }
 
 export default async function CgvPage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
   return (
     <InfoPage title="Conditions générales de vente">
@@ -19,7 +20,7 @@ export default async function CgvPage() {
           </p>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.text }}>
             لأي سؤال يتعلق بشروط البيع العامة، تواصل مع الدعم على{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       ) : (
@@ -30,7 +31,7 @@ export default async function CgvPage() {
           <p className="text-sm leading-relaxed" style={{ color: COLORS.text }}>
             Pour toute question relative aux conditions générales de vente,
             contactez le support à l&apos;adresse{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       )}

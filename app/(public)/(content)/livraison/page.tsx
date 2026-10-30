@@ -1,5 +1,5 @@
 import { InfoPage, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import {
   MIN_ORDER_EUR,
   FREE_DELIVERY_THRESHOLD_EUR,
@@ -14,6 +14,7 @@ export async function generateMetadata() {
 }
 
 export default async function LivraisonPage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
   const euro = (n: number) => <span className="ltr-isolate">{n} €</span>;
   const listClass = "mb-4 space-y-2 text-sm leading-relaxed";
@@ -41,7 +42,7 @@ export default async function LivraisonPage() {
           </ul>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>
             نعلمك بالمواعيد التقريبية عند تأكيد السلة. لأي سؤال عن التوصيل،
-            تواصل معنا على <MailLink email={company.supportEmail} />.
+            تواصل معنا على <MailLink email={company.email} />.
           </p>
         </>
       ) : (
@@ -68,7 +69,7 @@ export default async function LivraisonPage() {
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>
             Les délais indicatifs vous sont communiqués lors de la validation du
             panier. Pour toute question sur votre livraison, contactez-nous à{" "}
-            <MailLink email={company.supportEmail} />.
+            <MailLink email={company.email} />.
           </p>
         </>
       )}

@@ -1,5 +1,6 @@
 /** Sign-in, registration, password and e-mail verification screens. */
 export const AR_AUTH: Record<string, string> = {
+  "Le contact WhatsApp est temporairement indisponible.": "التواصل عبر واتساب غير متاح مؤقتاً.",
   // Retail login
   "ACCÈS CLIENT": "دخول العملاء",
   PARTICULIER: "الأفراد",

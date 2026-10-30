@@ -1,5 +1,5 @@
 import { InfoPage, LegalTranslationNote, MailLink } from "@/components/info-page";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -9,8 +9,9 @@ export async function generateMetadata() {
 }
 
 export default async function MentionsLegalesPage() {
+  const company = await getCompany();
   const { language } = await getTranslator();
-  const email = company.email || company.supportEmail;
+  const email = company.email;
   return (
     <InfoPage title="Mentions légales">
       {language === "ar" ? (

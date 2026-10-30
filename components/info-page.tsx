@@ -51,6 +51,7 @@ export async function InfoPage({
 
 /** Mail link that keeps its left-to-right reading order inside Arabic text. */
 export function MailLink({ email }: { email: string }) {
+  if (!email) return null;
   return (
     <a href={`mailto:${email}`} className="ltr-isolate font-semibold underline">
       {email}

@@ -2,17 +2,18 @@ import { TranslatedText } from "@/components/translated-text";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import type { CategoryNavigation } from "@/lib/catalog-navigation";
 
 type FooterItem = { label: string; href: string | null };
 const MAX_CATEGORY_LINKS = 6;
 
-export function SiteFooter({
+export async function SiteFooter({
   categories,
 }: {
   categories: CategoryNavigation[];
 }) {
+  const company = await getCompany();
   const socialLinks = [
     {
       label: "Facebook",

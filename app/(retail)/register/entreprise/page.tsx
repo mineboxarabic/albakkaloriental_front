@@ -2,8 +2,10 @@ import Link from "next/link";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { getTranslator } from "@/lib/server-language";
 import { RegisterEntrepriseForm } from "./register-entreprise-form";
+import { getCompany } from "@/lib/company";
 
 export default async function RegisterEntreprisePage() {
+  const company = await getCompany();
   const { t } = await getTranslator();
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-12 pb-16">
@@ -31,7 +33,7 @@ export default async function RegisterEntreprisePage() {
           className="mt-6 rounded-xl border bg-white p-6"
           style={{ borderColor: COLORS.border }}
         >
-          <RegisterEntrepriseForm />
+          <RegisterEntrepriseForm whatsappNumber={company.whatsappNumber} />
         </div>
 
         <div

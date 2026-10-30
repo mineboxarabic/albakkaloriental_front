@@ -14,7 +14,7 @@ import { getRetailSession } from "@/lib/session";
 import { getCatalogShell } from "@/lib/catalog-navigation-server";
 import { getLanguage } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
-import { company } from "@/lib/company";
+import { getCompany } from "@/lib/company";
 import { getCatalogAdmin } from "@/lib/catalog-admin";
 import { CatalogAdminProvider } from "@/components/admin/catalog-admin-provider";
 
@@ -24,9 +24,10 @@ export default async function RetailLayout({
   children: ReactNode;
 }) {
   const language = await getLanguage();
-  const [session, { navigation: categories, productNames }] = await Promise.all([
+  const [session, { navigation: categories, productNames }, company] = await Promise.all([
     getRetailSession(),
     getCatalogShell("retail", language),
+    getCompany(),
   ]);
   const isRetail = session !== null;
   const admin = isRetail ? await getCatalogAdmin('retail') : null;
