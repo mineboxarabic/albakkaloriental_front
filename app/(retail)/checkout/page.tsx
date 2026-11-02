@@ -5,6 +5,10 @@ import { getRetailCheckoutInstructions } from "@/actions/retail-order";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { CheckoutForm } from "./checkout-form";
 import { getTranslator } from "@/lib/server-language";
+import {
+  DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS,
+  DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS_AR,
+} from "@/lib/retail-checkout-instructions";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +21,11 @@ export default async function CheckoutPage() {
     redirect("/login?next=/checkout");
   }
   const customer = result.customer;
-  const { t } = await getTranslator();
+  const { t, language } = await getTranslator();
+  const localizedInstructionsMarkdown =
+    language === "ar" && instructionsMarkdown === DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS
+      ? DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS_AR
+      : instructionsMarkdown;
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -40,7 +48,8 @@ export default async function CheckoutPage() {
 
       <div className="mt-6">
         <CheckoutForm
-          instructionsMarkdown={instructionsMarkdown}
+          instructionsMarkdown={localizedInstructionsMarkdown}
+          instructionsDirection={language === "ar" ? "rtl" : "ltr"}
           defaultDelivery={{
             name: customer.name,
             phone: customer.phone,
