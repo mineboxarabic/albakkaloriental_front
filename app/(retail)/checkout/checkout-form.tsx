@@ -15,8 +15,10 @@ import ReactMarkdown from "react-markdown";
 export function CheckoutForm({
   defaultDelivery,
   instructionsMarkdown,
+  instructionsDirection,
 }: {
   instructionsMarkdown: string;
+  instructionsDirection: "rtl" | "ltr";
   defaultDelivery: {
     name: string;
     phone: string;
@@ -158,7 +160,8 @@ export function CheckoutForm({
             {t("À savoir avant de commander")}
           </h2>
           <div
-            className="mt-3 space-y-2 text-[13px] leading-relaxed [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_li]:ms-5 [&_ol]:list-decimal [&_strong]:font-bold [&_ul]:list-disc"
+            dir={instructionsDirection}
+            className={`mt-3 space-y-2 text-[13px] leading-relaxed [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_li]:ms-5 [&_ol]:list-decimal [&_strong]:font-bold [&_ul]:list-disc ${instructionsDirection === "rtl" ? "text-right" : "text-left"}`}
             style={{ color: COLORS.text }}
           >
             <ReactMarkdown>{instructionsMarkdown}</ReactMarkdown>
