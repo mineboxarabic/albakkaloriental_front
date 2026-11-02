@@ -28,7 +28,7 @@ function makeProduct(overrides: Partial<ProductCardData> = {}): ProductCardData 
 
 describe("ProProductCard", () => {
   it("shows SKU, name and the devis CTA when authenticated and in stock", () => {
-    render(<ProProductCard product={makeProduct()} pricingLevel="C" />);
+    render(<ProProductCard product={makeProduct()} />);
     expect(screen.getByText("CSC-5")).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: /ajouter au devis/i });
     expect(cta).toHaveAttribute("href", "/pro/products/p1");
@@ -36,19 +36,19 @@ describe("ProProductCard", () => {
   });
 
   it("renders the unit price block when the product is sold by pack (unitsPerPack > 1)", () => {
-    render(<ProProductCard product={makeProduct({ unitsPerPack: 6 })} pricingLevel="C" />);
+    render(<ProProductCard product={makeProduct({ unitsPerPack: 6 })} />);
     // "À L'UNITÉ" (sm+) / "UNITÉ" (mobile) only appear when unit sale is supported.
     expect(screen.getAllByText(/unit[ée]/i).length).toBeGreaterThan(0);
   });
 
   it("omits the unit price block for single-unit products", () => {
-    render(<ProProductCard product={makeProduct({ unitsPerPack: 1 })} pricingLevel="C" />);
+    render(<ProProductCard product={makeProduct({ unitsPerPack: 1 })} />);
     expect(screen.queryByText(/unit[ée]/i)).not.toBeInTheDocument();
   });
 
   it("hides prices and shows the login prompt when unauthenticated", () => {
     render(
-      <ProProductCard product={makeProduct()} pricingLevel={null} authenticated={false} />,
+      <ProProductCard product={makeProduct()} authenticated={false} />,
     );
     expect(screen.getByText(/connectez-vous pour voir le prix/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /se connecter/i })).toHaveAttribute(
@@ -59,10 +59,27 @@ describe("ProProductCard", () => {
   });
 
   it("shows the RUPTURE badge and a disabled CTA when out of stock", () => {
-    render(<ProProductCard product={makeProduct({ isOutOfStock: true })} pricingLevel="C" />);
+    render(<ProProductCard product={makeProduct({ isOutOfStock: true })} />);
     expect(screen.getByText("RUPTURE")).toBeInTheDocument();
     const button = screen.getByRole("button", { name: /indisponible/i });
     expect(button).toBeDisabled();
     expect(screen.queryByRole("link", { name: /ajouter au devis/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("ProProductCard price source", () => {
+  it("shows the carton price from effectivePrice even when tier fields disagree", () => {
+    render(
+      <ProProductCard
+        product={makeProduct({ effectivePrice: 1.4, unitsPerPack: 12, priceLevelE: 1.75 })}
+      />,
+    );
+    expect(screen.getAllByText(/16,80 €/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/21,00 €/)).not.toBeInTheDocument();
+  });
+
+  it("shows the unit price from effectivePrice", () => {
+    render(<ProProductCard product={makeProduct({ effectivePrice: 1.4, unitsPerPack: 12 })} />);
+    expect(screen.getAllByText(/1,40 €/).length).toBeGreaterThan(0);
   });
 });

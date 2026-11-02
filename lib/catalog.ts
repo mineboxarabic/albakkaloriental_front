@@ -3,11 +3,7 @@ import { localizedText, type Language } from "@/lib/language";
 import { matchesCategory } from "@/lib/catalog-navigation";
 import { backendFetch, ApiClientError } from "@/lib/api-client";
 
-export {
-  getTierPrice,
-  formatPriceEUR,
-  type TierPriceInput,
-} from "@/lib/catalog-pricing";
+export { formatPriceEUR } from "@/lib/catalog-pricing";
 
 export type CatalogAudience = "retail" | "pro";
 
@@ -34,10 +30,10 @@ export type ProductCard = {
   baseUnit: string;
   sellingPrice: number;
   unitSellingPrice: number | null;
-  priceLevelC: number | null;
-  priceLevelD: number | null;
-  priceLevelE: number | null;
-  priceLevelF: number | null;
+  priceLevelC?: number | null;
+  priceLevelD?: number | null;
+  priceLevelE?: number | null;
+  priceLevelF?: number | null;
   /**
    * Effective price for the viewer (already resolved by the back-end:
    * retail = sellingPrice, B2B = priceLevel{C|D|E|F} of the customer).
@@ -75,10 +71,10 @@ type BackendCatalogProduct = {
   visibility: "RETAIL" | "WHOLESALE" | "BOTH";
   sellingPrice: number;
   unitSellingPrice: number | null;
-  priceLevelC: number | null;
-  priceLevelD: number | null;
-  priceLevelE: number | null;
-  priceLevelF: number | null;
+  priceLevelC?: number | null;
+  priceLevelD?: number | null;
+  priceLevelE?: number | null;
+  priceLevelF?: number | null;
   price: number;
   /** B2C out-of-stock is manual (admin-set). B2B uses real stock via isOutOfStock. */
   retailStatus?: "VISIBLE" | "OUT_OF_STOCK" | "HIDDEN";
@@ -127,10 +123,10 @@ function toProductCard(
     baseUnit: p.baseUnit,
     sellingPrice: p.sellingPrice,
     unitSellingPrice: p.unitSellingPrice,
-    priceLevelC: p.priceLevelC,
-    priceLevelD: p.priceLevelD,
-    priceLevelE: p.priceLevelE,
-    priceLevelF: p.priceLevelF,
+    priceLevelC: p.priceLevelC ?? null,
+    priceLevelD: p.priceLevelD ?? null,
+    priceLevelE: p.priceLevelE ?? null,
+    priceLevelF: p.priceLevelF ?? null,
     effectivePrice: p.price,
     isOutOfStock,
     availableStock: p.availableStock ?? 0,

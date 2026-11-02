@@ -2,7 +2,6 @@ import { TranslatedText } from "@/components/translated-text";
 import Image from "next/image";
 import Link from "next/link";
 import { Package, Box, AlertCircle } from "lucide-react";
-type PricingLevel = "C" | "D" | "E" | "F";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 import {
   formatPriceEUR,
@@ -21,19 +20,17 @@ import { ProductAdminActions } from "@/components/admin/product-admin-actions";
 
 export function ProProductCard({
   product,
-  pricingLevel,
   authenticated = true,
   language = "fr",
 }: {
   product: ProductCardData;
-  pricingLevel: PricingLevel | null;
   authenticated?: boolean;
   language?: Language;
 }) {
-  const packPrice = resolveProPrice(product, "PACK", pricingLevel);
+  const packPrice = resolveProPrice(product, "PACK");
   const hasUnit = supportsUnitSale(product);
   const unitPrice = hasUnit
-    ? resolveProPrice(product, "UNIT", pricingLevel)
+    ? resolveProPrice(product, "UNIT")
     : null;
   const isOutOfStock = product.isOutOfStock;
   const packagingLabel =
