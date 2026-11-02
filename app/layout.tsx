@@ -1,5 +1,6 @@
 import { getLanguage } from "@/lib/server-language";
 import { LanguageProvider } from "@/components/language-provider";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { BODY_FONT } from "@/lib/ui";
 import { textDirection } from "@/lib/language";
 import type { Metadata } from "next";
@@ -80,6 +81,7 @@ export default async function RootLayout({
           fontFamily: BODY_FONT,
         }}
       >
+        <NavigationProgress />
         <LanguageProvider language={language}>{children}</LanguageProvider>
       </body>
     </html>

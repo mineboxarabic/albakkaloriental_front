@@ -275,3 +275,27 @@ html[dir="rtl"] textarea::placeholder {
   --font-arabic: "IBM Plex Sans Arabic";
   --font-arabic-display: "Noto Kufi Arabic";
 }
+
+@keyframes navigation-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+.navigation-progress {
+  direction: ltr;
+}
+
+.navigation-progress-indicator {
+  animation: navigation-progress-slide 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress-indicator {
+    width: 100%;
+    animation: none;
+  }
+}
