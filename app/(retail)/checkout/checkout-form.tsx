@@ -10,10 +10,13 @@ import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
 import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
+import ReactMarkdown from "react-markdown";
 
 export function CheckoutForm({
   defaultDelivery,
+  instructionsMarkdown,
 }: {
+  instructionsMarkdown: string;
   defaultDelivery: {
     name: string;
     phone: string;
@@ -144,6 +147,21 @@ export function CheckoutForm({
                 {t("Nous ne livrons pas encore à ce code postal. Nous livrons de Nice à Toulon.")}
               </p>
             )}
+          </div>
+        </div>
+
+        <div
+          className="rounded-xl border bg-white p-6"
+          style={{ borderColor: COLORS.border }}
+        >
+          <h2 className="text-[15px] font-bold" style={{ color: COLORS.text }}>
+            {t("À savoir avant de commander")}
+          </h2>
+          <div
+            className="mt-3 space-y-2 text-[13px] leading-relaxed [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_li]:ms-5 [&_ol]:list-decimal [&_strong]:font-bold [&_ul]:list-disc"
+            style={{ color: COLORS.text }}
+          >
+            <ReactMarkdown>{instructionsMarkdown}</ReactMarkdown>
           </div>
         </div>
 
