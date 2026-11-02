@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { ApiClientError, backendFetch, handleActionError } from "@/lib/api-client";
+import type { ProOrderAttachment } from "@/lib/order-attachments";
 
 export type ProMe = {
   user: {
@@ -71,6 +72,8 @@ export type ProOrderDetail = ProOrderSummary & {
     name: string;
     delivery: { scheduledDate: string; status: string };
   } | null;
+  /** Files staff shared with the client. Absent on backends older than this feature. */
+  attachments?: ProOrderAttachment[];
 };
 
 export type ProInvoice = {
