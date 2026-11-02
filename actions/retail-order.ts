@@ -2,6 +2,21 @@
 
 import { z } from "zod";
 import { ApiClientError, backendFetch } from "@/lib/api-client";
+import { DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS } from "@/lib/retail-checkout-instructions";
+
+export async function getRetailCheckoutInstructions(): Promise<string> {
+  try {
+    const data = await backendFetch<{ instructionsMarkdown: string }>(
+      "/api/v1/public/retail-checkout-instructions",
+      { method: "GET", auth: "none" },
+    );
+    return typeof data.instructionsMarkdown === "string"
+      ? data.instructionsMarkdown
+      : DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS;
+  } catch {
+    return DEFAULT_RETAIL_CHECKOUT_INSTRUCTIONS;
+  }
+}
 
 const checkoutSchema = z.object({
   deliveryName: z.string().trim().min(1, "Nom requis."),

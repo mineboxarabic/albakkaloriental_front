@@ -40,6 +40,7 @@ const AR_CATALOG: Record<string, string> = {
   "Livraison à domicile dans toute la region PACA":
     "توصيل إلى المنزل في منطقة PACA",
   "Besoin d'aide ?": "تحتاج مساعدة؟",
+  "À savoir avant de commander": "معلومات مهمة قبل الطلب",
   "Espace pro": "للعملاء المهنيين",
   "Se connecter": "تسجيل الدخول",
   "Ouvrir le menu": "فتح القائمة",

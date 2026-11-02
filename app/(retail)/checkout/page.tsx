@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getRetailMe } from "@/actions/retail-me";
+import { getRetailCheckoutInstructions } from "@/actions/retail-order";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { CheckoutForm } from "./checkout-form";
 import { getTranslator } from "@/lib/server-language";
@@ -8,7 +9,10 @@ import { getTranslator } from "@/lib/server-language";
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutPage() {
-  const result = await getRetailMe();
+  const [result, instructionsMarkdown] = await Promise.all([
+    getRetailMe(),
+    getRetailCheckoutInstructions(),
+  ]);
   if (!result.ok) {
     redirect("/login?next=/checkout");
   }
@@ -36,6 +40,7 @@ export default async function CheckoutPage() {
 
       <div className="mt-6">
         <CheckoutForm
+          instructionsMarkdown={instructionsMarkdown}
           defaultDelivery={{
             name: customer.name,
             phone: customer.phone,
