@@ -159,4 +159,20 @@ export const AR_PRO: Record<string, string> = {
   "Vente au détail": "بيع بالتجزئة",
   "par carton": "للكرتونة",
   "à l'unité": "للقطعة",
+  // Order photos & documents (pro order page)
+  "Photos et documents": "الصور والمستندات",
+  "Partagés par notre équipe pour cette commande.": "أرسلها فريقنا لهذا الطلب.",
+  Photos: "الصور",
+  Documents: "المستندات",
+  "Agrandir la photo {name}": "تكبير الصورة {name}",
+  Télécharger: "تحميل",
+  "Une question sur ces fichiers ?": "هل لديك سؤال حول هذه الملفات؟",
+  "Écrivez-nous": "راسلنا",
+  "Photo {current} sur {total}": "الصورة {current} من {total}",
+  "Télécharger la photo": "تحميل الصورة",
+  "Photo précédente": "الصورة السابقة",
+  "Photo suivante": "الصورة التالية",
+  "Toutes les photos": "كل الصور",
+  "Bonjour, j'ai une question sur les fichiers de la commande {number}.":
+    "مرحباً، لدي سؤال حول ملفات الطلب {number}.",
 };

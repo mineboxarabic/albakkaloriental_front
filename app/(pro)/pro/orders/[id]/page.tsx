@@ -19,6 +19,9 @@ import { getTranslator } from "@/lib/server-language";
 import { formatDate } from "@/lib/language";
 import { getLocalizedProductNames } from "@/lib/catalog-navigation-server";
 import { OrderUpdates } from '@/components/order-updates';
+import { getCompany } from "@/lib/company";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
+import { ProOrderAttachments } from "./pro-order-attachments";
 
 export const dynamic = "force-dynamic";
 
@@ -95,6 +98,15 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const productNames = await getLocalizedProductNames("pro", language);
   const longDate = (d: string | Date) =>
     formatDate(d, language, { day: "2-digit", month: "long", year: "numeric" });
+  const company = await getCompany();
+  const contactMessage = t("Bonjour, j'ai une question sur les fichiers de la commande {number}.", {
+    number: order.orderNumber,
+  });
+  const attachmentsContactUrl =
+    buildWhatsappUrl(company.whatsappNumber, contactMessage) ??
+    (company.email
+      ? `mailto:${company.email}?subject=${encodeURIComponent(order.orderNumber)}&body=${encodeURIComponent(contactMessage)}`
+      : null);
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -306,6 +318,8 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
           />
         </aside>
       </section>
+
+      <ProOrderAttachments attachments={order.attachments} contactUrl={attachmentsContactUrl} />
     </main>
   );
 }
