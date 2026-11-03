@@ -9,8 +9,8 @@ import { getLanguage } from "@/lib/server-language";
 import {
   buildCategoryNavigation,
   matchesCategory,
-  matchesProductSearch,
 } from "@/lib/catalog-navigation";
+import { searchCatalogProducts } from "@/lib/catalog-search";
 import { sortProducts, parseSortKey } from "@/lib/catalog-sort";
 import { translate } from "@/lib/translations";
 import { getProMe } from "@/actions/pro-me";
@@ -64,10 +64,11 @@ export async function CatalogBrowser({
     (p) =>
       (!params.category || matchesCategory(p, params.category)) &&
       (!params.marque || p.marques.includes(params.marque)) &&
-      (!params.q || matchesProductSearch(p, params.q)) &&
       (!params.tag || p.tags?.includes(params.tag)),
   );
-  const sorted = sortProducts(filtered, parseSortKey(params.sort), language);
+  // Relevance order survives the default sort, which only lifts in-stock items first.
+  const searched = searchCatalogProducts(filtered, params.q ?? "");
+  const sorted = sortProducts(searched, parseSortKey(params.sort), language);
   const pagination = paginateCatalog(sorted, params.page);
   const base = audience === "pro" ? "/pro/products" : "/products";
   const t = (text: string) => translate(text, language);

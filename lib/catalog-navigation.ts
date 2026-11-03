@@ -1,6 +1,7 @@
 import type { CategoryItem, ProductCard } from "@/lib/catalog";
 import { localizedText, type Language } from "@/lib/language";
 import { PRODUCT_PLACEHOLDER } from "@/lib/ui";
+import { getCatalogSearchScore } from "@/lib/catalog-search";
 
 export type CategoryNavigation = CategoryItem & {
   label: string;
@@ -65,20 +66,7 @@ export function matchesProductSearch(
   product: CategoryProduct,
   query: string,
 ): boolean {
-  const key = normalizeSearch(query);
-  const fields = [
-    product.name,
-    product.nameFr,
-    product.nameAr,
-    product.sku,
-    product.category,
-    product.categoryAr,
-    product.subcategory,
-    product.subcategoryAr,
-    ...(product.marques ?? []),
-    ...(product.tags ?? []),
-  ];
-  return fields.some((value) => value && normalizeSearch(value).includes(key));
+  return getCatalogSearchScore(product, query) !== null;
 }
 export function categoryValue(category: CategoryItem): string {
   return category.code || category.name;
