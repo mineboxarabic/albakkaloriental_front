@@ -12,13 +12,11 @@ import {
   Box,
   Lock,
 } from "lucide-react";
-type PricingLevel = "C" | "D" | "E" | "F";
 import { useCart, type CartSaleUnit } from "@/components/cart-context";
 import {
   formatPriceEUR,
   resolveProPrice,
   supportsUnitSale,
-  type ProPriceInput,
 } from "@/lib/catalog-pricing";
 import { COLORS, buildQuantityLabel } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
@@ -28,8 +26,7 @@ type Props = {
   name: string;
   imageUrl: string | null;
   unitsPerPack: number;
-  pricing: ProPriceInput;
-  pricingLevel: PricingLevel | null;
+  pricing: { effectivePrice: number; unitsPerPack: number; unitSellingPrice: number | null };
   isOutOfStock?: boolean;
   availableStock?: number;
   baseUnit?: string;
@@ -42,7 +39,6 @@ export function AddToProCartButton({
   imageUrl,
   unitsPerPack,
   pricing,
-  pricingLevel,
   isOutOfStock = false,
   availableStock = 0,
   baseUnit = "PIECE",
@@ -57,8 +53,8 @@ export function AddToProCartButton({
   const { t, language } = useLanguage();
 
   const unitPrice = useMemo(
-    () => resolveProPrice(pricing, saleUnit, pricingLevel),
-    [pricing, saleUnit, pricingLevel],
+    () => resolveProPrice(pricing, saleUnit),
+    [pricing, saleUnit],
   );
   const lineTotal = unitPrice * qty;
 

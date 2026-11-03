@@ -154,19 +154,14 @@ export default async function ProProductDetailPage({
               name={product.name}
               imageUrl={product.imageUrl}
               unitsPerPack={product.unitsPerPack}
-              pricingLevel={session?.pricingLevel ?? null}
               authenticated={authenticated}
               isOutOfStock={product.isOutOfStock}
               availableStock={product.availableStock}
               baseUnit={product.baseUnit}
               pricing={{
-                sellingPrice: product.sellingPrice,
+                effectivePrice: product.effectivePrice,
                 unitSellingPrice: product.unitSellingPrice,
                 unitsPerPack: product.unitsPerPack,
-                priceLevelC: product.priceLevelC,
-                priceLevelD: product.priceLevelD,
-                priceLevelE: product.priceLevelE,
-                priceLevelF: product.priceLevelF,
               }}
             />
           </div>
@@ -187,7 +182,6 @@ export default async function ProProductDetailPage({
               <ProProductCard
                 key={p.id}
                 product={p}
-                pricingLevel={session?.pricingLevel ?? null}
                 authenticated={authenticated}
                 language={language}
               />

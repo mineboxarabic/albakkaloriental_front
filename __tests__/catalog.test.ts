@@ -1,95 +1,26 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import {
-  getTierPrice,
-  formatPriceEUR,
-  resolveProPrice,
-} from "@/lib/catalog-pricing";
-
-const base = {
-  sellingPrice: 10,
-  priceLevelC: 9,
-  priceLevelD: 8,
-  priceLevelE: 7,
-  priceLevelF: null,
-};
-
-describe("getTierPrice", () => {
-  it("returns sellingPrice when no pricing level is supplied", () => {
-    expect(getTierPrice(base, null)).toBe(10);
-    expect(getTierPrice(base, undefined)).toBe(10);
-  });
-
-  it("returns the matching tier price for C/D/E", () => {
-    expect(getTierPrice(base, "C")).toBe(9);
-    expect(getTierPrice(base, "D")).toBe(8);
-    expect(getTierPrice(base, "E")).toBe(7);
-  });
-
-  it("falls back to sellingPrice when the requested tier is null", () => {
-    expect(getTierPrice(base, "F")).toBe(10);
-  });
-
-  it("falls back to sellingPrice when every tier is missing", () => {
-    expect(
-      getTierPrice(
-        {
-          sellingPrice: 4.2,
-          priceLevelC: null,
-          priceLevelD: null,
-          priceLevelE: null,
-          priceLevelF: null,
-        },
-        "D",
-      ),
-    ).toBe(4.2);
-  });
-});
+import { formatPriceEUR, resolveProPrice } from "@/lib/catalog-pricing";
 
 describe("resolveProPrice", () => {
-  const product = {
-    sellingPrice: 12,
-    priceLevelC: 10,
-    priceLevelD: 9,
-    priceLevelE: 8,
-    priceLevelF: null,
-    unitSellingPrice: 1.5,
-    unitsPerPack: 6,
-  };
+  const product = { effectivePrice: 1.4, unitsPerPack: 12 };
 
-  it("PACK returns the tier price multiplied by unitsPerPack", () => {
-    expect(resolveProPrice(product, "PACK", "C")).toBe(10 * 6);
-    expect(resolveProPrice(product, "PACK", "D")).toBe(9 * 6);
-    expect(resolveProPrice(product, "PACK", "E")).toBe(8 * 6);
+  it("UNIT returns effectivePrice", () => {
+    expect(resolveProPrice(product, "UNIT")).toBe(1.4);
   });
 
-  it("PACK falls back to sellingPrice * unitsPerPack when level missing or null", () => {
-    expect(resolveProPrice(product, "PACK", null)).toBe(12 * 6);
-    expect(resolveProPrice(product, "PACK", "F")).toBe(12 * 6);
+  it("PACK multiplies by unitsPerPack", () => {
+    expect(resolveProPrice(product, "PACK")).toBeCloseTo(16.8, 10);
   });
 
-  it("UNIT returns the tier price directly (tier-aware)", () => {
-    expect(resolveProPrice(product, "UNIT", "C")).toBe(10);
-    expect(resolveProPrice(product, "UNIT", "D")).toBe(9);
-    expect(resolveProPrice(product, "UNIT", "E")).toBe(8);
+  it("unitsPerPack 0 counts as 1", () => {
+    expect(resolveProPrice({ effectivePrice: 5, unitsPerPack: 0 }, "PACK")).toBe(5);
   });
 
-  it("UNIT without level falls back to sellingPrice", () => {
-    expect(resolveProPrice(product, "UNIT", null)).toBe(12);
-  });
-
-  it("UNIT with tier null falls back to sellingPrice", () => {
-    expect(resolveProPrice(product, "UNIT", "F")).toBe(12);
-  });
-
-  it("UNIT ignores the B2C unitSellingPrice (per spec: pro UNIT = tier)", () => {
-    expect(resolveProPrice(product, "UNIT", "C")).not.toBe(1.5);
-  });
-
-  it("UNIT with unitsPerPack=1 returns the tier price unchanged", () => {
-    expect(
-      resolveProPrice({ ...product, unitsPerPack: 1 }, "UNIT", "C"),
-    ).toBe(10);
+  it("unitsPerPack 1 returns the price unchanged for both units", () => {
+    const single = { effectivePrice: 3, unitsPerPack: 1 };
+    expect(resolveProPrice(single, "UNIT")).toBe(3);
+    expect(resolveProPrice(single, "PACK")).toBe(3);
   });
 });
 

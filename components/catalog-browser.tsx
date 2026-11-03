@@ -204,7 +204,6 @@ export async function CatalogBrowser({
                     key={product.id}
                     product={product}
                     authenticated={Boolean(me?.ok)}
-                    pricingLevel={me?.ok ? me.customer.pricingLevel : null}
                     language={language}
                   />
                 ) : (
