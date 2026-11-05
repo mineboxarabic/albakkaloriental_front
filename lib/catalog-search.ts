@@ -5,6 +5,7 @@ export type SearchableCatalogProduct = {
   nameFr?: string;
   nameAr?: string | null;
   sku: string;
+  supplierReferences?: string[];
   category: string;
   categoryAr?: string | null;
   subcategory?: string | null;
@@ -50,7 +51,7 @@ function getIndex(product: SearchableCatalogProduct): IndexedProduct {
     sku: normalizeSearchText(product.sku),
     fields: [
       ...names.map((value) => ({ value, weight: 50 })),
-      ...weighted([product.sku], 40),
+      ...weighted([product.sku, ...(product.supplierReferences ?? [])], 40),
       ...weighted([...product.marques, ...(product.tags ?? [])], 20),
       ...weighted([product.category, product.categoryAr, product.subcategory, product.subcategoryAr], 10),
     ],
@@ -80,6 +81,7 @@ export function getCatalogSearchScore(product: SearchableCatalogProduct, search:
   const { names, sku, fields } = getIndex(product);
 
   if (query === sku) return EXACT_SKU_SCORE;
+  if (product.supplierReferences?.some(reference => normalizeSearchText(reference) === query)) return EXACT_SKU_SCORE;
   if (names.includes(query)) return EXACT_NAME_SCORE;
 
   const prefixed = names.filter((name) => name.startsWith(query));
@@ -105,3 +107,4 @@ export function searchCatalogProducts<T extends SearchableCatalogProduct>(produc
     .sort((left, right) => right.score - left.score || left.position - right.position)
     .map(({ product }) => product);
 }
+
