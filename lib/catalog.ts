@@ -23,6 +23,7 @@ export type ProductCard = {
   subcategoryLabel?: string | null;
   tags?: string[];
   sku: string;
+  supplierReferences?: string[];
   category: string;
   marques: string[];
   imageUrl: string | null;
@@ -63,6 +64,7 @@ type BackendCatalogProduct = {
   subcategoryLabel?: string | null;
   tags?: string[];
   sku: string;
+  supplierReferences?: string[];
   category: string;
   marques?: string[];
   imageUrl: string | null;
@@ -116,6 +118,7 @@ function toProductCard(
       localizedText(p.subcategory, p.subcategoryAr, language) || null,
     tags: p.tags ?? [],
     sku: p.sku,
+    supplierReferences: audience === "pro" ? p.supplierReferences ?? [] : [],
     category: p.category,
     marques: p.marques ?? [],
     imageUrl: p.imageUrl,
@@ -347,3 +350,4 @@ export async function getUpcomingDeliveries(
     return [];
   }
 }
+
