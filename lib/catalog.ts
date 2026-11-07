@@ -233,6 +233,7 @@ export async function getProduct(
 export type MarqueItem = {
   id: string;
   name: string;
+  nameAr?: string | null;
   imageUrl: string | null;
   productCount: number;
 };
