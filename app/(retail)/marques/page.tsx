@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 export default async function MarquesPage() {
   const marques = await getMarques();
-  const { t } = await getTranslator();
+  const { language, t } = await getTranslator();
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -45,7 +45,7 @@ export default async function MarquesPage() {
           {marques.map((m) => (
             <MarqueCard
               key={m.id}
-              name={m.name}
+              name={language === "ar" && m.nameAr ? m.nameAr : m.name}
               imageUrl={m.imageUrl}
               productCount={m.productCount}
               href={`/products?marque=${encodeURIComponent(m.name)}`}
