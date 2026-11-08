@@ -64,6 +64,8 @@ export type ProOrderDetail = ProOrderSummary & {
     id: string;
     productId: string;
     quantity: number;
+    saleUnit?: "PACK" | "UNIT";
+    editablePackSize?: number;
     unitPrice: number;
     discount: number;
     taxRate: number;
@@ -254,7 +256,7 @@ export async function getProOrderById(
 export async function updateProOrder(
   orderId: string,
   updatedAt: string,
-  items: { id: string; quantity: number }[],
+  items: { id: string; quantity: number; saleUnit?: "PACK" | "UNIT" }[],
 ): Promise<Ok<{ updated: true }> | Err> {
   try {
     const result = await backendFetch<{ updated: true }>(

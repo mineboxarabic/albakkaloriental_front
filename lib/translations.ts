@@ -5,6 +5,10 @@ import { AR_PRO } from "@/lib/i18n/ar-pro";
 import { AR_SHARED } from "@/lib/i18n/ar-shared";
 
 const AR_CATALOG: Record<string, string> = {
+  "Conditionnement": "طريقة التعبئة",
+  "Carton": "كرتون",
+  "Unité": "قطعة",
+  "Ce produit ne permet pas de changer de conditionnement.": "لا يمكن تغيير طريقة تعبئة هذا المنتج.",
   "Modifier ma commande": "تعديل طلبي",
   "Pour retirer un article, indiquez une quantité de 0.": "لحذف صنف، أدخل 0 في خانة الكمية.",
   "Notre équipe vérifie la disponibilité des produits.": "يتحقق فريقنا من توفر المنتجات.",

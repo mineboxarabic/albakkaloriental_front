@@ -66,7 +66,7 @@ export class MockBackend {
   public loggedIn = false;
   public loggedInPro = false;
   public catalogOrdering = false;
-  public catalogOrder = { status: "PENDING", quantity: 1, updatedAt: "2026-11-08T04:00:00.000Z" };
+  public catalogOrder = { status: "PENDING", quantity: 1, saleUnit: "PACK" as "PACK" | "UNIT", updatedAt: "2026-11-08T04:00:00.000Z" };
   public deliveryZoneChecks = 0;
   public registeredPostalCode: string | null = null;
 
@@ -274,6 +274,7 @@ export class MockBackend {
                 if (order.status !== "PENDING") return sendJSON(409, { error: "Contactez-nous pour modifier cette commande." });
                 if (reqBody.updatedAt !== order.updatedAt) return sendJSON(409, { error: "La commande a changé." });
                 order.quantity = reqBody.items[0].quantity;
+                order.saleUnit = reqBody.items[0].saleUnit;
                 order.updatedAt = "2026-11-08T04:01:00.000Z";
                 return sendJSON(200, { updated: true });
               }
@@ -281,7 +282,9 @@ export class MockBackend {
               return sendJSON(200, { order: {
                 ...detail, ...order, lockedAt: null, canEdit: order.status === "PENDING",
                 billing: { state: "UNINVOICED", invoices: [] },
-                items: detail.items.map(item => ({ ...item, quantity: order.quantity, totalPrice: 144 * order.quantity })),
+                items: detail.items.map(item => ({ ...item, quantity: order.quantity, saleUnit: order.saleUnit,
+                  editablePackSize: 12, unitPrice: order.saleUnit === "PACK" ? 144 : 12,
+                  totalPrice: (order.saleUnit === "PACK" ? 144 : 12) * order.quantity })),
               } });
             }
             const order = SHARED_INVOICE.orders.find((o) => o.id === orderId);

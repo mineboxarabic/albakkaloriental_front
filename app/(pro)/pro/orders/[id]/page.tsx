@@ -10,9 +10,8 @@ import {
   XCircle,
   Download,
 } from "lucide-react";
-import Image from "next/image";
 import { getProOrderById } from "@/actions/pro-me";
-import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
+import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { ProOrderEditor } from "./pro-order-editor";
 import { ProOrderBillingCard } from "./pro-order-billing-card";
@@ -167,15 +166,6 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         <p className="text-[13px]" style={{ color: COLORS.muted }}>
           {t(meta.description)}
         </p>
-        {order.canEdit && (
-          <ProOrderEditor key={order.updatedAt} orderId={order.id} updatedAt={order.updatedAt}
-            items={order.items.map(item => ({
-              id: item.id,
-              name: productNames[item.productId] ?? item.product.name,
-              quantity: item.quantity,
-            }))} />
-        )}
-
         <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />
@@ -206,127 +196,69 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
       </section>
 
       <section className="mt-6 grid grid-cols-12 gap-6">
-        <div
-          className="col-span-12 lg:col-span-8 overflow-hidden rounded-sm border bg-white"
-          style={{ borderColor: COLORS.border }}
+        <ProOrderEditor
+          key={order.updatedAt}
+          orderId={order.id}
+          updatedAt={order.updatedAt}
+          canEdit={order.canEdit === true}
+          items={order.items.map(item => ({
+            id: item.id,
+            name: productNames[item.productId] ?? item.product.name,
+            sku: item.product.sku,
+            imageUrl: item.product.imageUrl,
+            quantity: item.quantity,
+            saleUnit: item.saleUnit,
+            packSize: item.editablePackSize ?? 1,
+            unitPrice: item.unitPrice,
+            totalPrice: item.totalPrice,
+          }))}
         >
-          <div
-            className="hidden grid-cols-12 items-center px-4 py-3 text-[10.5px] font-bold tracking-[0.14em] md:grid"
-            style={{ color: COLORS.muted, background: "#FAF8F2" }}
-          >
-            <div className="col-span-6">{t("PRODUIT")}</div>
-            <div className="col-span-2 text-center">{t("QTÉ")}</div>
-            <div className="col-span-2 text-end">{t("PU HT")}</div>
-            <div className="col-span-2 text-end">{t("TOTAL HT")}</div>
-          </div>
-
-          <ul>
-            {order.items.map((it) => (
-              <li
-                key={it.id}
-                className="border-t px-4 py-3 text-[13px] md:grid md:grid-cols-12 md:items-center md:gap-3"
-                style={{ borderColor: COLORS.border }}
-              >
-                <div className="flex items-center gap-3 md:col-span-6">
-                  <div
-                    className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-sm"
-                    style={{ background: COLORS.beige }}
-                  >
-                    <Image
-                      src={productImage(it.product.imageUrl)}
-                      alt={productNames[it.productId] ?? it.product.name}
-                      width={80}
-                      height={80}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1 leading-tight">
-                    <div className="font-semibold" style={{ color: COLORS.text }}>
-                      {productNames[it.productId] ?? it.product.name}
-                    </div>
-                    <div className="text-[11px]" style={{ color: COLORS.muted }}>
-                      {t("Réf")} <span className="ltr-isolate">{it.product.sku}</span>
-                    </div>
-                  </div>
-                  {/* Mobile line total */}
-                  <div className="text-end font-bold md:hidden" style={{ color: COLORS.text }}>
-                    {formatPriceEUR(it.totalPrice)}
-                  </div>
-                </div>
-
-                {/* Mobile qty × unit price line */}
-                <div
-                  className="mt-2 flex items-center gap-1.5 text-[12px] md:hidden"
-                  style={{ color: COLORS.muted }}
-                >
-                  <span className="ltr-isolate">
-                    <span className="font-semibold" style={{ color: COLORS.text }}>
-                      {it.quantity}
-                    </span>{" "}
-                    × {formatPriceEUR(it.unitPrice)}
-                  </span>{" "}
-                  {t("HT")}
-                </div>
-
-                <div className="hidden text-center font-semibold md:col-span-2 md:block" style={{ color: COLORS.text }}>
-                  {it.quantity}
-                </div>
-                <div className="hidden text-end md:col-span-2 md:block" style={{ color: COLORS.muted }}>
-                  {formatPriceEUR(it.unitPrice)}
-                </div>
-                <div className="hidden text-end font-bold md:col-span-2 md:block" style={{ color: COLORS.text }}>
-                  {formatPriceEUR(it.totalPrice)}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <aside
-          className="col-span-12 lg:col-span-4 rounded-sm border bg-white p-5"
-          style={{ borderColor: COLORS.border }}
-        >
-          <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.text }}>
-            {t("RÉCAPITULATIF")}
-          </div>
-          <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
-            <Row label={t("Sous-total HT")} value={formatPriceEUR(total)} />
-            <Row
-              label={t("dont TVA {rate}%", { rate: TAX_RATE })}
-              value={formatPriceEUR(tva)}
-            />
-          </dl>
-          <div
-            className="mt-4 flex items-center justify-between border-t pt-4"
+          <aside
+            className="col-span-12 lg:col-span-4 rounded-sm border bg-white p-5"
             style={{ borderColor: COLORS.border }}
           >
-            <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-              {t("Total")}
-            </span>
-            <span className="text-[22px] font-extrabold" style={{ color: COLORS.primary }}>
-              {formatPriceEUR(total)}
-            </span>
-          </div>
-          {order.deliveryCity && (
-            <div
-              className="mt-5 rounded-sm border-s-2 px-3 py-2 text-[11.5px]"
-              style={{ borderColor: COLORS.primary, background: "#FAF8F2", color: COLORS.muted }}
-            >
-              <div className="flex items-center gap-1.5 font-bold" style={{ color: COLORS.text }}>
-                <Package className="h-3 w-3" />
-                {t("Livraison")}
-              </div>
-              {order.deliveryCity.name} ·{" "}
-              {longDate(order.deliveryCity.delivery.scheduledDate)}
+            <div className="text-[11px] font-bold tracking-[0.14em]" style={{ color: COLORS.text }}>
+              {t("RÉCAPITULATIF")}
             </div>
-          )}
+            <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
+              <Row label={t("Sous-total HT")} value={formatPriceEUR(total)} />
+              <Row
+                label={t("dont TVA {rate}%", { rate: TAX_RATE })}
+                value={formatPriceEUR(tva)}
+              />
+            </dl>
+            <div
+              className="mt-4 flex items-center justify-between border-t pt-4"
+              style={{ borderColor: COLORS.border }}
+            >
+              <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
+                {t("Total")}
+              </span>
+              <span className="text-[22px] font-extrabold" style={{ color: COLORS.primary }}>
+                {formatPriceEUR(total)}
+              </span>
+            </div>
+            {order.deliveryCity && (
+              <div
+                className="mt-5 rounded-sm border-s-2 px-3 py-2 text-[11.5px]"
+                style={{ borderColor: COLORS.primary, background: "#FAF8F2", color: COLORS.muted }}
+              >
+                <div className="flex items-center gap-1.5 font-bold" style={{ color: COLORS.text }}>
+                  <Package className="h-3 w-3" />
+                  {t("Livraison")}
+                </div>
+                {order.deliveryCity.name} ·{" "}
+                {longDate(order.deliveryCity.delivery.scheduledDate)}
+              </div>
+            )}
 
-          <ProOrderBillingCard
-            billing={order.billing}
-            orderStatus={order.status}
-            language={language}
-          />
-        </aside>
+            <ProOrderBillingCard
+              billing={order.billing}
+              orderStatus={order.status}
+              language={language}
+            />
+          </aside>
+        </ProOrderEditor>
       </section>
 
       <ProOrderAttachments attachments={order.attachments} contactUrl={attachmentsContactUrl} />

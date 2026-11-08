@@ -28,15 +28,18 @@ test("wholesale catalog order can be edited until staff confirmation", async ({ 
   await page.getByRole("button", { name: "Commander" }).click();
   await expect(page).toHaveURL(/\/pro\/orders\/catalog-order$/);
   await page.getByRole("button", { name: "Modifier ma commande" }).click();
-  await expect(page.getByRole("spinbutton", { name: "Produit Pro 2" })).toHaveValue("2");
-  await page.getByRole("spinbutton", { name: "Produit Pro 2" }).fill("3");
-  await page.screenshot({ path: testInfo.outputPath("pending-order-edit.png") });
+  await expect(page.getByRole("table").getByRole("spinbutton", { name: /Produit Pro 2/ })).toHaveValue("2");
+  await page.getByRole("table").getByRole("spinbutton", { name: /Produit Pro 2/ }).fill("25");
+  await page.getByRole("table").getByRole("combobox", { name: /Produit Pro 2/ }).selectOption("UNIT");
+  await page.screenshot({ path: testInfo.outputPath("b2b-order-edit-table.png") });
   await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect.poll(() => backend.catalogOrder.quantity).toBe(3);
+  await expect.poll(() => backend.catalogOrder).toMatchObject({ quantity: 25, saleUnit: "UNIT" });
+  await expect(page.getByRole("table").getByText("Unité", { exact: true })).toBeVisible();
 
   backend.catalogOrder.status = "CONFIRMED";
   await page.reload();
   await expect(page.getByRole("button", { name: "Modifier ma commande" })).toHaveCount(0);
+  await expect(page.getByRole("table").getByRole("combobox")).toHaveCount(0);
   await expect(page.getByText("Commande validée. Contactez-nous pour demander une modification.")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("confirmed-order.png") });
 });
