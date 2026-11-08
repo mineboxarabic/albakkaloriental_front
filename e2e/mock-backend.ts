@@ -65,6 +65,8 @@ export class MockBackend {
   public proCartItems: any[] = [];
   public loggedIn = false;
   public loggedInPro = false;
+  public catalogOrdering = false;
+  public catalogOrder = { status: "PENDING", quantity: 1, saleUnit: "PACK" as "PACK" | "UNIT", updatedAt: "2026-11-08T04:00:00.000Z" };
   public deliveryZoneChecks = 0;
   public registeredPostalCode: string | null = null;
 
@@ -141,9 +143,15 @@ export class MockBackend {
               return sendJSON(401, { error: "Authentication required" });
             }
             return sendJSON(200, {
+              orderingMode: this.catalogOrdering ? "CATALOG" : "INVENTORY",
+              availabilityMessage: this.catalogOrdering ? {
+                fr: "Commande sous réserve de disponibilité.",
+                ar: "الطلب خاضع لتوفر المنتجات.",
+              } : null,
               products: [
                 {
                   id: "prod-2",
+                  ...(this.catalogOrdering ? { availableStock: null, canOrder: true, availabilityUnconfirmed: true } : {}),
                   name: "Produit Pro 2",
                   sku: "PP-2",
                   category: "epicerie",
@@ -255,6 +263,30 @@ export class MockBackend {
               return sendJSON(401, { error: "Authentication required" });
             }
             const orderId = path.split("/").pop() as string;
+            if (this.catalogOrdering && orderId === "checkout" && method === "POST") {
+              this.catalogOrder.quantity = this.proCartItems[0]?.quantity ?? 1;
+              this.proCartItems = [];
+              return sendJSON(201, { order: { id: "catalog-order" } });
+            }
+            if (this.catalogOrdering && orderId === "catalog-order") {
+              const order = this.catalogOrder;
+              if (method === "POST") {
+                if (order.status !== "PENDING") return sendJSON(409, { error: "Contactez-nous pour modifier cette commande." });
+                if (reqBody.updatedAt !== order.updatedAt) return sendJSON(409, { error: "La commande a changé." });
+                order.quantity = reqBody.items[0].quantity;
+                order.saleUnit = reqBody.items[0].saleUnit;
+                order.updatedAt = "2026-11-08T04:01:00.000Z";
+                return sendJSON(200, { updated: true });
+              }
+              const detail = mockOrderDetail(orderId, "CMD-CATALOG", 144);
+              return sendJSON(200, { order: {
+                ...detail, ...order, lockedAt: null, canEdit: order.status === "PENDING",
+                billing: { state: "UNINVOICED", invoices: [] },
+                items: detail.items.map(item => ({ ...item, quantity: order.quantity, saleUnit: order.saleUnit,
+                  editablePackSize: 12, unitPrice: order.saleUnit === "PACK" ? 144 : 12,
+                  totalPrice: (order.saleUnit === "PACK" ? 144 : 12) * order.quantity })),
+              } });
+            }
             const order = SHARED_INVOICE.orders.find((o) => o.id === orderId);
             if (!order) {
               return sendJSON(404, { error: "Not found" });

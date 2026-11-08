@@ -28,7 +28,7 @@ type Props = {
   unitsPerPack: number;
   pricing: { effectivePrice: number; unitsPerPack: number; unitSellingPrice: number | null };
   isOutOfStock?: boolean;
-  availableStock?: number;
+  availableStock?: number | null;
   baseUnit?: string;
   authenticated?: boolean;
 };
@@ -60,7 +60,7 @@ export function AddToProCartButton({
 
   const maxQtyForUnit = useMemo(
     () =>
-      saleUnit === "PACK" && unitsPerPack > 0
+      availableStock === null ? Infinity : saleUnit === "PACK" && unitsPerPack > 0
         ? Math.floor(availableStock / unitsPerPack)
         : availableStock,
     [saleUnit, availableStock, unitsPerPack],
@@ -183,7 +183,7 @@ export function AddToProCartButton({
         </div>
       </div>
 
-      {!isOutOfStock && (
+      {!isOutOfStock && availableStock !== null && (
         <p className="text-[11.5px]" style={{ color: COLORS.muted }}>
           {stockLabel}
         </p>

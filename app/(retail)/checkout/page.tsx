@@ -4,6 +4,7 @@ import { getRetailMe } from "@/actions/retail-me";
 import { getRetailCheckoutInstructions } from "@/actions/retail-order";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { CheckoutForm } from "./checkout-form";
+import { CatalogAvailabilityNotice } from "@/components/catalog-availability-notice";
 import { getTranslator } from "@/lib/server-language";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ export default async function CheckoutPage() {
         {t("Vérifiez vos informations de livraison et confirmez votre commande.")}
       </p>
 
+      <CatalogAvailabilityNotice audience="retail" />
       <div className="mt-6">
         <CheckoutForm
           instructionsMarkdown={instructionsMarkdown}

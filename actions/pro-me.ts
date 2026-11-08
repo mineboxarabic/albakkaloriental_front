@@ -54,6 +54,8 @@ export type ProOrderSummary = {
 };
 
 export type ProOrderDetail = ProOrderSummary & {
+  updatedAt: string;
+  canEdit?: boolean;
   billing: {
     state: "UNINVOICED" | "INVOICED";
     invoices: ProInvoice[];
@@ -62,6 +64,8 @@ export type ProOrderDetail = ProOrderSummary & {
     id: string;
     productId: string;
     quantity: number;
+    saleUnit?: "PACK" | "UNIT";
+    editablePackSize?: number;
     unitPrice: number;
     discount: number;
     taxRate: number;
@@ -244,6 +248,22 @@ export async function getProOrderById(
       { auth: "required" },
     );
     return { ok: true, order: data.order };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function updateProOrder(
+  orderId: string,
+  updatedAt: string,
+  items: { id: string; quantity: number; saleUnit?: "PACK" | "UNIT" }[],
+): Promise<Ok<{ updated: true }> | Err> {
+  try {
+    const result = await backendFetch<{ updated: true }>(
+      `/api/v1/b2b/orders/${encodeURIComponent(orderId)}`,
+      { method: "POST", auth: "required", body: { updatedAt, items } },
+    );
+    return { ok: true, updated: result.updated };
   } catch (error) {
     return fail(error);
   }

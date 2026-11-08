@@ -5,6 +5,8 @@ import { backendFetch, ApiClientError } from "@/lib/api-client";
 
 export { formatPriceEUR } from "@/lib/catalog-pricing";
 
+type AvailabilityMessage = Record<Language, string>;
+
 export type CatalogAudience = "retail" | "pro";
 
 export type ProductCard = {
@@ -45,7 +47,8 @@ export type ProductCard = {
    *  product's base unit. Only meaningful for "pro" (B2B) — retail out-of-stock
    *  is a manual admin badge, not quantity-driven. Matches what the B2B
    *  cart/checkout stock check itself is computed from. */
-  availableStock: number;
+  availableStock: number | null;
+  availabilityUnconfirmed?: boolean;
 };
 
 type BackendCatalogProduct = {
@@ -87,7 +90,9 @@ type BackendCatalogProduct = {
   /** Still sent by B2B endpoint: computed from real stock quantity. */
   isOutOfStock?: boolean;
   /** Sent by both endpoints (same on-hand sum isOutOfStock is derived from). */
-  availableStock?: number;
+  availableStock?: number | null;
+  canOrder?: boolean;
+  availabilityUnconfirmed?: boolean;
   isActive?: boolean;
 };
 
@@ -131,8 +136,9 @@ function toProductCard(
     priceLevelE: p.priceLevelE ?? null,
     priceLevelF: p.priceLevelF ?? null,
     effectivePrice: p.price,
-    isOutOfStock,
-    availableStock: p.availableStock ?? 0,
+    isOutOfStock: p.canOrder === undefined ? isOutOfStock : !p.canOrder,
+    availableStock: p.availableStock === null ? null : (p.availableStock ?? 0),
+    availabilityUnconfirmed: p.availabilityUnconfirmed,
   };
 }
 
@@ -168,19 +174,23 @@ function isHidden(
 
 async function fetchCatalog(
   audience: CatalogAudience,
-): Promise<{ products: BackendCatalogProduct[]; backendDown: boolean }> {
+): Promise<{ products: BackendCatalogProduct[]; backendDown: boolean; availabilityMessage?: AvailabilityMessage }> {
   const path =
     audience === "retail" ? "/api/v1/retail/catalog" : "/api/v1/b2b/catalog";
   // Both audiences browse with optional auth: the back-end returns prices when a
   // valid session is present and a price-stripped catalog otherwise (B2B guests).
   try {
-    const data = await backendFetch<{ products: BackendCatalogProduct[] }>(
+    const data = await backendFetch<{ products: BackendCatalogProduct[]; orderingMode?: "INVENTORY" | "CATALOG"; availabilityMessage?: AvailabilityMessage }>(
       path,
       {
         auth: "optional",
       },
     );
-    return { products: data.products, backendDown: false };
+    return {
+      products: data.products,
+      backendDown: false,
+      availabilityMessage: data.orderingMode === "CATALOG" ? data.availabilityMessage : undefined,
+    };
   } catch (err) {
     // 401 = no/expired session; not a server failure, just unauthenticated
     if (err instanceof ApiClientError && err.status === 401) {
@@ -197,8 +207,8 @@ export async function getProducts(opts: {
   marque?: string;
   take?: number;
   skip?: number;
-}): Promise<{ products: ProductCard[]; backendDown: boolean }> {
-  const { products: all, backendDown } = await fetchCatalog(opts.audience);
+}): Promise<{ products: ProductCard[]; backendDown: boolean; availabilityMessage?: AvailabilityMessage }> {
+  const { products: all, backendDown, availabilityMessage } = await fetchCatalog(opts.audience);
   const visible = all.filter((p) => !isHidden(p, opts.audience));
   const byCategory = opts.category
     ? visible.filter((p) => matchesCategory(p, opts.category!))
@@ -216,6 +226,7 @@ export async function getProducts(opts: {
       .slice(skip, skip + take)
       .map((p) => toProductCard(p, opts.audience, opts.language)),
     backendDown,
+    availabilityMessage,
   };
 }
 
