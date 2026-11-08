@@ -14,6 +14,7 @@ import Image from "next/image";
 import { getProOrderById } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
+import { ProOrderEditor } from "./pro-order-editor";
 import { ProOrderBillingCard } from "./pro-order-billing-card";
 import { getTranslator } from "@/lib/server-language";
 import { formatDate } from "@/lib/language";
@@ -35,14 +36,14 @@ const STATUS_META: Record<
     color: "#7A5409",
     icon: FileText,
     description:
-      "Notre équipe vérifie la disponibilité des produits. Vous pouvez encore nous signaler un changement avant la clôture des commandes, à 21h la veille de la livraison.",
+      "Notre équipe vérifie la disponibilité des produits.",
   },
   CONFIRMED: {
     label: "Commande confirmée",
     bg: "#E5F0D9",
     color: COLORS.primary,
     icon: ShieldCheck,
-    description: "Commande validée. Préparation en cours.",
+    description: "Commande validée. Contactez-nous pour demander une modification.",
   },
   PREPARED: {
     label: "Préparée",
@@ -166,6 +167,15 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
         <p className="text-[13px]" style={{ color: COLORS.muted }}>
           {t(meta.description)}
         </p>
+        {order.canEdit && (
+          <ProOrderEditor key={order.updatedAt} orderId={order.id} updatedAt={order.updatedAt}
+            items={order.items.map(item => ({
+              id: item.id,
+              name: productNames[item.productId] ?? item.product.name,
+              quantity: item.quantity,
+            }))} />
+        )}
+
         <div className="mt-3 flex flex-col gap-3 rounded-sm border bg-[#FAF8F2] px-4 py-3 text-[13px] sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <FileText className="h-4 w-4 shrink-0" style={{ color: COLORS.primary }} />

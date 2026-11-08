@@ -5,6 +5,16 @@ import { AR_PRO } from "@/lib/i18n/ar-pro";
 import { AR_SHARED } from "@/lib/i18n/ar-shared";
 
 const AR_CATALOG: Record<string, string> = {
+  "Modifier ma commande": "تعديل طلبي",
+  "Pour retirer un article, indiquez une quantité de 0.": "لحذف صنف، أدخل 0 في خانة الكمية.",
+  "Notre équipe vérifie la disponibilité des produits.": "يتحقق فريقنا من توفر المنتجات.",
+  "Commande validée. Contactez-nous pour demander une modification.": "تم تأكيد الطلب. تواصل معنا لطلب تعديل.",
+  "Contactez-nous pour modifier cette commande.": "تواصل معنا لتعديل هذا الطلب.",
+  "La commande a changé. Actualisez la page et réessayez.": "تم تعديل الطلب. حدّث الصفحة وحاول مجددًا.",
+  "Conservez au moins un article dans la commande.": "أبقِ صنفًا واحدًا على الأقل في الطلب.",
+  "Stock insuffisant pour la quantité demandée.": "المخزون غير كافٍ للكمية المطلوبة.",
+  "Produit momentanément indisponible à la commande.": "هذا المنتج غير متاح للطلب حاليًا.",
+  "Mise à jour impossible.": "تعذّر حفظ التعديلات.",
   "Pagination du catalogue": "صفحات الكتالوج",
   "Page {page} sur {total}": "الصفحة {page} من {total}",
   Précédent: "السابق",

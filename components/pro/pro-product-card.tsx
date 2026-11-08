@@ -101,7 +101,7 @@ export function ProProductCard({
           </div>
         )}
 
-        {authenticated && !isOutOfStock && (
+        {authenticated && !isOutOfStock && product.availableStock !== null && (
           <div
             className="text-[10.5px] font-medium"
             style={{ color: COLORS.muted }}

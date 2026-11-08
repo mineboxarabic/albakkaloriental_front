@@ -258,3 +258,18 @@ describe("getCategories", () => {
     expect(result).toEqual(["apple", "milk", "zucchini"]);
   });
 });
+
+it("keeps unverified catalog products orderable and preserves the stock warning", async () => {
+  backendFetchMock.mockResolvedValueOnce({
+    orderingMode: "CATALOG",
+    availabilityMessage: { fr: "Disponibilité à confirmer", ar: "التوفر قيد التأكيد" },
+    products: [fakeProduct({
+      visibility: "BOTH", availableStock: null, canOrder: true, availabilityUnconfirmed: true,
+    })],
+  });
+  const result = await getProducts({ audience: "pro" });
+  expect(result.availabilityMessage?.ar).toBe("التوفر قيد التأكيد");
+  expect(result.products[0]).toMatchObject({
+    isOutOfStock: false, availabilityUnconfirmed: true, availableStock: null,
+  });
+});
