@@ -109,7 +109,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
       : null);
 
   return (
-    <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
+    <main className="mx-auto max-w-[1180px] px-4 py-6 pb-16 sm:px-6 sm:pt-8">
       <nav className="text-[11.5px]" style={{ color: COLORS.muted }}>
         <Link href="/pro/products" className="hover:underline">
           {t("Catalogue pro")}
