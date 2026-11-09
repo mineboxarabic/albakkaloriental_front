@@ -55,24 +55,26 @@ export function ProProductCardActions({
 
   return (
     <div className="mt-1 flex gap-2">
-      <button
-        type="button"
-        onClick={() => add("UNIT", unitPrice ?? 0)}
-        disabled={!unitPrice || unitPrice <= 0 || isOutOfStock || adding !== null}
-        aria-label={unitPrice && unitPrice > 0 ? "Ajouter une unité au devis" : undefined}
-        className={buttonClass}
-        style={{
-          background: unitPrice && unitPrice > 0 && !isOutOfStock ? COLORS.primary : "#999",
-          color: "#FFFFFF",
-        }}
-      >
-        {unitPrice && unitPrice > 0 && !isOutOfStock ? (
-          added === "UNIT" ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />
-        ) : null}
-        <span>{unitPrice && unitPrice > 0 && !isOutOfStock ? (
-          <><TranslatedText value={"Unité"} /> · {formatPriceEUR(unitPrice)}</>
-        ) : <TranslatedText value={"En rupture"} />}</span>
-      </button>
+      {unitPrice !== null && (
+        <button
+          type="button"
+          onClick={() => add("UNIT", unitPrice)}
+          disabled={unitPrice <= 0 || isOutOfStock || adding !== null}
+          aria-label={unitPrice > 0 ? "Ajouter une unité au devis" : undefined}
+          className={buttonClass}
+          style={{
+            background: unitPrice > 0 && !isOutOfStock ? COLORS.primary : "#999",
+            color: "#FFFFFF",
+          }}
+        >
+          {unitPrice > 0 && !isOutOfStock ? (
+            added === "UNIT" ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />
+          ) : null}
+          <span>{unitPrice > 0 && !isOutOfStock ? (
+            <><TranslatedText value={"Unité"} /> · {formatPriceEUR(unitPrice)}</>
+          ) : <TranslatedText value={"En rupture"} />}</span>
+        </button>
+      )}
 
       <button
         type="button"
