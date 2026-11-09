@@ -1,8 +1,13 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
+
+const { addItemMock } = vi.hoisted(() => ({ addItemMock: vi.fn().mockResolvedValue({ ok: true }) }));
+vi.mock("@/components/cart-context", () => ({ useCart: () => ({ addItem: addItemMock }) }));
+
+beforeEach(() => addItemMock.mockClear());
 
 function makeProduct(overrides: Partial<ProductCardData> = {}): ProductCardData {
   return {
@@ -27,12 +32,20 @@ function makeProduct(overrides: Partial<ProductCardData> = {}): ProductCardData 
 }
 
 describe("ProProductCard", () => {
-  it("shows SKU, name and the devis CTA when authenticated and in stock", () => {
+  it("shows separate quick-add buttons for one unit and one carton", async () => {
     render(<ProProductCard product={makeProduct()} />);
     expect(screen.getByText("CSC-5")).toBeInTheDocument();
-    const cta = screen.getByRole("link", { name: /ajouter au devis/i });
-    expect(cta).toHaveAttribute("href", "/pro/products/p1");
     expect(screen.queryByText(/connectez-vous/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /ajouter une unité au devis/i }));
+    await waitFor(() => expect(addItemMock).toHaveBeenCalledWith(
+      expect.objectContaining({ productId: "p1", saleUnit: "UNIT", unitPrice: 10 }),
+      1,
+    ));
+    fireEvent.click(screen.getByRole("button", { name: /ajouter un carton au devis/i }));
+    await waitFor(() => expect(addItemMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ productId: "p1", saleUnit: "PACK", unitPrice: 60 }),
+      1,
+    ));
   });
 
   it("renders the unit price block when the product is sold by pack (unitsPerPack > 1)", () => {
@@ -55,15 +68,14 @@ describe("ProProductCard", () => {
       "href",
       "/pro/login",
     );
-    expect(screen.queryByRole("link", { name: /ajouter au devis/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ajouter .* au devis/i })).not.toBeInTheDocument();
   });
 
   it("shows the RUPTURE badge and a disabled CTA when out of stock", () => {
     render(<ProProductCard product={makeProduct({ isOutOfStock: true })} />);
     expect(screen.getByText("RUPTURE")).toBeInTheDocument();
-    const button = screen.getByRole("button", { name: /indisponible/i });
-    expect(button).toBeDisabled();
-    expect(screen.queryByRole("link", { name: /ajouter au devis/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /indisponible/i })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /ajouter .* au devis/i })).not.toBeInTheDocument();
   });
 });
 
@@ -81,5 +93,13 @@ describe("ProProductCard price source", () => {
   it("shows the unit price from effectivePrice", () => {
     render(<ProProductCard product={makeProduct({ effectivePrice: 1.4, unitsPerPack: 12 })} />);
     expect(screen.getAllByText(/1,40 €/).length).toBeGreaterThan(0);
+  });
+
+  it("shows En rupture and disables both quick-add options when the price is zero", () => {
+    render(<ProProductCard product={makeProduct({ effectivePrice: 0 })} />);
+    expect(screen.queryByText(/0,00 €/)).not.toBeInTheDocument();
+    expect(screen.getAllByText("En rupture").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByRole("button", { name: "En rupture" }).every((button) => (button as HTMLButtonElement).disabled)).toBe(true);
+    expect(addItemMock).not.toHaveBeenCalled();
   });
 });
