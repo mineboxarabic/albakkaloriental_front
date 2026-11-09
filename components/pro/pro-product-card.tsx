@@ -17,6 +17,7 @@ import {
 import { translate } from "@/lib/translations";
 import type { Language } from "@/lib/language";
 import { ProductAdminActions } from "@/components/admin/product-admin-actions";
+import { ProProductCardActions } from "@/components/pro/pro-product-card-actions";
 
 export function ProProductCard({
   product,
@@ -133,7 +134,7 @@ export function ProProductCard({
                   className="text-[15px] font-extrabold leading-none"
                   style={{ color: COLORS.primary }}
                 >
-                  {formatPriceEUR(packPrice)}
+                  {packPrice > 0 ? formatPriceEUR(packPrice) : <TranslatedText value={"En rupture"} />}
                 </span>
               </div>
               {hasUnit && unitPrice != null && (
@@ -151,7 +152,7 @@ export function ProProductCard({
                     className="text-[14px] font-extrabold leading-none"
                     style={{ color: COLORS.text }}
                   >
-                    {formatPriceEUR(unitPrice)}
+                    {unitPrice > 0 ? formatPriceEUR(unitPrice) : <TranslatedText value={"En rupture"} />}
                   </span>
                 </div>
               )}
@@ -218,14 +219,15 @@ export function ProProductCard({
             <TranslatedText value={"Indisponible"} />{" "}
           </button>
         ) : (
-          <Link
-            href={`/pro/products/${product.id}`}
-            prefetch={false}
-            className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
-            style={{ background: COLORS.primary }}
-          >
-            <TranslatedText value={"Ajouter au devis"} />{" "}
-          </Link>
+          <ProProductCardActions
+            productId={product.id}
+            name={product.name}
+            imageUrl={product.imageUrl}
+            unitsPerPack={product.unitsPerPack}
+            packPrice={packPrice}
+            unitPrice={unitPrice}
+            isOutOfStock={isOutOfStock}
+          />
         )}
       </div>
     </article>
@@ -259,7 +261,7 @@ function PriceBlock({
         className="text-[14px] font-extrabold leading-none"
         style={{ color: primary ? COLORS.primary : COLORS.text }}
       >
-        {formatPriceEUR(price)}
+        {price > 0 ? formatPriceEUR(price) : <TranslatedText value={"En rupture"} />}
       </div>
     </div>
   );
