@@ -99,7 +99,7 @@ describe("ProProductCard price source", () => {
     render(<ProProductCard product={makeProduct({ effectivePrice: 0 })} />);
     expect(screen.queryByText(/0,00 €/)).not.toBeInTheDocument();
     expect(screen.getAllByText("En rupture").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByRole("button", { name: "En rupture" })).toBeDisabled();
+    expect(screen.getAllByRole("button", { name: "En rupture" }).every((button) => (button as HTMLButtonElement).disabled)).toBe(true);
     expect(addItemMock).not.toHaveBeenCalled();
   });
 });
