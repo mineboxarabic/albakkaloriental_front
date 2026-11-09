@@ -8,6 +8,7 @@ const AR_CATALOG: Record<string, string> = {
   "Conditionnement": "طريقة التعبئة",
   "Carton": "كرتون",
   "Unité": "قطعة",
+  "En rupture": "نفد المخزون",
   "Ce produit ne permet pas de changer de conditionnement.": "لا يمكن تغيير طريقة تعبئة هذا المنتج.",
   "Modifier ma commande": "تعديل طلبي",
   "Pour retirer un article, indiquez une quantité de 0.": "لحذف صنف، أدخل 0 في خانة الكمية.",
