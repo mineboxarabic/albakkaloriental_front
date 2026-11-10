@@ -108,4 +108,11 @@ export const AR_SHARED: Record<string, string> = {
   "WhatsApp (commercial pro)": "واتساب (مسؤول المبيعات للمهنيين)",
   "Une question, une commande, une suggestion ? Choisissez le canal qui vous convient le mieux.":
     "سؤال أو طلب أو اقتراح؟ اختر وسيلة التواصل المناسبة لك.",
+
+  // Cart sync
+  "Connexion impossible. Vérifiez votre réseau et réessayez.":
+    "تعذّر الاتصال. تحقّق من الشبكة وحاول مجددًا.",
+  "Aucun produit ne correspond à « {query} ».": "لا يوجد منتج يطابق « {query} ».",
+  "Vérifiez l'orthographe ou essayez un nom de marque, une catégorie ou un SKU.":
+    "تحقّق من الإملاء أو جرّب اسم علامة تجارية أو قسماً أو رمز المنتج.",
 };

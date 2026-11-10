@@ -9,6 +9,7 @@ import { checkDeliveryZone } from "@/actions/delivery-zone";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
 import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/language-provider";
 import ReactMarkdown from "react-markdown";
 
@@ -25,7 +26,7 @@ export function CheckoutForm({
     address: string;
   };
 }) {
-  const { items, total, clearCart } = useCart();
+  const { items, loading, total, clearCart, whenSettled } = useCart();
   const { t } = useLanguage();
   const fee = deliveryFee(total);
   const grandTotal = total + fee;
@@ -82,6 +83,8 @@ export function CheckoutForm({
       return;
     }
     startTransition(async () => {
+      // Quantity changes are saved in the background; the order must see them.
+      await whenSettled();
       const res = await checkoutRetail({
         deliveryName: delivery.name,
         deliveryPhone: delivery.phone,
@@ -98,6 +101,17 @@ export function CheckoutForm({
       router.push(`/orders/${res.orderId}`);
     });
   };
+
+  if (loading) {
+    return (
+      <div aria-busy className="space-y-3 rounded-xl border bg-white p-6" style={{ borderColor: COLORS.border }}>
+        <Skeleton className="h-4 w-1/3" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-2/3" />
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

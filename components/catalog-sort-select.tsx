@@ -1,11 +1,11 @@
 "use client";
 import { useLanguage } from "@/components/language-provider";
 
-import { useTransition } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { ArrowUpDown } from "lucide-react";
 import { COLORS } from "@/lib/ui";
 import { SORT_OPTIONS, parseSortKey } from "@/lib/catalog-sort";
+import { useCatalogNavigation } from "@/components/catalog-transition";
 
 export function CatalogSortSelect({
   className = "",
@@ -15,10 +15,9 @@ export function CatalogSortSelect({
   variant?: "light" | "dark";
 }) {
   const { t } = useLanguage();
-  const router = useRouter();
+  const { navigate } = useCatalogNavigation();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [, startTransition] = useTransition();
 
   const current = parseSortKey(searchParams.get("sort") ?? undefined);
   const isDark = variant === "dark";
@@ -28,9 +27,7 @@ export function CatalogSortSelect({
     params.delete("page");
     if (value && value !== "default") params.set("sort", value);
     else params.delete("sort");
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`);
-    });
+    navigate(`${pathname}?${params.toString()}`);
   }
 
   return (

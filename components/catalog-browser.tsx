@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   getProducts,
   getCategoryItems,
@@ -22,6 +21,11 @@ import { CatalogSearchInput } from "@/components/catalog-search-input";
 import { CatalogSortSelect } from "@/components/catalog-sort-select";
 import { SubcategoryChip } from "@/components/browse-cards";
 import { CatalogPagination } from "@/components/catalog-pagination";
+import {
+  CatalogLink,
+  CatalogResults,
+  CatalogTransitionProvider,
+} from "@/components/catalog-transition";
 import {
   paginateCatalog,
   type CatalogSearchParams,
@@ -72,13 +76,20 @@ export async function CatalogBrowser({
   const pagination = paginateCatalog(sorted, params.page);
   const base = audience === "pro" ? "/pro/products" : "/products";
   const t = (text: string) => translate(text, language);
-  const link = (value?: string) => ({
-    pathname: base,
-    query: {
-      ...(value ? { category: value } : {}),
-      ...(params.q ? { q: params.q } : {}),
-      ...(params.sort ? { sort: params.sort } : {}),
-    },
+  const href = (query: Record<string, string | undefined>) => {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value) search.set(key, value);
+    }
+    return search.size ? `${base}?${search}` : base;
+  };
+  const link = (value?: string) =>
+    href({ category: value, q: params.q, sort: params.sort });
+  const clearSearchHref = href({
+    category: params.category,
+    marque: params.marque,
+    tag: params.tag,
+    sort: params.sort,
   });
   const activeLabel =
     category?.label ||
@@ -86,6 +97,7 @@ export async function CatalogBrowser({
     params.marque ||
     t(audience === "pro" ? "Catalogue professionnel" : "Tous les produits");
   return (
+    <CatalogTransitionProvider>
     <main className="mx-auto w-full max-w-[1180px] px-5 py-8 pb-16">
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -106,12 +118,12 @@ export async function CatalogBrowser({
       )}
       <div className="grid gap-6 lg:grid-cols-[210px_1fr]">
         <aside aria-label={t("Catégories")} className="min-w-0">
-          <Link
+          <CatalogLink
             href={link()}
             className="mb-3 inline-block text-sm font-semibold text-[#3F561F]"
           >
             {t("Tous les produits")}
-          </Link>
+          </CatalogLink>
           <div className="flex gap-3 overflow-x-auto pb-3 lg:block">
             {navigation.map((parent) => (
               <details
@@ -120,19 +132,19 @@ export async function CatalogBrowser({
                 className="min-w-[170px] rounded-lg border border-[#DDD8CC] bg-white p-3 lg:mb-3"
               >
                 <summary className="cursor-pointer text-sm font-semibold text-[#3F561F]">
-                  <Link
+                  <CatalogLink
                     href={link(parent.value)}
                     aria-current={
                       params.category === parent.value ? "page" : undefined
                     }
                   >
                     {parent.label}
-                  </Link>
+                  </CatalogLink>
                 </summary>
                 <ul className="mt-2 space-y-2 text-xs text-[#6B665D]">
                   {parent.children.map((child) => (
                     <li key={child.id}>
-                      <Link
+                      <CatalogLink
                         href={link(child.value)}
                         aria-current={
                           params.category === child.value ? "page" : undefined
@@ -140,7 +152,7 @@ export async function CatalogBrowser({
                         className="hover:underline"
                       >
                         {child.label}
-                      </Link>
+                      </CatalogLink>
                     </li>
                   ))}
                 </ul>
@@ -155,15 +167,16 @@ export async function CatalogBrowser({
               <ul className="mt-3 space-y-2 text-xs">
                 {marques.map((m) => (
                   <li key={m.id}>
-                    <Link href={{ pathname: base, query: { marque: m.name } }}>
+                    <CatalogLink href={href({ marque: m.name })}>
                       {m.name}
-                    </Link>
+                    </CatalogLink>
                   </li>
                 ))}
               </ul>
             </details>
           )}
         </aside>
+        <CatalogResults className="min-w-0">
         <section aria-label={t("Produits")} className="min-w-0">
           {subcategoryShortcuts.length > 0 && (
             <nav
@@ -194,9 +207,26 @@ export async function CatalogBrowser({
             language={language}
           />
           {sorted.length === 0 ? (
-            <p className="rounded-lg border border-[#DDD8CC] bg-white p-8 text-center text-sm">
-              {t("Aucun produit trouvé.")}
-            </p>
+            <div className="rounded-lg border border-[#DDD8CC] bg-white p-8 text-center text-sm">
+              <p className="text-[#171717]">
+                {params.q
+                  ? translate("Aucun produit ne correspond à « {query} ».", language, { query: params.q })
+                  : t("Aucun produit trouvé.")}
+              </p>
+              {params.q && (
+                <p className="mt-2 text-[#6B665D]">
+                  {t("Vérifiez l'orthographe ou essayez un nom de marque, une catégorie ou un SKU.")}
+                </p>
+              )}
+              {(params.q || params.category || params.marque || params.tag) && (
+                <CatalogLink
+                  href={params.q ? clearSearchHref : base}
+                  className="mt-4 inline-flex rounded-sm bg-[#3F561F] px-4 py-2 text-[12.5px] font-semibold text-white"
+                >
+                  {params.q ? t("Effacer la recherche") : t("Tous les produits")}
+                </CatalogLink>
+              )}
+            </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {pagination.items.map((product) =>
@@ -225,7 +255,9 @@ export async function CatalogBrowser({
             language={language}
           />
         </section>
+        </CatalogResults>
       </div>
     </main>
+    </CatalogTransitionProvider>
   );
 }

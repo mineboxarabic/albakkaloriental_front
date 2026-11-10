@@ -151,7 +151,8 @@ export class MockBackend {
               products: [
                 {
                   id: "prod-2",
-                  ...(this.catalogOrdering ? { availableStock: null, canOrder: true, availabilityUnconfirmed: true } : {}),
+                  // lib/catalog reads a missing stock figure as 0, which would cap every quantity at 1.
+                  ...(this.catalogOrdering ? { availableStock: null, canOrder: true, availabilityUnconfirmed: true } : { availableStock: 120 }),
                   name: "Produit Pro 2",
                   sku: "PP-2",
                   category: "epicerie",

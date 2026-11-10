@@ -46,7 +46,8 @@ test.describe("B2C Retail Cart Flow", () => {
     await page.goto("/cart");
 
     // The cart should show "Produit Retail 1" with quantity 1
-    await expect(page.getByText("Produit Retail 1")).toBeVisible();
+    // The closed cart drawer also lists the line, so look in the page itself.
+    await expect(page.getByRole("main").getByText("Produit Retail 1")).toBeVisible();
     await expect(page.locator("div").filter({ hasText: /^1$/ }).first()).toBeVisible();
 
     // 6. Enforce retail limit of 3 units
@@ -117,7 +118,7 @@ test.describe("B2B Pro Cart Flow", () => {
       await plusBtn.click();
     }
     // Verify quantity input shows 5
-    await expect(page.getByText("5", { exact: true })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Quantité" })).toHaveValue("5");
 
     // 4. Click "Ajouter au devis"
     await page.getByRole("button", { name: "Ajouter au devis" }).click();
@@ -128,7 +129,8 @@ test.describe("B2B Pro Cart Flow", () => {
     await expect(page.getByText("Produit Pro 2").first()).toBeVisible();
     
     // Check quantity is indeed 5 (not clamped to 3)
-    await expect(page.locator("div").filter({ hasText: /^5$/ }).first()).toBeVisible();
+    const cartQty = page.getByRole("textbox", { name: /Quantité · Produit Pro 2/ });
+    await expect(cartQty).toHaveValue("5");
 
     // 6. Increase quantity even further in cart (e.g., to 6)
     const cartPlusBtn = page.getByRole("button", { name: "Augmenter" });
@@ -136,6 +138,6 @@ test.describe("B2B Pro Cart Flow", () => {
     await page.waitForTimeout(300);
 
     // Check quantity is now 6
-    await expect(page.locator("div").filter({ hasText: /^6$/ }).first()).toBeVisible();
+    await expect(cartQty).toHaveValue("6");
   });
 });

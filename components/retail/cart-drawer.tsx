@@ -82,7 +82,7 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-4 py-3">
               <ul className="space-y-3">
                 {items.map((it) => (
-                  <li key={it.lineId} className="flex gap-3">
+                  <li key={it.key} className="flex gap-3">
                     <Link
                       href={`/products/${it.productId}`}
                       onClick={closeCart}

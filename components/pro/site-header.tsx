@@ -190,7 +190,11 @@ export function ProSiteHeader({
               </span>
               {itemCount > 0 && (
                 <span
-                  className="absolute -end-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white sm:static sm:end-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
+                  // Remounting on each change replays the bump, confirming an
+                  // add without opening the cart.
+                  key={itemCount}
+                  aria-live="polite"
+                  className="cart-count-bump absolute -end-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full px-1 text-[10.5px] font-bold leading-none text-white tabular-nums sm:static sm:end-auto sm:top-auto sm:min-w-[22px] sm:px-1.5"
                   style={{ background: COLORS.red }}
                 >
                   {itemCount}

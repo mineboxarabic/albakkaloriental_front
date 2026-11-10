@@ -175,4 +175,14 @@ export const AR_PRO: Record<string, string> = {
   "Toutes les photos": "كل الصور",
   "Bonjour, j'ai une question sur les fichiers de la commande {number}.":
     "مرحباً، لدي سؤال حول ملفات الطلب {number}.",
+
+  // Catalogue quick add / steppers
+  "Ajouter un carton au devis": "أضف كرتونة إلى عرض السعر",
+  "Ajouter une unité au devis": "أضف قطعة إلى عرض السعر",
+  "Retirer du devis": "احذف من عرض السعر",
+  "Retirer un carton": "أنقص كرتونة",
+  "Retirer une unité": "أنقص قطعة",
+  cartons: "كراتين",
+  "unités": "قطع",
+  "Déjà dans votre devis :": "موجود في عرض السعر:",
 };
