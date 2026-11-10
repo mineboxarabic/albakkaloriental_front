@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CatalogLink } from "@/components/catalog-transition";
 import { catalogPageHref, type CatalogSearchParams } from "@/lib/catalog-pagination";
 import { translate } from "@/lib/translations";
 import type { Language } from "@/lib/language";
@@ -16,17 +16,17 @@ export function CatalogPagination({ base, params, page, totalPages, language }: 
   return (
     <nav aria-label={t("Pagination du catalogue")} className="my-5 flex flex-wrap items-center justify-center gap-2">
       {page > 1 && (
-        <Link href={catalogPageHref(base, params, page - 1)} prefetch={false} rel="prev" className={linkClass}>
+        <CatalogLink href={catalogPageHref(base, params, page - 1)} prefetch={false} rel="prev" className={linkClass}>
           {t("Précédent")}
-        </Link>
+        </CatalogLink>
       )}
       <span aria-current="page" className="px-2 text-sm text-[#6B665D]">
         {translate("Page {page} sur {total}", language, { page, total: totalPages })}
       </span>
       {page < totalPages && (
-        <Link href={catalogPageHref(base, params, page + 1)} prefetch={false} rel="next" className={linkClass}>
+        <CatalogLink href={catalogPageHref(base, params, page + 1)} prefetch={false} rel="next" className={linkClass}>
           {t("Suivant")}
-        </Link>
+        </CatalogLink>
       )}
     </nav>
   );

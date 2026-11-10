@@ -1,11 +1,9 @@
 "use client";
 import { TranslatedText } from "@/components/translated-text";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Minus,
-  Plus,
   ShoppingCart,
   Check,
   Package,
@@ -20,6 +18,7 @@ import {
 } from "@/lib/catalog-pricing";
 import { COLORS, buildQuantityLabel } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
+import { QuantityStepper } from "@/components/quantity-stepper";
 
 type Props = {
   productId: string;
@@ -49,8 +48,23 @@ export function AddToProCartButton({
   const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
   const { t, language } = useLanguage();
+  const confirmTimer = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (confirmTimer.current !== null) window.clearTimeout(confirmTimer.current);
+    },
+    [],
+  );
+  const inQuote = items.filter((i) => i.productId === productId);
+  const inQuoteLabel = inQuote
+    .map((i) =>
+      i.saleUnit === "PACK"
+        ? `${i.quantity} ${t(i.quantity > 1 ? "cartons" : "carton")}`
+        : `${i.quantity} ${t(i.quantity > 1 ? "unités" : "unité")}`,
+    )
+    .join(" · ");
 
   const unitPrice = useMemo(
     () => resolveProPrice(pricing, saleUnit),
@@ -149,38 +163,16 @@ export function AddToProCartButton({
           </div>
         </div>
 
-        <div
-          className="flex items-center overflow-hidden rounded-sm border"
-          style={{ borderColor: COLORS.border }}
-        >
-          <button
-            type="button"
-            aria-label={t("Diminuer la quantité")}
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-            className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
-            style={{ color: COLORS.text }}
-          >
-            <Minus className="h-4 w-4" strokeWidth={2.2} />
-          </button>
-          <div
-            aria-live="polite"
-            className="grid h-11 w-14 place-items-center text-[15px] font-bold"
-            style={{ color: COLORS.text }}
-          >
-            {qty}
-          </div>
-          <button
-            type="button"
-            aria-label={t("Augmenter la quantité")}
-            onClick={() =>
-              setQty((q) => Math.min(Math.max(maxQtyForUnit, 1), q + 1))
-            }
-            className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
-            style={{ color: COLORS.text }}
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.2} />
-          </button>
-        </div>
+        <QuantityStepper
+          size="lg"
+          value={qty}
+          onChange={setQty}
+          min={1}
+          max={Math.max(1, Math.min(999, maxQtyForUnit))}
+          decreaseLabel={t("Diminuer la quantité")}
+          increaseLabel={t("Augmenter la quantité")}
+          inputLabel={t("Quantité")}
+        />
       </div>
 
       {!isOutOfStock && availableStock !== null && (
@@ -216,6 +208,11 @@ export function AddToProCartButton({
           type="button"
           onClick={async () => {
             setError(null);
+            // The cart shows the line straight away, so confirm straight away;
+            // a refusal from the server takes the confirmation back.
+            setConfirmed(true);
+            if (confirmTimer.current !== null) window.clearTimeout(confirmTimer.current);
+            confirmTimer.current = window.setTimeout(() => setConfirmed(false), 1400);
             const res = await addItem(
               {
                 productId,
@@ -227,10 +224,8 @@ export function AddToProCartButton({
               },
               qty,
             );
-            if (res.ok) {
-              setConfirmed(true);
-              window.setTimeout(() => setConfirmed(false), 1400);
-            } else {
+            if (!res.ok) {
+              setConfirmed(false);
               setError(t(res.error || "Une erreur est survenue."));
             }
           }}
@@ -252,11 +247,33 @@ export function AddToProCartButton({
       )}
       {error && (
         <div
+          role="alert"
           className="text-[12.5px] font-medium text-center"
           style={{ color: COLORS.red }}
         >
           {error}
         </div>
+      )}
+      {inQuote.length > 0 && (
+        <p
+          aria-live="polite"
+          className="flex flex-wrap items-center justify-center gap-x-2 text-[12.5px]"
+          style={{ color: COLORS.muted }}
+        >
+          <span>
+            {t("Déjà dans votre devis :")}{" "}
+            <strong className="font-semibold" style={{ color: COLORS.text }}>
+              {inQuoteLabel}
+            </strong>
+          </span>
+          <Link
+            href="/pro/cart"
+            className="font-semibold underline underline-offset-2"
+            style={{ color: COLORS.primary }}
+          >
+            {t("Voir le panier")}
+          </Link>
+        </p>
       )}
     </div>
   );

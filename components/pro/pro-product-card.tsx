@@ -1,13 +1,9 @@
 import { TranslatedText } from "@/components/translated-text";
 import Image from "next/image";
 import Link from "next/link";
-import { Package, Box, AlertCircle } from "lucide-react";
+import { Package, AlertCircle } from "lucide-react";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
-import {
-  formatPriceEUR,
-  resolveProPrice,
-  supportsUnitSale,
-} from "@/lib/catalog-pricing";
+import { resolveProPrice, supportsUnitSale } from "@/lib/catalog-pricing";
 import {
   COLORS,
   buildQuantityLabel,
@@ -102,7 +98,7 @@ export function ProProductCard({
           </div>
         )}
 
-        {authenticated && !isOutOfStock && product.availableStock !== null && (
+        {authenticated && !isOutOfStock && product.availableStock != null && (
           <div
             className="text-[10.5px] font-medium"
             style={{ color: COLORS.muted }}
@@ -116,154 +112,60 @@ export function ProProductCard({
           </div>
         )}
 
-        {authenticated && (
-          <>
-            {/* Mobile: simple label/value rows */}
-            <div
-              className="mt-1 flex flex-col gap-1.5 rounded-sm border px-3 py-2.5 sm:hidden"
-              style={{ borderColor: COLORS.border }}
-            >
-              <div className="flex items-baseline justify-between gap-2">
-                <span
-                  className="text-[10px] font-bold tracking-[0.1em]"
-                  style={{ color: COLORS.muted }}
-                >
-                  <TranslatedText value={"CARTON"} />{" "}
-                </span>
-                <span
-                  className="text-[15px] font-extrabold leading-none"
-                  style={{ color: COLORS.primary }}
-                >
-                  {packPrice > 0 ? formatPriceEUR(packPrice) : <TranslatedText value={"En rupture"} />}
-                </span>
-              </div>
-              {hasUnit && unitPrice != null && (
-                <div
-                  className="flex items-baseline justify-between gap-2 border-t pt-1.5"
-                  style={{ borderColor: COLORS.border }}
-                >
-                  <span
-                    className="text-[10px] font-bold tracking-[0.1em]"
-                    style={{ color: COLORS.muted }}
-                  >
-                    <TranslatedText value={"UNITÉ"} />{" "}
-                  </span>
-                  <span
-                    className="text-[14px] font-extrabold leading-none"
-                    style={{ color: COLORS.text }}
-                  >
-                    {unitPrice > 0 ? formatPriceEUR(unitPrice) : <TranslatedText value={"En rupture"} />}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* sm+ : boxed tiles */}
-            <div
-              className="mt-1 hidden gap-px overflow-hidden rounded-sm border sm:grid"
-              style={{
-                borderColor: COLORS.border,
-                background: COLORS.border,
-                gridTemplateColumns: hasUnit ? "1fr 1fr" : "1fr",
-              }}
-            >
-              <PriceBlock
-                icon={<Package className="h-3 w-3" strokeWidth={2} />}
-                label={translate("PAR CARTON", language)}
-                price={packPrice}
-                primary
+        {/* Pinned to the bottom so prices and buttons line up across a row. */}
+        <div className="mt-auto flex flex-col gap-2 pt-1">
+          {authenticated ? (
+            <>
+              <ProProductCardActions
+                productId={product.id}
+                name={product.name}
+                imageUrl={product.imageUrl}
+                unitsPerPack={product.unitsPerPack}
+                baseUnit={product.baseUnit}
+                packPrice={packPrice}
+                unitPrice={unitPrice}
+                isOutOfStock={isOutOfStock}
+                availableStock={product.availableStock}
               />
-              {hasUnit && unitPrice != null && (
-                <PriceBlock
-                  icon={<Box className="h-3 w-3" strokeWidth={2} />}
-                  label={translate("À L'UNITÉ", language)}
-                  price={unitPrice}
-                />
+              {isOutOfStock && (
+                <button
+                  type="button"
+                  disabled
+                  className="grid h-9 cursor-not-allowed place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
+                  style={{ background: "#999" }}
+                >
+                  <TranslatedText value={"Indisponible"} />{" "}
+                </button>
               )}
-            </div>
-          </>
-        )}
-
-        {!authenticated && (
-          <div
-            className="mt-1 rounded-sm border px-3 py-2.5 text-center text-[11.5px] font-semibold"
-            style={{
-              borderColor: COLORS.border,
-              background: COLORS.beige,
-              color: COLORS.muted,
-            }}
-          >
-            <TranslatedText value={"Connectez-vous pour voir le prix"} />{" "}
-          </div>
-        )}
-
-        {!authenticated ? (
-          <Link
-            href="/pro/login"
-            className="mt-1 grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em]"
-            style={{
-              background: "#FFFFFF",
-              color: COLORS.primary,
-              border: `1px solid ${COLORS.primary}`,
-            }}
-          >
-            <TranslatedText value={"Se connecter"} />{" "}
-          </Link>
-        ) : isOutOfStock ? (
-          <button
-            type="button"
-            disabled
-            className="mt-1 grid h-9 cursor-not-allowed place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em] text-white"
-            style={{ background: "#999" }}
-          >
-            <TranslatedText value={"Indisponible"} />{" "}
-          </button>
-        ) : (
-          <ProProductCardActions
-            productId={product.id}
-            name={product.name}
-            imageUrl={product.imageUrl}
-            unitsPerPack={product.unitsPerPack}
-            packPrice={packPrice}
-            unitPrice={unitPrice}
-            isOutOfStock={isOutOfStock}
-          />
-        )}
+            </>
+          ) : (
+            <>
+              <div
+                className="rounded-sm border px-3 py-2.5 text-center text-[11.5px] font-semibold"
+                style={{
+                  borderColor: COLORS.border,
+                  background: COLORS.beige,
+                  color: COLORS.muted,
+                }}
+              >
+                <TranslatedText value={"Connectez-vous pour voir le prix"} />{" "}
+              </div>
+              <Link
+                href="/pro/login"
+                className="grid h-9 place-items-center rounded-sm text-[11.5px] font-bold uppercase tracking-[0.1em]"
+                style={{
+                  background: "#FFFFFF",
+                  color: COLORS.primary,
+                  border: `1px solid ${COLORS.primary}`,
+                }}
+              >
+                <TranslatedText value={"Se connecter"} />{" "}
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </article>
-  );
-}
-
-function PriceBlock({
-  icon,
-  label,
-  price,
-  primary,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  price: number;
-  primary?: boolean;
-}) {
-  return (
-    <div
-      className="flex flex-col items-center gap-0.5 px-2 py-2"
-      style={{ background: "#FFFFFF" }}
-    >
-      <div
-        className="flex items-center gap-1 text-[9.5px] font-bold tracking-[0.1em]"
-        style={{ color: COLORS.muted }}
-      >
-        {icon}
-        {label}
-      </div>
-      <div
-        className="text-[14px] font-extrabold leading-none"
-        style={{ color: primary ? COLORS.primary : COLORS.text }}
-      >
-        {price > 0 ? formatPriceEUR(price) : <TranslatedText value={"En rupture"} />}
-      </div>
-    </div>
   );
 }
 

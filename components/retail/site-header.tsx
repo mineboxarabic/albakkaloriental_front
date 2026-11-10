@@ -263,7 +263,8 @@ export function SiteHeader({
               />
               {itemCount > 0 && (
                 <span
-                  className="absolute -end-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white"
+                  key={itemCount}
+                  className="cart-count-bump absolute -end-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[10px] font-bold leading-none text-white tabular-nums"
                   style={{ background: COLORS.red }}
                 >
                   {itemCount}

@@ -1,10 +1,11 @@
 "use client";
 import { useLanguage } from "@/components/language-provider";
 
-import { useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams, usePathname } from "next/navigation";
+import { Loader2, Search, X } from "lucide-react";
 import { COLORS } from "@/lib/ui";
+import { useCatalogNavigation } from "@/components/catalog-transition";
 
 const DEBOUNCE_MS = 250;
 
@@ -18,49 +19,70 @@ export function CatalogSearchInput({
   variant?: "light" | "dark";
 }) {
   const { t } = useLanguage();
-  const router = useRouter();
+  const { isPending, navigate } = useCatalogNavigation();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const initial = searchParams.get("q") ?? "";
-  const [value, setValue] = useState(initial);
-  const [, startTransition] = useTransition();
+  const current = searchParams.get("q") ?? "";
+  const [value, setValue] = useState(current);
+  // The query this input last sent. When its results land, the URL catches up
+  // with what was typed then; keep any letters typed since instead of
+  // snapping the field back to the older query.
+  const sentRef = useRef<string | null>(null);
 
   useEffect(() => {
-    setValue(searchParams.get("q") ?? "");
-  }, [searchParams]);
+    if (sentRef.current !== null && current === sentRef.current) {
+      sentRef.current = null;
+      return;
+    }
+    setValue(current);
+  }, [current]);
 
   useEffect(() => {
     const handle = setTimeout(() => {
-      const current = searchParams.get("q") ?? "";
-      if (value === current) return;
+      const next = value.trim();
+      if (next === current) return;
       const params = new URLSearchParams(searchParams.toString());
       params.delete("page");
-      if (value.trim()) params.set("q", value.trim());
+      if (next) params.set("q", next);
       else params.delete("q");
-      startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`);
-      });
+      sentRef.current = next;
+      navigate(`${pathname}?${params.toString()}`);
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
-  }, [value, pathname, router, searchParams]);
+  }, [value, current, pathname, navigate, searchParams]);
 
   const isDark = variant === "dark";
+  // Typing and loading read as one step: the spinner starts on the first key.
+  const searching = isPending || value.trim() !== current;
+  const iconColor = isDark ? "rgba(255,255,255,0.55)" : COLORS.muted;
 
   return (
     <div className={`relative ${className}`}>
-      <Search
-        className="absolute start-3 top-2.5 h-4 w-4"
-        style={{ color: isDark ? "rgba(255,255,255,0.55)" : COLORS.muted }}
-        strokeWidth={2}
-      />
+      {searching ? (
+        <Loader2
+          aria-hidden
+          data-testid="catalog-search-spinner"
+          className="absolute start-3 top-2.5 h-4 w-4 animate-spin motion-reduce:animate-none"
+          style={{ color: isDark ? "#FFFFFF" : COLORS.primary }}
+          strokeWidth={2.4}
+        />
+      ) : (
+        <Search
+          aria-hidden
+          className="absolute start-3 top-2.5 h-4 w-4"
+          style={{ color: iconColor }}
+          strokeWidth={2}
+        />
+      )}
       <input
         type="search"
         role="searchbox"
         aria-label={t("Rechercher dans le catalogue")}
+        aria-busy={searching || undefined}
         placeholder={t(placeholder)}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="h-9 w-full rounded-md border ps-9 pe-9 text-[13px] outline-none transition focus:border-[#3F561F]"
+        className="h-9 w-full rounded-md border ps-9 pe-9 text-[13px] outline-none transition focus:border-[#3F561F] focus-visible:ring-2 focus-visible:ring-[#3F561F]/20 [&::-webkit-search-cancel-button]:appearance-none"
         style={{
           background: isDark ? "rgba(255,255,255,0.08)" : "#FFFFFF",
           borderColor: isDark ? "rgba(255,255,255,0.2)" : COLORS.border,

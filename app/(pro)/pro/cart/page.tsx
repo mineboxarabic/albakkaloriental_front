@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Minus,
-  Plus,
   Trash2,
   Package,
   Box,
@@ -17,16 +15,21 @@ import { checkoutPro } from "@/actions/pro-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
+import { QuantityStepper } from "@/components/quantity-stepper";
+import { ProCartLinesSkeleton } from "@/components/pro/pro-skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TAX_RATE = 20;
 
 export default function ProCartPage() {
-  const { items, updateQty, removeItem, clearCart, total, itemCount } = useCart();
+  const { items, loading, updateQty, removeItem, clearCart, whenSettled, total, itemCount } =
+    useCart();
   const router = useRouter();
   const { t, isRtl } = useLanguage();
   const [pending, startTransition] = useTransition();
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const totalHT = total;
   const totalTVA = Number((total * (TAX_RATE / 100)).toFixed(2));
@@ -39,6 +42,8 @@ export default function ProCartPage() {
       return;
     }
     startTransition(async () => {
+      // Quantity changes are saved in the background; the quote must see them.
+      await whenSettled();
       const res = await checkoutPro({ notes: notes || undefined });
       if (!res.ok) {
         setError(t(res.error));
@@ -62,6 +67,9 @@ export default function ProCartPage() {
       >
         {t("Mon panier professionnel")}
       </h1>
+      {loading ? (
+        <Skeleton className="mt-2 h-3.5 w-48" />
+      ) : (
       <p className="mt-1 text-[13px]" style={{ color: COLORS.muted }}>
         {itemCount === 0
           ? t("Votre panier est vide.")
@@ -72,8 +80,11 @@ export default function ProCartPage() {
               { count: itemCount },
             )}
       </p>
+      )}
 
-      {items.length === 0 ? (
+      {loading ? (
+        <ProCartLinesSkeleton />
+      ) : items.length === 0 ? (
         <div
           className="mt-6 grid place-items-center rounded-sm border bg-white px-6 py-16 text-center"
           style={{ borderColor: COLORS.border }}
@@ -144,39 +155,18 @@ export default function ProCartPage() {
                     </span>
                   );
                   const stepper = (
-                    <div
-                      className="flex items-center overflow-hidden rounded-sm border"
-                      style={{ borderColor: COLORS.border }}
-                    >
-                      <button
-                        type="button"
-                        aria-label={t("Diminuer la quantité")}
-                        onClick={() => updateQty(it.lineId, it.quantity - 1)}
-                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
-                        style={{ color: COLORS.text }}
-                      >
-                        <Minus className="h-3.5 w-3.5" strokeWidth={2.2} />
-                      </button>
-                      <div
-                        className="grid h-9 w-10 place-items-center text-[13.5px] font-bold"
-                        style={{ color: COLORS.text }}
-                      >
-                        {it.quantity}
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={t("Augmenter la quantité")}
-                        onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                        className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
-                        style={{ color: COLORS.text }}
-                      >
-                        <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
-                      </button>
-                    </div>
+                    <QuantityStepper
+                      value={it.quantity}
+                      onChange={(quantity) => updateQty(it.lineId, quantity)}
+                      max={999}
+                      decreaseLabel={t("Diminuer la quantité")}
+                      increaseLabel={t("Augmenter la quantité")}
+                      inputLabel={`${t("Quantité")} · ${it.name}`}
+                    />
                   );
                   return (
                     <li
-                      key={it.lineId}
+                      key={it.key}
                       className="border-t px-4 py-4 md:grid md:grid-cols-12 md:items-center md:gap-3"
                       style={{ borderColor: COLORS.border }}
                     >
@@ -263,14 +253,39 @@ export default function ProCartPage() {
               >
                 {t("Continuer mes achats")}
               </Link>
-              <button
-                type="button"
-                onClick={clearCart}
-                className="text-[12px] font-bold uppercase tracking-[0.1em] underline-offset-2 hover:underline"
-                style={{ color: COLORS.muted }}
-              >
-                {t("Vider le panier")}
-              </button>
+              {/* Emptying a large quote takes one slip of the finger, so ask once. */}
+              {confirmClear ? (
+                <div className="flex items-center gap-3 text-[12px] font-bold">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmClear(false);
+                      void clearCart();
+                    }}
+                    className="rounded-sm px-3 py-1.5 text-white"
+                    style={{ background: COLORS.red }}
+                  >
+                    {t("Vider le panier")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClear(false)}
+                    className="underline-offset-2 hover:underline"
+                    style={{ color: COLORS.muted }}
+                  >
+                    {t("Annuler")}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmClear(true)}
+                  className="text-[12px] font-bold uppercase tracking-[0.1em] underline-offset-2 hover:underline"
+                  style={{ color: COLORS.muted }}
+                >
+                  {t("Vider le panier")}
+                </button>
+              )}
             </div>
 
             <div

@@ -4,10 +4,19 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ProProductCard } from "@/components/pro/pro-product-card";
 import type { ProductCard as ProductCardData } from "@/lib/catalog";
 
-const { addItemMock } = vi.hoisted(() => ({ addItemMock: vi.fn().mockResolvedValue({ ok: true }) }));
-vi.mock("@/components/cart-context", () => ({ useCart: () => ({ addItem: addItemMock }) }));
+const cartMock = vi.hoisted(() => ({
+  items: [] as Array<{ lineId: string; key: string; productId: string; saleUnit: "PACK" | "UNIT"; quantity: number }>,
+  addItem: vi.fn().mockResolvedValue({ ok: true }),
+  updateQty: vi.fn().mockResolvedValue({ ok: true }),
+}));
+const addItemMock = cartMock.addItem;
+vi.mock("@/components/cart-context", () => ({ useCart: () => cartMock }));
 
-beforeEach(() => addItemMock.mockClear());
+beforeEach(() => {
+  cartMock.items = [];
+  cartMock.addItem.mockClear();
+  cartMock.updateQty.mockClear();
+});
 
 function makeProduct(overrides: Partial<ProductCardData> = {}): ProductCardData {
   return {
@@ -76,6 +85,41 @@ describe("ProProductCard", () => {
     expect(screen.getByText("RUPTURE")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /indisponible/i })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /ajouter .* au devis/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("ProProductCard quote stepper", () => {
+  it("turns a sale unit already in the quote into a stepper showing its quantity", () => {
+    cartMock.items = [{ lineId: "l1", key: "l1", productId: "p1", saleUnit: "PACK", quantity: 3 }];
+    render(<ProProductCard product={makeProduct()} />);
+    const group = screen.getByRole("group", { name: /par carton/i });
+    expect(group).toHaveTextContent("3");
+    expect(group).toHaveTextContent("cartons");
+    // The unit row is still a plain add button.
+    expect(screen.getByRole("button", { name: /ajouter une unité au devis/i })).toBeEnabled();
+  });
+
+  it("adds and removes cartons from the stepper without a new line", () => {
+    cartMock.items = [{ lineId: "l1", key: "l1", productId: "p1", saleUnit: "PACK", quantity: 3 }];
+    render(<ProProductCard product={makeProduct()} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter un carton au devis/i }));
+    expect(cartMock.updateQty).toHaveBeenLastCalledWith("l1", 4);
+    fireEvent.click(screen.getByRole("button", { name: /retirer un carton/i }));
+    expect(cartMock.updateQty).toHaveBeenLastCalledWith("l1", 2);
+    expect(addItemMock).not.toHaveBeenCalled();
+  });
+
+  it("offers removal instead of minus at quantity one", () => {
+    cartMock.items = [{ lineId: "l1", key: "l1", productId: "p1", saleUnit: "UNIT", quantity: 1 }];
+    render(<ProProductCard product={makeProduct()} />);
+    fireEvent.click(screen.getByRole("button", { name: /retirer du devis/i }));
+    expect(cartMock.updateQty).toHaveBeenCalledWith("l1", 0);
+  });
+
+  it("stops adding cartons at the available stock", () => {
+    cartMock.items = [{ lineId: "l1", key: "l1", productId: "p1", saleUnit: "PACK", quantity: 2 }];
+    render(<ProProductCard product={makeProduct({ availableStock: 12, unitsPerPack: 6 })} />);
+    expect(screen.getByRole("button", { name: /ajouter un carton au devis/i })).toBeDisabled();
   });
 });
 

@@ -13,9 +13,10 @@ import {
   deliveryFee,
 } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CartPage() {
-  const { items, updateQty, removeItem, clearCart, total, itemCount } = useCart();
+  const { items, loading, updateQty, removeItem, clearCart, total, itemCount } = useCart();
   const { t } = useLanguage();
 
   const fee = deliveryFee(total);
@@ -49,7 +50,20 @@ export default function CartPage() {
         </p>
       </header>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div aria-busy className="space-y-3 rounded-xl border bg-white p-5" style={{ borderColor: COLORS.border }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-16 w-16 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3.5 w-3/5" />
+                <Skeleton className="h-2.5 w-24" />
+              </div>
+              <Skeleton className="h-9 w-24" />
+            </div>
+          ))}
+        </div>
+      ) : items.length === 0 ? (
         <div
           className="grid place-items-center rounded-xl border bg-white px-6 py-16 text-center"
           style={{ borderColor: COLORS.border }}
@@ -87,7 +101,7 @@ export default function CartPage() {
               <ul>
                 {items.map((it, idx) => (
                   <li
-                    key={it.lineId}
+                    key={it.key}
                     className="flex items-start gap-3 px-4 py-4 sm:items-center sm:gap-4"
                     style={{
                       borderTop: idx === 0 ? "none" : `1px solid ${COLORS.border}`,

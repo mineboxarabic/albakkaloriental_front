@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CatalogLink } from "@/components/catalog-transition";
 import { COLORS, productImage } from "@/lib/ui";
 import { TranslatedText } from "@/components/translated-text";
 
@@ -124,7 +125,7 @@ export function SubcategoryChip({
   active?: boolean;
 }) {
   return (
-    <Link
+    <CatalogLink
       href={href}
       aria-current={active ? "page" : undefined}
       className="group flex min-w-0 items-center gap-2.5 rounded-lg border bg-white p-1.5 pe-3 transition hover:border-[#3F561F] hover:shadow-sm"
@@ -152,6 +153,6 @@ export function SubcategoryChip({
       >
         {name}
       </span>
-    </Link>
+    </CatalogLink>
   );
 }
