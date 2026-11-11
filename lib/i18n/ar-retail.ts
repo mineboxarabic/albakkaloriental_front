@@ -2,6 +2,8 @@
 export const AR_RETAIL: Record<string, string> = {
   'Suivi actualisé automatiquement.': 'يتم تحديث حالة الطلب تلقائياً.',
   // Cart
+  "Minimum {min} unités par produit.": "الحد الأدنى {min} وحدات لكل منتج.",
+  "Les frais de livraison ont changé. Vérifiez le nouveau total avant de confirmer.": "تغيّرت رسوم التوصيل. راجع الإجمالي الجديد قبل التأكيد.",
   "Mon panier": "سلتي",
   "Votre panier est vide.": "سلتك فارغة.",
   "{count} articles dans votre panier.": "{count} منتجات في سلتك.",

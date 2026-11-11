@@ -2,6 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import { useEffect } from "react";
+import { SessionProvider } from "@/components/session-provider";
+import { DEFAULT_RETAIL_ORDER_RULES } from "@/lib/order-rules";
 import {
   CartProvider,
   useCart,
@@ -85,6 +87,30 @@ afterEach(() => {
 });
 
 describe("CartProvider", () => {
+  it("uses the saved retail minimum for quick adds and rejects quantities over the saved maximum", async () => {
+    render(
+      <SessionProvider value={{ isConnected: true, type: "retail", name: "Test" }}>
+        <CartProvider audience="retail" retailRules={{ ...DEFAULT_RETAIL_ORDER_RULES, minQtyPerProduct: 2, maxQtyPerProduct: 5 }}>
+          <Probe />
+        </CartProvider>
+      </SessionProvider>,
+    );
+    await flush();
+
+    const product = { productId: "p1", name: "P1", unitPrice: 10 };
+    await act(async () => { await cart.addItem(product); });
+    expect(calls).toContainEqual({
+      method: "POST",
+      path: "/api/cart/retail/items",
+      body: { productId: "p1", saleUnit: "UNIT", quantity: 2 },
+    });
+
+    await act(async () => {
+      expect((await cart.addItem(product, 4)).ok).toBe(false);
+    });
+    expect(calls.filter(({ method }) => method === "POST")).toHaveLength(1);
+  });
+
   it("loads the cart from the cart route, not a server action", async () => {
     serverItems = [line("l1", "p1", 2)];
     renderCart();

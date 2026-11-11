@@ -6,18 +6,17 @@ import { useCart, type AddCartItem } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
-import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
 
 export function QuickAddButton({ item }: { item: AddCartItem }) {
-  const { addItem, items } = useCart();
+  const { addItem, items, retailRules } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
   const { t } = useLanguage();
   const [added, setAdded] = useState(false);
 
   const existingQty = items.find((i) => i.productId === item.productId)?.quantity ?? 0;
-  const atMax = existingQty >= MAX_QTY_PER_PRODUCT;
+  const atMax = existingQty >= retailRules.maxQtyPerProduct;
 
   return (
     <button
@@ -30,14 +29,15 @@ export function QuickAddButton({ item }: { item: AddCartItem }) {
             : t("Connectez-vous pour ajouter au panier")
       }
       disabled={atMax}
-      onClick={(e) => {
+      onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!isConnected) {
-          open({ ...item, quantity: 1 });
+          open({ ...item, quantity: retailRules.minQtyPerProduct });
           return;
         }
-        addItem(item);
+        const result = await addItem(item);
+        if (!result.ok) return;
         setAdded(true);
         window.setTimeout(() => setAdded(false), 900);
       }}

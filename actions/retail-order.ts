@@ -29,13 +29,14 @@ const checkoutSchema = z.object({
   deliveryPostalCode: z.string().trim().min(1).optional(),
   deliveryAddress: z.string().trim().min(5, "Adresse requise."),
   notes: z.string().trim().max(500).optional(),
+  expectedDeliveryFee: z.number().finite().nonnegative().optional(),
 });
 
 export type RetailCheckoutInput = z.infer<typeof checkoutSchema>;
 
 export type RetailCheckoutResult =
   | { ok: true; orderId: string; orderNumber: string }
-  | { ok: false; error: string; isUnauthorized?: boolean };
+  | { ok: false; error: string; isUnauthorized?: boolean; refreshRules?: boolean };
 
 export async function checkoutRetail(
   input: RetailCheckoutInput,
@@ -59,7 +60,7 @@ export async function checkoutRetail(
     return { ok: true, orderId: data.order.id, orderNumber: data.order.orderNumber };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, error: error.message, isUnauthorized: error.status === 401 };
+      return { ok: false, error: error.message, isUnauthorized: error.status === 401, refreshRules: error.status === 409 };
     }
     return { ok: false, error: "Commande impossible pour le moment." };
   }

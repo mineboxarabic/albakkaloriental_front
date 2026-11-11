@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/retail/site-footer";
 import { CartDrawer } from "@/components/retail/cart-drawer";
 import { PendingCartIntentConsumer } from "@/components/retail/pending-cart-intent-consumer";
 import { CookieBanner } from "@/components/cookie-banner";
+import { getRetailOrderRules } from "@/lib/retail-order-rules-server";
 import { getRetailSession } from "@/lib/session";
 import { getCatalogShell } from "@/lib/catalog-navigation-server";
 import { getLanguage } from "@/lib/server-language";
@@ -24,10 +25,11 @@ export default async function RetailLayout({
   children: ReactNode;
 }) {
   const language = await getLanguage();
-  const [session, { navigation: categories, productNames }, company] = await Promise.all([
+  const [session, { navigation: categories, productNames }, company, retailRules] = await Promise.all([
     getRetailSession(),
     getCatalogShell("retail", language),
     getCompany(),
+    getRetailOrderRules(),
   ]);
   const isRetail = session !== null;
   const admin = isRetail ? await getCatalogAdmin('retail') : null;
@@ -40,7 +42,7 @@ export default async function RetailLayout({
   return (
     <SessionProvider value={sessionValue}>
       <CatalogAdminProvider key={admin?.userId ?? 'guest'} audience="retail" available={Boolean(admin)} editBaseUrl={admin?.editBaseUrl}>
-        <CartProvider audience="retail" productNames={productNames}>
+        <CartProvider audience="retail" productNames={productNames} retailRules={retailRules}>
           <AuthModalProvider>
             <div
               className="flex min-h-screen flex-col overflow-x-clip"

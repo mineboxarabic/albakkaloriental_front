@@ -6,14 +6,13 @@ import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, productImage } from "@/lib/ui";
-import { MAX_QTY_PER_PRODUCT, MIN_ORDER_EUR } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
 
 export function CartDrawer() {
-  const { items, total, itemCount, updateQty, removeItem, isCartOpen, closeCart } =
+  const { retailRules, items, total, itemCount, updateQty, removeItem, isCartOpen, closeCart } =
     useCart();
   const { t } = useLanguage();
-  const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
+  const belowMinimum = items.length > 0 && total < retailRules.minOrderEur;
 
   return (
     <div
@@ -126,6 +125,7 @@ export function CartDrawer() {
                             type="button"
                             aria-label={t("Diminuer la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity - 1)}
+                            disabled={retailRules.minQtyPerProduct > 1 && it.quantity <= retailRules.minQtyPerProduct}
                             className="grid h-9 w-9 place-items-center hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.text }}
                           >
@@ -141,7 +141,7 @@ export function CartDrawer() {
                             type="button"
                             aria-label={t("Augmenter la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                            disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
+                            disabled={it.quantity >= retailRules.maxQtyPerProduct}
                             className="grid h-9 w-9 place-items-center hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
                             style={{ color: COLORS.text }}
                           >
@@ -180,7 +180,7 @@ export function CartDrawer() {
                   style={{ background: "#FCE9E5", color: "#7A1709" }}
                 >
                   {t("Minimum de commande : {amount}", {
-                    amount: formatPriceEUR(MIN_ORDER_EUR),
+                    amount: formatPriceEUR(retailRules.minOrderEur),
                   })}
                 </div>
               )}

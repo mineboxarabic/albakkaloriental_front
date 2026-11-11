@@ -6,23 +6,18 @@ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
-import {
-  MIN_ORDER_EUR,
-  FREE_DELIVERY_THRESHOLD_EUR,
-  MAX_QTY_PER_PRODUCT,
-  deliveryFee,
-} from "@/lib/order-rules";
+import { deliveryFee, roundRetailMoney } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CartPage() {
-  const { items, loading, updateQty, removeItem, clearCart, total, itemCount } = useCart();
+  const { retailRules, items, loading, updateQty, removeItem, clearCart, total, itemCount } = useCart();
   const { t } = useLanguage();
 
-  const fee = deliveryFee(total);
-  const grandTotal = total + fee;
-  const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
-  const nudgeFreeDelivery = total >= MIN_ORDER_EUR && total < FREE_DELIVERY_THRESHOLD_EUR;
+  const fee = deliveryFee(total, retailRules);
+  const grandTotal = roundRetailMoney(total + fee);
+  const belowMinimum = items.length > 0 && total < retailRules.minOrderEur;
+  const nudgeFreeDelivery = fee > 0 && total >= retailRules.minOrderEur && total < retailRules.freeDeliveryThresholdEur;
 
   return (
     <main className="mx-auto max-w-[1180px] px-6 py-8 pb-16">
@@ -144,6 +139,7 @@ export default function CartPage() {
                             type="button"
                             aria-label={t("Diminuer la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity - 1)}
+                            disabled={retailRules.minQtyPerProduct > 1 && it.quantity <= retailRules.minQtyPerProduct}
                             className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2]"
                             style={{ color: COLORS.text }}
                           >
@@ -159,7 +155,7 @@ export default function CartPage() {
                             type="button"
                             aria-label={t("Augmenter la quantité")}
                             onClick={() => updateQty(it.lineId, it.quantity + 1)}
-                            disabled={it.quantity >= MAX_QTY_PER_PRODUCT}
+                            disabled={it.quantity >= retailRules.maxQtyPerProduct}
                             className="grid h-9 w-9 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
                             style={{ color: COLORS.text }}
                           >
@@ -243,7 +239,7 @@ export default function CartPage() {
                   style={{ background: "#FEF9C3", color: "#854D0E" }}
                 >
                   {t("Plus {amount} pour la livraison gratuite", {
-                    amount: formatPriceEUR(FREE_DELIVERY_THRESHOLD_EUR - total),
+                    amount: formatPriceEUR(retailRules.freeDeliveryThresholdEur - total),
                   })}
                 </div>
               )}
@@ -254,7 +250,7 @@ export default function CartPage() {
                   style={{ background: "#FCE9E5", color: "#7A1709" }}
                 >
                   {t("Minimum de commande : {amount}", {
-                    amount: formatPriceEUR(MIN_ORDER_EUR),
+                    amount: formatPriceEUR(retailRules.minOrderEur),
                   })}
                 </div>
               )}
