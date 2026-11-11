@@ -1,8 +1,23 @@
-export const MIN_ORDER_EUR = 30;
-export const FREE_DELIVERY_THRESHOLD_EUR = 50;
-export const DELIVERY_FEE_EUR = 3;
-export const MAX_QTY_PER_PRODUCT = 3;
+export interface RetailOrderRules {
+  minOrderEur: number;
+  freeDeliveryThresholdEur: number;
+  deliveryFeeEur: number;
+  minQtyPerProduct: number;
+  maxQtyPerProduct: number;
+}
 
-export function deliveryFee(subtotal: number): number {
-  return subtotal >= FREE_DELIVERY_THRESHOLD_EUR ? 0 : DELIVERY_FEE_EUR;
+export const DEFAULT_RETAIL_ORDER_RULES: RetailOrderRules = {
+  minOrderEur: 30,
+  freeDeliveryThresholdEur: 50,
+  deliveryFeeEur: 3,
+  minQtyPerProduct: 1,
+  maxQtyPerProduct: 3,
+};
+
+export function roundRetailMoney(amount: number): number {
+  return Math.round((amount + Number.EPSILON) * 100) / 100;
+}
+
+export function deliveryFee(subtotal: number, rules: RetailOrderRules): number {
+  return roundRetailMoney(subtotal) >= rules.freeDeliveryThresholdEur ? 0 : rules.deliveryFeeEur;
 }

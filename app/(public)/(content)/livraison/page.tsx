@@ -1,10 +1,6 @@
 import { InfoPage, MailLink } from "@/components/info-page";
 import { getCompany } from "@/lib/company";
-import {
-  MIN_ORDER_EUR,
-  FREE_DELIVERY_THRESHOLD_EUR,
-  DELIVERY_FEE_EUR,
-} from "@/lib/order-rules";
+import { getRetailOrderRules } from "@/lib/retail-order-rules-server";
 import { getTranslator } from "@/lib/server-language";
 import { COLORS } from "@/lib/ui";
 
@@ -14,8 +10,7 @@ export async function generateMetadata() {
 }
 
 export default async function LivraisonPage() {
-  const company = await getCompany();
-  const { language } = await getTranslator();
+  const [company, { language }, rules] = await Promise.all([getCompany(), getTranslator(), getRetailOrderRules()]);
   const euro = (n: number) => <span className="ltr-isolate">{n} €</span>;
   const listClass = "mb-4 space-y-2 text-sm leading-relaxed";
   return (
@@ -29,15 +24,15 @@ export default async function LivraisonPage() {
           <ul className={listClass} style={{ color: COLORS.text }}>
             <li>
               <span className="font-semibold">الحد الأدنى للطلب:</span>{" "}
-              {euro(MIN_ORDER_EUR)}.
+              {euro(rules.minOrderEur)}.
             </li>
             <li>
               <span className="font-semibold">رسوم التوصيل:</span>{" "}
-              {euro(DELIVERY_FEE_EUR)}.
+              {euro(rules.deliveryFeeEur)}.
             </li>
             <li>
               <span className="font-semibold">توصيل مجاني:</span> ابتداءً من{" "}
-              {euro(FREE_DELIVERY_THRESHOLD_EUR)} من المشتريات.
+              {euro(rules.freeDeliveryThresholdEur)} من المشتريات.
             </li>
           </ul>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>
@@ -55,15 +50,15 @@ export default async function LivraisonPage() {
           <ul className={listClass} style={{ color: COLORS.text }}>
             <li>
               <span className="font-semibold">Commande minimum&nbsp;:</span>{" "}
-              {MIN_ORDER_EUR} €.
+              {rules.minOrderEur} €.
             </li>
             <li>
               <span className="font-semibold">Frais de livraison&nbsp;:</span>{" "}
-              {DELIVERY_FEE_EUR} €.
+              {rules.deliveryFeeEur} €.
             </li>
             <li>
               <span className="font-semibold">Livraison offerte&nbsp;:</span> dès{" "}
-              {FREE_DELIVERY_THRESHOLD_EUR} € d&apos;achat.
+              {rules.freeDeliveryThresholdEur} € d&apos;achat.
             </li>
           </ul>
           <p className="text-sm leading-relaxed" style={{ color: COLORS.muted }}>

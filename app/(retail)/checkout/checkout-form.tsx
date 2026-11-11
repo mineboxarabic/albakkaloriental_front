@@ -8,7 +8,7 @@ import { checkoutRetail } from "@/actions/retail-order";
 import { checkDeliveryZone } from "@/actions/delivery-zone";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
 import { COLORS } from "@/lib/ui";
-import { MIN_ORDER_EUR, deliveryFee } from "@/lib/order-rules";
+import { deliveryFee, roundRetailMoney } from "@/lib/order-rules";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/language-provider";
 import ReactMarkdown from "react-markdown";
@@ -26,11 +26,11 @@ export function CheckoutForm({
     address: string;
   };
 }) {
-  const { items, loading, total, clearCart, whenSettled } = useCart();
+  const { retailRules, items, loading, total, clearCart, whenSettled } = useCart();
   const { t } = useLanguage();
-  const fee = deliveryFee(total);
-  const grandTotal = total + fee;
-  const belowMinimum = total > 0 && total < MIN_ORDER_EUR;
+  const fee = deliveryFee(total, retailRules);
+  const grandTotal = roundRetailMoney(total + fee);
+  const belowMinimum = total < retailRules.minOrderEur;
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function CheckoutForm({
       return;
     }
     if (belowMinimum) {
-      setError(t("Commande minimum de {amount} €.", { amount: MIN_ORDER_EUR }));
+      setError(t("Commande minimum de {amount} €.", { amount: retailRules.minOrderEur }));
       return;
     }
     if (zoneDenied) {
@@ -92,9 +92,11 @@ export function CheckoutForm({
         deliveryPostalCode: delivery.postalCode || undefined,
         deliveryAddress: delivery.address,
         notes: notes || undefined,
+        expectedDeliveryFee: fee,
       });
       if (!res.ok) {
         setError(t(res.error));
+        if (res.refreshRules) router.refresh();
         return;
       }
       clearCart();

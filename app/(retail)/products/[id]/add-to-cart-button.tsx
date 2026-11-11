@@ -7,11 +7,10 @@ import { useCart, type AddCartItem } from "@/components/cart-context";
 import { useSession } from "@/components/session-provider";
 import { useAuthModal } from "@/components/auth-modal";
 import { COLORS } from "@/lib/ui";
-import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
 import { useLanguage } from "@/components/language-provider";
 
 export function AddToCartButton({ item }: { item: AddCartItem }) {
-  const { addItem, items } = useCart();
+  const { addItem, items, retailRules } = useCart();
   const { isConnected } = useSession();
   const { open } = useAuthModal();
   const { t } = useLanguage();
@@ -21,8 +20,9 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
 
   const existingQty =
     items.find((i) => i.productId === item.productId)?.quantity ?? 0;
-  const remainingQty = Math.max(0, MAX_QTY_PER_PRODUCT - existingQty);
-  const effectiveQty = Math.min(qty, remainingQty);
+  const remainingQty = Math.max(0, retailRules.maxQtyPerProduct - existingQty);
+  const minToAdd = Math.max(1, retailRules.minQtyPerProduct - existingQty);
+  const effectiveQty = Math.min(Math.max(qty, minToAdd), remainingQty);
 
   return (
     <div className="flex flex-col gap-3">
@@ -34,7 +34,8 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
           <button
             type="button"
             aria-label={t("Diminuer la quantité")}
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            onClick={() => setQty(effectiveQty - 1)}
+            disabled={effectiveQty <= minToAdd}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2]"
             style={{ color: COLORS.text }}
           >
@@ -50,7 +51,7 @@ export function AddToCartButton({ item }: { item: AddCartItem }) {
           <button
             type="button"
             aria-label={t("Augmenter la quantité")}
-            onClick={() => setQty((q) => Math.min(remainingQty, q + 1))}
+            onClick={() => setQty(effectiveQty + 1)}
             disabled={effectiveQty >= remainingQty}
             className="grid h-11 w-11 place-items-center transition hover:bg-[#FAF8F2] disabled:cursor-not-allowed disabled:opacity-40"
             style={{ color: COLORS.text }}

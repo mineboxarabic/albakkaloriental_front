@@ -16,7 +16,7 @@ import { useSession } from "@/components/session-provider";
 import { CartToast } from "@/components/cart-toast";
 import { translate } from "@/lib/translations";
 import { parseLanguage } from "@/lib/language";
-import { MAX_QTY_PER_PRODUCT } from "@/lib/order-rules";
+import { DEFAULT_RETAIL_ORDER_RULES, roundRetailMoney, type RetailOrderRules } from "@/lib/order-rules";
 import {
   NETWORK_ERROR,
   cartClient,
@@ -57,6 +57,7 @@ export type AddCartItem = {
 export type CartMutationResult = { ok: boolean; error?: string };
 
 export type CartContextValue = {
+  retailRules: RetailOrderRules;
   items: CartItem[];
   /** True only until the first server load; mutations never set it. */
   loading: boolean;
@@ -133,9 +134,11 @@ export function CartProvider({
   audience,
   isAuthenticated,
   productNames,
+  retailRules = DEFAULT_RETAIL_ORDER_RULES,
   children,
 }: {
   audience: CartAudience;
+  retailRules?: RetailOrderRules;
   /** Localized product names by id (Arabic); the cart API only sends French. */
   productNames?: Record<string, string>;
   /** Pro audience only: whether a B2B session exists. Pro pages are now public,
@@ -154,7 +157,8 @@ export function CartProvider({
     pathname?.startsWith("/pro/login/");
   const active = isConnected && !isLoginPage;
   const api = useMemo(() => cartClient(audience), [audience]);
-  const maxQty = audience === "retail" ? MAX_QTY_PER_PRODUCT : 999;
+  const maxQty = audience === "retail" ? retailRules.maxQtyPerProduct : 999;
+  const minQty = audience === "retail" ? retailRules.minQtyPerProduct : 1;
 
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -297,20 +301,27 @@ export function CartProvider({
   }, []);
 
   const addItem = useCallback(
-    async (item: AddCartItem, quantity = 1): Promise<CartMutationResult> => {
-      if (quantity <= 0) {
+    async (item: AddCartItem, requestedQuantity?: number): Promise<CartMutationResult> => {
+      if (requestedQuantity !== undefined && requestedQuantity <= 0) {
         return { ok: false, error: t("La quantité doit être positive.") };
       }
       const saleUnit = item.saleUnit ?? "UNIT";
       const existing = itemsRef.current.find(
         (i) => i.productId === item.productId && i.saleUnit === saleUnit,
       );
-      if ((existing?.quantity ?? 0) + quantity > maxQty) {
+      const existingQuantity = existing?.quantity ?? 0;
+      const quantity = requestedQuantity ?? Math.max(1, minQty - existingQuantity);
+      if (existingQuantity + quantity < minQty) {
+        const message = t("Minimum {min} unités par produit.", { min: minQty });
+        reportFailure({ error: message });
+        return { ok: false, error: message };
+      }
+      if (existingQuantity + quantity > maxQty) {
         const message =
           audience === "retail"
             ? t(
                 "Vous ne pouvez pas commander plus de {max} unités du même produit.",
-                { max: MAX_QTY_PER_PRODUCT },
+                { max: maxQty },
               )
             : t(
                 "Vous ne pouvez pas commander plus de 999 unités/cartons du même produit.",
@@ -369,7 +380,7 @@ export function CartProvider({
         return { ok: true };
       });
     },
-    [api, audience, commit, enqueue, maxQty, reportFailure, t],
+    [api, audience, commit, enqueue, maxQty, minQty, reportFailure, t],
   );
 
   const removeItem = useCallback(
@@ -397,8 +408,8 @@ export function CartProvider({
     async (lineId: string, quantity: number): Promise<CartMutationResult> => {
       const line = itemsRef.current.find((i) => i.lineId === lineId);
       if (!line) return { ok: true };
-      const clamped = Math.min(maxQty, Math.max(0, Math.round(quantity)));
-      if (clamped === 0) return removeItem(lineId);
+      if (Math.round(quantity) <= 0) return removeItem(lineId);
+      const clamped = Math.min(maxQty, Math.max(minQty, Math.round(quantity)));
       if (clamped === line.quantity) return { ok: true };
 
       versionRef.current += 1;
@@ -430,7 +441,7 @@ export function CartProvider({
       queuedQtyPromiseRef.current.set(lineKey, promise);
       return promise;
     },
-    [api, commit, enqueue, maxQty, removeItem, reportFailure, serverId],
+    [api, commit, enqueue, maxQty, minQty, removeItem, reportFailure, serverId],
   );
 
   const clearCart = useCallback(async (): Promise<CartMutationResult> => {
@@ -455,9 +466,14 @@ export function CartProvider({
   const dismissNotice = useCallback(() => setNotice(null), []);
 
   const value = useMemo<CartContextValue>(() => {
-    const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+    const subtotal = items.reduce((sum, item) => {
+      const lineTotal = item.unitPrice * item.quantity;
+      return sum + (audience === "retail" ? roundRetailMoney(lineTotal) : lineTotal);
+    }, 0);
+    const total = audience === "retail" ? roundRetailMoney(subtotal) : subtotal;
     const itemCount = items.reduce((s, it) => s + it.quantity, 0);
     return {
+      retailRules,
       items: productNames
         ? items.map((it) => ({
             ...it,
@@ -479,7 +495,7 @@ export function CartProvider({
       openCart,
       closeCart,
     };
-  }, [items, productNames, loading, syncing, error, addItem, updateQty, removeItem, clearCart, refresh, whenSettled, isCartOpen, openCart, closeCart]);
+  }, [audience, retailRules, items, productNames, loading, syncing, error, addItem, updateQty, removeItem, clearCart, refresh, whenSettled, isCartOpen, openCart, closeCart]);
 
   return (
     <CartContext.Provider value={value}>
