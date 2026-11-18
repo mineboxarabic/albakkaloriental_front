@@ -44,6 +44,7 @@ const AR_CATALOG: Record<string, string> = {
   "Le catalogue est temporairement indisponible.": "الكتالوج غير متاح مؤقتاً.",
   "Rechercher un produit...": "ابحث عن منتج...",
   "Rechercher un produit, un SKU...": "ابحث عن منتج أو رمز...",
+  "Produit ou SKU…": "منتج أو رمز…",
   Rechercher: "بحث",
   "Rechercher dans le catalogue": "البحث في الكتالوج",
   "Effacer la recherche": "مسح البحث",

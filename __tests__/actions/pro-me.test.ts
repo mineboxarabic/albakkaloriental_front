@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { backendFetchMock } = vi.hoisted(() => ({ backendFetchMock: vi.fn() }));
+const { backendFetchMock, storeProTokenMock } = vi.hoisted(() => ({
+  backendFetchMock: vi.fn(),
+  storeProTokenMock: vi.fn(),
+}));
+
+vi.mock("@/lib/session", () => ({ storeProToken: storeProTokenMock }));
 
 vi.mock("@/lib/api-client", () => ({
   backendFetch: backendFetchMock,
@@ -11,7 +16,7 @@ vi.mock("@/lib/api-client", () => ({
       this.name = "ApiClientError";
     }
   },
-  handleActionError: async (error: any) => {
+  handleActionError: async (error: { status?: number; message?: string } | undefined) => {
     if (error && error.status === 401) {
       return { ok: false, error: "Unauthorized", isUnauthorized: true };
     }
@@ -89,6 +94,18 @@ describe("changeProPassword", () => {
         body: { currentPassword: "old!1", newPassword: "Brand!New123" },
       }),
     );
+  });
+
+  it("keeps this device signed in with the fresh session the server returns", async () => {
+    storeProTokenMock.mockReset();
+    backendFetchMock.mockResolvedValueOnce({ token: "fresh.token" });
+    const result = await changeProPassword({
+      currentPassword: "old!1",
+      newPassword: "Brand!New123",
+      confirmPassword: "Brand!New123",
+    });
+    expect(result).toMatchObject({ ok: true });
+    expect(storeProTokenMock).toHaveBeenCalledWith("fresh.token");
   });
 
   it("maps 403 to errors.currentPassword", async () => {

@@ -6,7 +6,14 @@ import { changeProPassword } from "@/actions/pro-me";
 import { COLORS } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
 
-export function ProChangePasswordForm() {
+type Props = {
+  /** First login with the temporary password: the form is open and cannot be cancelled. */
+  required?: boolean;
+  /** Called once the new password is saved (instead of folding the form back). */
+  onChanged?: () => void;
+};
+
+export function ProChangePasswordForm({ required = false, onChanged }: Props = {}) {
   const { t } = useLanguage();
   const [pending, startTransition] = useTransition();
   const [rawErrors, setErrors] = useState<Record<string, string>>({});
@@ -14,7 +21,7 @@ export function ProChangePasswordForm() {
     Object.entries(rawErrors).map(([key, message]) => [key, t(message)]),
   );
   const [success, setSuccess] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(required);
   const [values, setValues] = useState({
     currentPassword: "",
     newPassword: "",
@@ -37,6 +44,10 @@ export function ProChangePasswordForm() {
       }
       setSuccess(true);
       setValues({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      if (onChanged) {
+        onChanged();
+        return;
+      }
       setTimeout(() => {
         setOpen(false);
         setSuccess(false);
@@ -69,7 +80,7 @@ export function ProChangePasswordForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <PwField
-        label={t("Mot de passe actuel")}
+        label={required ? t("Mot de passe temporaire") : t("Mot de passe actuel")}
         name="currentPassword"
         value={values.currentPassword}
         onChange={onText("currentPassword")}
@@ -122,6 +133,7 @@ export function ProChangePasswordForm() {
         >
           {pending ? "..." : t("Enregistrer")}
         </button>
+        {!required && (
         <button
           type="button"
           disabled={pending}
@@ -135,6 +147,7 @@ export function ProChangePasswordForm() {
         >
           {t("Annuler")}
         </button>
+        )}
       </div>
     </form>
   );

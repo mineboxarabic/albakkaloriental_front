@@ -12,16 +12,22 @@ function secret(): Uint8Array | null {
 // A valid pro session is simply a signature-valid b2b token in the b2b_session
 // cookie. The portal is the cookie itself; the token carries no role. We sanity
 // check the b2b shape (sub + email) to reject a retail token placed in this cookie.
-async function isPro(token: string): Promise<boolean> {
+type ProSession = { mustChangePassword: boolean };
+
+async function readProSession(token: string): Promise<ProSession | null> {
   const key = secret();
-  if (!key) return false;
+  if (!key) return null;
   try {
     const { payload } = await jwtVerify(token, key);
-    return typeof payload.sub === "string" && typeof payload.email === "string";
+    if (typeof payload.sub !== "string" || typeof payload.email !== "string") return null;
+    return { mustChangePassword: payload.mustChangePassword === true };
   } catch {
-    return false;
+    return null;
   }
 }
+
+/** Where a client still using the temporary password an admin gave them must go first. */
+const CHANGE_PASSWORD_PATH = "/pro/change-password";
 
 // Public pro routes: browsing the wholesale catalog needs no login.
 // Prices are stripped server-side for anonymous visitors; everything else
@@ -37,15 +43,25 @@ function isPublicProPath(pathname: string): boolean {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const token = req.cookies.get(PRO_COOKIE)?.value;
+  const session = token ? await readProSession(token) : null;
+
+  if (
+    session?.mustChangePassword &&
+    pathname !== CHANGE_PASSWORD_PATH &&
+    !pathname.startsWith("/pro/login")
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = CHANGE_PASSWORD_PATH;
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   if (isPublicProPath(pathname)) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get(PRO_COOKIE)?.value;
-  const allowed = token ? await isPro(token) : false;
-
-  if (!allowed) {
+  if (!session) {
     const url = req.nextUrl.clone();
     url.pathname = "/pro/login";
     if (pathname && pathname !== "/pro") {
