@@ -139,11 +139,22 @@ describe("ProProductCard price source", () => {
     expect(screen.getAllByText(/1,40 €/).length).toBeGreaterThan(0);
   });
 
-  it("shows En rupture and disables both quick-add options when the price is zero", () => {
-    render(<ProProductCard product={makeProduct({ effectivePrice: 0 })} />);
+  it("keeps En rupture for an out-of-stock product without a price", () => {
+    render(<ProProductCard product={makeProduct({ effectivePrice: 0, isOutOfStock: true })} />);
     expect(screen.queryByText(/0,00 €/)).not.toBeInTheDocument();
-    expect(screen.getAllByText("En rupture").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByRole("button", { name: "En rupture" }).every((button) => (button as HTMLButtonElement).disabled)).toBe(true);
+    expect(screen.getAllByText("En rupture").length).toBeGreaterThanOrEqual(1);
     expect(addItemMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProProductCard without a price", () => {
+  it("shows 'Prix sur demande' instead of 0,00 € and offers no add button", () => {
+    render(<ProProductCard product={makeProduct({ effectivePrice: 0, sellingPrice: 0 })} />);
+
+    // Pack and unit rows both say it, and neither offers an add button.
+    expect(screen.getAllByText(/prix sur demande/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByRole("button", { name: /ajouter un carton au devis/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ajouter une unité au devis/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/0,00/)).not.toBeInTheDocument();
   });
 });

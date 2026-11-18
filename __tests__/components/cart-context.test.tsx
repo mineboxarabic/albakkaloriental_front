@@ -244,3 +244,17 @@ describe("CartProvider", () => {
     expect(settled).toBe(true);
   });
 });
+
+describe("mergeServerItems VAT", () => {
+  it("keeps each product's VAT rate from the server", async () => {
+    const { mergeServerItems } = await import("@/components/cart-context");
+    const merged = mergeServerItems([], [{
+      id: "l1", productId: "p1", quantity: 2, saleUnit: "PACK",
+      product: {
+        name: "Dattes", sku: "D", category: "", imageUrl: null, unitsPerPack: 30, baseUnit: "PIECE",
+        sellingPrice: 1.65, unitSellingPrice: null, effectivePrice: 49.5, taxRate: 5.5,
+      },
+    }]);
+    expect(merged[0].taxRate).toBe(5.5);
+  });
+});

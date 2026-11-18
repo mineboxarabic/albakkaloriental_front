@@ -1,7 +1,9 @@
 "use server";
 
+import type { OrderTotals } from "@/lib/order-totals";
 import { z } from "zod";
 import { ApiClientError, backendFetch, handleActionError } from "@/lib/api-client";
+import { storeProToken } from "@/lib/session";
 import type { ProOrderAttachment } from "@/lib/order-attachments";
 
 export type ProMe = {
@@ -51,10 +53,14 @@ export type ProOrderSummary = {
   billingState: "UNINVOICED" | "INVOICED";
   invoiceCount: number;
   _count: { items: number };
+  /** HT / VAT / TTC built by Alim Express with each line's VAT rate. Absent on older backends. */
+  totals?: OrderTotals;
 };
 
 export type ProOrderDetail = ProOrderSummary & {
   updatedAt: string;
+  /** The note the client wrote in the cart when ordering. */
+  notes?: string | null;
   canEdit?: boolean;
   billing: {
     state: "UNINVOICED" | "INVOICED";
@@ -119,6 +125,7 @@ const updateProProfileSchema = z.object({
     .string()
     .trim()
     .min(8, "Téléphone trop court.")
+    .max(20, "Téléphone trop long (20 caractères maximum).")
     .regex(/^[0-9 +().-]+$/, "Téléphone invalide.")
     .optional(),
   mobilePhone: z
@@ -131,7 +138,7 @@ const updateProProfileSchema = z.object({
 export type UpdateProProfileInput = z.infer<typeof updateProProfileSchema>;
 export type UpdateProProfileResult =
   | { ok: true }
-  | { ok: false; errors: Record<string, string> };
+  | { ok: false; errors: Record<string, string>; isUnauthorized?: boolean };
 
 export async function updateProProfile(
   input: UpdateProProfileInput,
@@ -154,7 +161,7 @@ export async function updateProProfile(
     return { ok: true };
   } catch (error) {
     if (error instanceof ApiClientError) {
-      return { ok: false, errors: { form: error.message }, isUnauthorized: error.status === 401 } as any;
+      return { ok: false, errors: { form: error.message }, isUnauthorized: error.status === 401 };
     }
     return { ok: false, errors: { form: "Mise à jour impossible pour le moment." } };
   }
@@ -177,7 +184,7 @@ const changeProPasswordSchema = z
 export type ChangeProPasswordInput = z.infer<typeof changeProPasswordSchema>;
 export type ChangeProPasswordResult =
   | { ok: true }
-  | { ok: false; errors: Record<string, string> };
+  | { ok: false; errors: Record<string, string>; isUnauthorized?: boolean };
 
 export async function changeProPassword(
   input: ChangeProPasswordInput,
@@ -192,7 +199,7 @@ export async function changeProPassword(
     return { ok: false, errors };
   }
   try {
-    await backendFetch("/api/v1/b2b/auth/change-password", {
+    const result = await backendFetch<{ token?: string }>("/api/v1/b2b/auth/change-password", {
       method: "POST",
       auth: "required",
       body: {
@@ -200,13 +207,16 @@ export async function changeProPassword(
         newPassword: parsed.data.newPassword,
       },
     });
+    // Changing the password ends every older session, this one included: keep
+    // this device signed in with the fresh session the server returns.
+    if (result?.token) await storeProToken(result.token);
     return { ok: true };
   } catch (error) {
     if (error instanceof ApiClientError) {
       const errors: Record<string, string> = {};
       if (error.status === 403) errors.currentPassword = error.message;
       else errors.form = error.message;
-      return { ok: false, errors, isUnauthorized: error.status === 401 } as any;
+      return { ok: false, errors, isUnauthorized: error.status === 401 };
     }
     return {
       ok: false,

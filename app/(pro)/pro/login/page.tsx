@@ -150,12 +150,6 @@ export default async function ProLoginPage({
                 <ProLoginForm redirectTo={redirectTo} />
               </div>
 
-              <div
-                className="mt-6 border-t pt-4 text-[11.5px]"
-                style={{ borderColor: COLORS.border, color: COLORS.muted }}
-              >
-                {t("Mot de passe oublié ? Contactez votre interlocuteur commercial.")}
-              </div>
             </div>
           </section>
         </div>

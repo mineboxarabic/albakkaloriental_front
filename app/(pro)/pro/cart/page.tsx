@@ -13,16 +13,15 @@ import {
 import { useCart } from "@/components/cart-context";
 import { checkoutPro } from "@/actions/pro-order";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
+import { summarizeLines } from "@/lib/order-totals";
 import { COLORS, DISPLAY_FONT, productImage } from "@/lib/ui";
 import { useLanguage } from "@/components/language-provider";
 import { QuantityStepper } from "@/components/quantity-stepper";
 import { ProCartLinesSkeleton } from "@/components/pro/pro-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const TAX_RATE = 20;
-
 export default function ProCartPage() {
-  const { items, loading, updateQty, removeItem, clearCart, whenSettled, total, itemCount } =
+  const { items, loading, updateQty, removeItem, clearCart, whenSettled, total, itemCount, refresh } =
     useCart();
   const router = useRouter();
   const { t, isRtl } = useLanguage();
@@ -31,9 +30,9 @@ export default function ProCartPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
-  const totalHT = total;
-  const totalTVA = Number((total * (TAX_RATE / 100)).toFixed(2));
-  const totalTTC = Number((total + totalTVA).toFixed(2));
+  // Each product has its own VAT rate (5,5 % for most food): never one rate for the whole cart.
+  const totals = summarizeLines(items);
+  const totalHT = totals?.subtotalHt ?? total;
 
   const onGenerate = () => {
     setError(null);
@@ -47,6 +46,8 @@ export default function ProCartPage() {
       const res = await checkoutPro({ notes: notes || undefined });
       if (!res.ok) {
         setError(t(res.error));
+        // The cart may have changed in another tab (e.g. already ordered): show what is really in it.
+        void refresh();
         return;
       }
       clearCart();
@@ -324,8 +325,8 @@ export default function ProCartPage() {
               <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
                 <Row label={t("Sous-total HT")} value={formatPriceEUR(totalHT)} />
                 <Row
-                  label={t("TVA {rate}%", { rate: TAX_RATE })}
-                  value={formatPriceEUR(totalTVA)}
+                  label={t("TVA")}
+                  value={totals ? formatPriceEUR(totals.tax) : t("calculée sur le devis")}
                 />
               </dl>
 
@@ -334,13 +335,13 @@ export default function ProCartPage() {
                 style={{ borderColor: COLORS.border }}
               >
                 <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-                  {t("Total TTC")}
+                  {totals ? t("Total TTC") : t("Total HT")}
                 </span>
                 <span
                   className="text-[22px] font-extrabold"
                   style={{ color: COLORS.primary }}
                 >
-                  {formatPriceEUR(totalTTC)}
+                  {formatPriceEUR(totals ? totals.totalTtc : totalHT)}
                 </span>
               </div>
 

@@ -51,6 +51,10 @@ export function AddToProCartButton({
   const { addItem, items } = useCart();
   const { t, language } = useLanguage();
   const confirmTimer = useRef<number | null>(null);
+  // A double-click must not add the line twice: ignore clicks while one is in flight.
+  const adding = useRef(false);
+  // A product without a price (0 €) cannot be ordered; staff have to price it first.
+  const hasPrice = pricing.effectivePrice > 0;
   useEffect(
     () => () => {
       if (confirmTimer.current !== null) window.clearTimeout(confirmTimer.current);
@@ -146,6 +150,20 @@ export function AddToProCartButton({
         </div>
       )}
 
+      {!hasPrice ? (
+        <div
+          className="flex flex-col gap-1 rounded-sm border px-4 py-3"
+          style={{ borderColor: COLORS.border, background: "#FAF8F2" }}
+        >
+          <span className="text-[15px] font-extrabold" style={{ color: COLORS.text }}>
+            <TranslatedText value={"Prix sur demande"} />
+          </span>
+          <span className="text-[12px]" style={{ color: COLORS.muted }}>
+            <TranslatedText value={"Contactez-nous pour commander ce produit."} />
+          </span>
+        </div>
+      ) : (
+      <>
       <div className="flex items-center justify-between gap-3">
         <div className="leading-tight">
           <div
@@ -196,7 +214,10 @@ export function AddToProCartButton({
         </span>
       </div>
 
-      {isOutOfStock ? (
+      </>
+      )}
+
+      {!hasPrice ? null : isOutOfStock ? (
         <div
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white"
           style={{ background: "#999" }}
@@ -207,26 +228,32 @@ export function AddToProCartButton({
         <button
           type="button"
           onClick={async () => {
+            if (adding.current) return;
+            adding.current = true;
             setError(null);
             // The cart shows the line straight away, so confirm straight away;
             // a refusal from the server takes the confirmation back.
             setConfirmed(true);
             if (confirmTimer.current !== null) window.clearTimeout(confirmTimer.current);
             confirmTimer.current = window.setTimeout(() => setConfirmed(false), 1400);
-            const res = await addItem(
-              {
-                productId,
-                name,
-                imageUrl,
-                unitPrice,
-                saleUnit,
-                unitsPerPack,
-              },
-              qty,
-            );
-            if (!res.ok) {
-              setConfirmed(false);
-              setError(t(res.error || "Une erreur est survenue."));
+            try {
+              const res = await addItem(
+                {
+                  productId,
+                  name,
+                  imageUrl,
+                  unitPrice,
+                  saleUnit,
+                  unitsPerPack,
+                },
+                qty,
+              );
+              if (!res.ok) {
+                setConfirmed(false);
+                setError(t(res.error || "Une erreur est survenue."));
+              }
+            } finally {
+              adding.current = false;
             }
           }}
           className="grid h-12 place-items-center rounded-sm text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-md transition active:scale-[0.98]"
@@ -261,7 +288,7 @@ export function AddToProCartButton({
           style={{ color: COLORS.muted }}
         >
           <span>
-            {t("Déjà dans votre devis :")}{" "}
+            {t("Dans votre devis :")}{" "}
             <strong className="font-semibold" style={{ color: COLORS.text }}>
               {inQuoteLabel}
             </strong>

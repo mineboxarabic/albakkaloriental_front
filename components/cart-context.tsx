@@ -43,6 +43,8 @@ export type CartItem = {
   imageUrl?: string | null;
   saleUnit: CartSaleUnit;
   unitsPerPack?: number;
+  /** VAT rate in percent; unknown until the server has sent the line back. */
+  taxRate?: number;
 };
 
 export type AddCartItem = {
@@ -109,6 +111,7 @@ function mapItem(it: CartItemDTO): Omit<CartItem, "key"> {
     unitPrice: it.product?.effectivePrice ?? 0,
     imageUrl: it.product?.imageUrl ?? null,
     unitsPerPack: it.product?.unitsPerPack,
+    taxRate: it.product?.taxRate,
   };
 }
 

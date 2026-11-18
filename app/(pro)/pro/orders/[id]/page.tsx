@@ -13,6 +13,7 @@ import {
 import { getProOrderById } from "@/actions/pro-me";
 import { COLORS, DISPLAY_FONT } from "@/lib/ui";
 import { formatPriceEUR } from "@/lib/catalog-pricing";
+import { summarizeLines } from "@/lib/order-totals";
 import { ProOrderEditor } from "./pro-order-editor";
 import { ProOrderBillingCard } from "./pro-order-billing-card";
 import { getTranslator } from "@/lib/server-language";
@@ -75,9 +76,6 @@ const STATUS_FALLBACK = {
   description: "Statut non reconnu, contactez le support.",
 } satisfies (typeof STATUS_META)[string];
 
-
-const TAX_RATE = 20;
-
 type Params = Promise<{ id: string }>;
 
 export default async function ProOrderDetailPage({ params }: { params: Params }) {
@@ -92,8 +90,13 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
   const Icon = meta.icon;
   // TVA is informational only; invoicing/payment is tracked per invoice via
   // order.billing, never split back onto the order (see ProOrderBillingCard).
-  const total = order.totalAmount;
-  const tva = Number((total * (TAX_RATE / 100)).toFixed(2));
+  // Each line has its own VAT rate (5,5 % for most food), so the totals are
+  // built from the lines; order.totalAmount of older orders has no VAT in it.
+  const totals = order.totals ?? summarizeLines(order.items) ?? {
+    subtotalHt: order.totalAmount,
+    tax: 0,
+    totalTtc: order.totalAmount,
+  };
   const { t, language } = await getTranslator();
   const productNames = await getLocalizedProductNames("pro", language);
   const longDate = (d: string | Date) =>
@@ -210,6 +213,7 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
             saleUnit: item.saleUnit,
             packSize: item.editablePackSize ?? 1,
             unitPrice: item.unitPrice,
+            discount: item.discount,
             totalPrice: item.totalPrice,
           }))}
         >
@@ -221,23 +225,31 @@ export default async function ProOrderDetailPage({ params }: { params: Params })
               {t("RÉCAPITULATIF")}
             </div>
             <dl className="mt-4 space-y-2 text-[13px]" style={{ color: COLORS.text }}>
-              <Row label={t("Sous-total HT")} value={formatPriceEUR(total)} />
-              <Row
-                label={t("dont TVA {rate}%", { rate: TAX_RATE })}
-                value={formatPriceEUR(tva)}
-              />
+              <Row label={t("Sous-total HT")} value={formatPriceEUR(totals.subtotalHt)} />
+              <Row label={t("TVA")} value={formatPriceEUR(totals.tax)} />
             </dl>
             <div
               className="mt-4 flex items-center justify-between border-t pt-4"
               style={{ borderColor: COLORS.border }}
             >
               <span className="text-[14px] font-bold" style={{ color: COLORS.text }}>
-                {t("Total")}
+                {t("Total TTC")}
               </span>
               <span className="text-[22px] font-extrabold" style={{ color: COLORS.primary }}>
-                {formatPriceEUR(total)}
+                {formatPriceEUR(totals.totalTtc)}
               </span>
             </div>
+            {order.notes && (
+              <div
+                className="mt-5 rounded-sm border px-3 py-2 text-[12px]"
+                style={{ borderColor: COLORS.border, color: COLORS.text }}
+              >
+                <div className="font-bold" style={{ color: COLORS.muted }}>
+                  {t("Votre note")}
+                </div>
+                <p className="mt-1 whitespace-pre-line break-words">{order.notes}</p>
+              </div>
+            )}
             {order.deliveryCity && (
               <div
                 className="mt-5 rounded-sm border-s-2 px-3 py-2 text-[11.5px]"

@@ -10,7 +10,8 @@ import { useCatalogNavigation } from "@/components/catalog-transition";
 const DEBOUNCE_MS = 250;
 
 export function CatalogSearchInput({
-  placeholder = "Rechercher un produit, un SKU...",
+  // Short enough to stay readable in the narrow phone search box ("Rechercher u…" was cut).
+  placeholder = "Produit ou SKU…",
   className = "",
   variant = "light",
 }: {
