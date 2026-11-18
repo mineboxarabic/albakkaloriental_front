@@ -175,10 +175,11 @@ function SaleUnitRow({
           className="ltr-isolate truncate text-[15px] font-extrabold"
           style={{ color: purchasable ? (emphasis ? COLORS.primary : COLORS.text) : COLORS.muted }}
         >
-          {price > 0 ? formatPriceEUR(price) : t("En rupture")}
+          {price > 0 ? formatPriceEUR(price) : isOutOfStock ? t("En rupture") : t("Prix sur demande")}
         </div>
       </div>
-      {!isOutOfStock && plusButton}
+      {/* No price yet (0 €): nothing to add until staff price the product. */}
+      {!isOutOfStock && price > 0 && plusButton}
     </div>
   );
 }

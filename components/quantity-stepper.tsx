@@ -39,9 +39,13 @@ export function QuantityStepper({
   const atMin = value <= min;
   const showRemove = Boolean(removeLabel) && atMin;
 
+  // Quantities are whole cartons or pieces. A typed "1.5" or "1,5" keeps its
+  // separator while typing (so it is not read as 15) and only "1" is applied.
+  const hasDecimal = draft !== null && /[.,]/.test(draft);
+
   const commit = () => {
     if (draft === null) return;
-    const parsed = Number.parseInt(draft, 10);
+    const parsed = Number.parseInt(draft.split(/[.,]/)[0], 10);
     setDraft(null);
     if (!Number.isFinite(parsed)) return;
     const next = Math.min(max, Math.max(removeLabel ? 0 : min, parsed));
@@ -74,7 +78,7 @@ export function QuantityStepper({
         aria-label={inputLabel}
         value={draft ?? String(value)}
         onFocus={(e) => e.currentTarget.select()}
-        onChange={(e) => setDraft(e.currentTarget.value.replace(/\D/g, "").slice(0, 3))}
+        onChange={(e) => setDraft(sanitizeQuantityDraft(e.currentTarget.value))}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === "Enter") e.currentTarget.blur();
@@ -96,6 +100,18 @@ export function QuantityStepper({
       >
         <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
       </button>
+      {hasDecimal && (
+        <span role="status" className="sr-only">
+          Quantité entière uniquement
+        </span>
+      )}
     </div>
   );
+}
+
+/** Digits (3 at most) plus the first decimal separator, which is dropped on commit. */
+function sanitizeQuantityDraft(raw: string): string {
+  const [whole, ...rest] = raw.replace(/[^\d.,]/g, "").split(/([.,])/);
+  const digits = whole.slice(0, 3);
+  return rest.length > 0 ? `${digits}${rest[0]}${rest.slice(1).join("").replace(/\D/g, "")}` : digits;
 }
