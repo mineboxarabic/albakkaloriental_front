@@ -149,7 +149,7 @@ export default async function ProOrdersPage() {
             <div className="col-span-2">{t("DATE")}</div>
             <div className="col-span-2 text-center">{t("ARTICLES")}</div>
             <div className="col-span-3">{t("STATUT")}</div>
-            <div className="col-span-2 text-end">{t("TOTAL HT")}</div>
+            <div className="col-span-2 text-end">{t("TOTAL TTC")}</div>
           </div>
 
           <ul>
@@ -192,7 +192,7 @@ export default async function ProOrdersPage() {
                           className="text-[16px] font-extrabold"
                           style={{ color: COLORS.text }}
                         >
-                          {formatPriceEUR(o.totalAmount)}
+                          {formatPriceEUR(o.totals?.totalTtc ?? o.totalAmount)}
                         </span>
                       </div>
                       <span
@@ -237,7 +237,7 @@ export default async function ProOrdersPage() {
                           className="text-[15px] font-extrabold"
                           style={{ color: COLORS.text }}
                         >
-                          {formatPriceEUR(o.totalAmount)}
+                          {formatPriceEUR(o.totals?.totalTtc ?? o.totalAmount)}
                         </span>
                         <ChevronRight className="h-3.5 w-3.5" style={{ color: COLORS.muted }} />
                       </div>

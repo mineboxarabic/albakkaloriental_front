@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiClientError, backendFetch, handleActionError } from "@/lib/api-client";
+import { backendFetch, handleActionError } from "@/lib/api-client";
 
 export type CartItemDTO = {
   id: string;
@@ -17,6 +17,8 @@ export type CartItemDTO = {
     sellingPrice: number;
     unitSellingPrice: number | null;
     effectivePrice: number;
+    /** VAT rate in percent (sent by Alim Express for each product). */
+    taxRate?: number;
   };
 };
 
